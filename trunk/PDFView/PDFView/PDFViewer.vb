@@ -15,6 +15,11 @@ Public Class PDFViewer
     Private mAllPages As Boolean
     Private mBookmarks As ArrayList
     Private mAllowBookmarks As Boolean
+    Private mUseXPDF As Boolean
+    Private mPDFDoc As AFPDFLibNET.AFPDFDoc
+    Private FromBeginning As Boolean = True
+    Private XPDFPrintingPicBox As New PictureBox
+
 
 
     Public Property FileName() As String
@@ -27,10 +32,22 @@ Public Class PDFViewer
             End If
             mOriginalFileName = value
             ImageUtil.DeleteFile(mTempPDFTiffFile)
-            If Regex.IsMatch(value, "\.pdf$", RegexOptions.IgnoreCase) Then
-                If mAllPages = True Then
-                    value = ConvertPDF.PDFConvert.ConvertPdfToTiff(value, 0)
-                    mTempPDFTiffFile = value
+            If ImageUtil.IsPDF(value) Then
+                If mUseXPDF Then
+                    Try
+                        mPDFDoc = New AFPDFLibNET.AFPDFDoc()
+                        mPDFDoc.LoadFromFile(value)
+                    Catch ex As Exception
+                        MsgBox("AFPDFLib.dll must be registered to COM" _
+                        & vbCrLf & "Please run Command Prompt as an Administrator and type:" _
+                        & vbCrLf & "regsvr32 AFPDFLib.dll")
+                    End Try
+                Else
+                    If mAllPages = True Then
+                        value = ConvertPDF.PDFConvert.ConvertPdfToTiff(value, 0)
+                        mTempPDFTiffFile = value
+                    End If
+                    tsBottom.Visible = False
                 End If
                 mPDFFileName = value
                 Cursor.Current = Cursors.WaitCursor
@@ -57,6 +74,18 @@ LoadError:
         End Get
         Set(ByVal value As Boolean)
             mAllPages = value
+        End Set
+    End Property
+
+    Public Property UseXPDF() As Boolean
+        Get
+            Return mUseXPDF
+        End Get
+        Set(ByVal value As Boolean)
+            mUseXPDF = value
+            If mUseXPDF Then
+                mAllPages = False
+            End If
         End Set
     End Property
 
@@ -156,15 +185,13 @@ LoadError:
         End Select
     End Sub
 
-    Private Sub TreeView1_NodeMouseClick1(ByVal sender As Object, ByVal e As System.Windows.Forms.TreeNodeMouseClickEventArgs) Handles TreeView1.NodeMouseClick
-        If e.Node.ImageKey <> "" Then
-            mCurrentPageNumber = e.Node.ImageKey
-            DisplayCurrentPage()
-        End If
-    End Sub
-
     Private Sub tsPrint_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsPrint.Click
-        PrinterUtil.PrintPDFImagesToPrinter(mOriginalFileName)
+        'AFPDFLib currently renders with anti-aliasing enabled which makes printed edges look slightly fuzzy
+        If mUseXPDF Then
+            AFPDFLibUtil.PrintPDFImagesToPrinter(mPDFDoc, XPDFPrintingPicBox)
+        Else
+            PrinterUtil.PrintPDFImagesToPrinter(mOriginalFileName)
+        End If
     End Sub
 
     Private Sub tsRotateCC_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsRotateCC.Click
@@ -217,13 +244,19 @@ LoadError:
         If mPDFFrameFileName <> "" Then
             ImageUtil.DeleteFile(mPDFFrameFileName)
         End If
-        If ImageUtil.IsPDF(sFileName) Then 'convert one frame to a tiff for viewing
-            mPDFFrameFileName = ConvertPDF.PDFConvert.ConvertPdfToTiff(sFileName, iFrameNumber + 1)
-            sFileName = mPDFFrameFileName
-            oPictureBox.Image = ImageUtil.GetFrameFromTiff2(sFileName, 0)
-            ImageUtil.DeleteFile(sFileName)
-        ElseIf ImageUtil.IsTiff(sFileName) Then
-            oPictureBox.Image = ImageUtil.GetFrameFromTiff2(sFileName, iFrameNumber)
+        If mUseXPDF Then 'Use AFPDFLib (XPDF)
+            If ImageUtil.IsPDF(sFileName) Then
+                AFPDFLibUtil.DrawImageFromPDF(mPDFDoc, iFrameNumber + 1, oPictureBox)
+            End If
+        Else 'Use Ghostscript
+            If ImageUtil.IsPDF(sFileName) Then 'convert one frame to a tiff for viewing
+                mPDFFrameFileName = ConvertPDF.PDFConvert.ConvertPdfToTiff(sFileName, iFrameNumber + 1)
+                sFileName = mPDFFrameFileName
+                oPictureBox.Image = ImageUtil.GetFrameFromTiff2(sFileName, 0)
+                ImageUtil.DeleteFile(sFileName)
+            ElseIf ImageUtil.IsTiff(sFileName) Then
+                oPictureBox.Image = ImageUtil.GetFrameFromTiff2(sFileName, iFrameNumber)
+            End If
         End If
         oPictureBox.Update()
         Cursor.Current = Cursors.Default
@@ -238,7 +271,14 @@ LoadError:
         TreeView1.Nodes.Clear()
         Dim HasBookmarks As Boolean = False
         Try
-            HasBookmarks = iTextSharpUtil.BuildBookmarkTreeFromPDF(mOriginalFileName, TreeView1.Nodes)
+            If mUseXPDF Then
+                HasBookmarks = AFPDFLibUtil.LoadBookmarks(TreeView1, mPDFDoc)
+                AddHandler TreeView1.BeforeExpand, AddressOf AFPDFLib_BeforeExpand
+                AddHandler TreeView1.NodeMouseClick, AddressOf AFPDFLib_NodeMouseClick
+            Else
+                HasBookmarks = iTextSharpUtil.BuildBookmarkTreeFromPDF(mOriginalFileName, TreeView1.Nodes)
+                AddHandler TreeView1.NodeMouseClick, AddressOf ItextSharp_NodeMouseClick
+            End If
         Catch ex As Exception
             'Some bookmark structures do not parse from XML yet.
             'TODO
@@ -297,6 +337,96 @@ LoadError:
             TrapKey = True
         End If
     End Function
+
+#End Region
+
+#Region "XPDF specific events"
+
+    Private Sub AFPDFLib_NodeMouseClick(ByVal sender As Object, ByVal e As TreeNodeMouseClickEventArgs)
+        Dim ol As PDFOutline = DirectCast(e.Node.Tag, PDFOutline)
+        If ol IsNot Nothing Then
+            mPDFDoc.ProcessLinkAction(ol.Item.LinkAction)
+            mCurrentPageNumber = mPDFDoc.CurrentPage
+            DisplayCurrentPage()
+        End If
+    End Sub
+
+    Private Sub AFPDFLib_BeforeExpand(ByVal sender As Object, ByVal e As TreeViewCancelEventArgs)
+        Dim ol As PDFOutline = DirectCast(e.Node.Tag, PDFOutline)
+        If ol IsNot Nothing Then
+            ol.LoadChildren()
+            If e.Node.Nodes.Count > 0 AndAlso e.Node.Nodes(0).Text = "dummy" Then
+                e.Node.Nodes.Clear()
+                For Each col As PDFOutline In ol.Children
+                    Dim tn As New TreeNode(col.Title)
+                    tn.Tag = col
+                    If col.Item.KidsCount > 0 Then
+                        tn.Nodes.Add(New TreeNode("dummy"))
+                    End If
+                    e.Node.Nodes.Add(tn)
+                Next
+            End If
+        End If
+    End Sub
+
+    Private Sub btSearch_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btSearch.Click
+        Dim res As Integer = 0
+        Dim searchArgs As New SearchArgs(tbSearchText.Text, True, False, True, False, False)
+        res = SearchCallBack(sender, searchArgs)
+    End Sub
+
+    Private Sub btNext_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btNext.Click
+        Dim res As Integer = 0
+        res = SearchCallBack(sender, New SearchArgs(tbSearchText.Text, FromBeginning, False, True, True, False))
+        FromBeginning = False
+        If res = 0 Then
+            If MessageBox.Show("No results were found. Would you like to start from the beginning?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+                FromBeginning = True
+                btNext_Click(Nothing, Nothing)
+            End If
+        End If
+    End Sub
+
+    Private Function SearchCallBack(ByVal sender As Object, ByVal e As SearchArgs) As Integer
+        Cursor.Current = Cursors.WaitCursor
+        Dim lFound As Integer = 0
+        If mPDFDoc IsNot Nothing Then
+            mPDFDoc.SearchCaseSensitive = e.Exact
+
+            If e.FromBegin Then
+                mPDFDoc.SearchCaseSensitive = False
+                lFound = mPDFDoc.FindFirst(e.Text, CInt((If(e.WholeDoc, AFPDFLibNET.PDFSearchOrder.PDFSearchFromdBegin, AFPDFLibNET.PDFSearchOrder.PDFSearchFromCurrent))), e.Up)
+            ElseIf e.FindNext Then
+                If e.Up Then
+                    lFound = mPDFDoc.FindPrior(e.Text)
+                Else
+                    lFound = mPDFDoc.FindNext(e.Text)
+                End If
+            Else
+                mPDFDoc.SearchCaseSensitive = False
+                lFound = mPDFDoc.FindText(e.Text, mPDFDoc.CurrentPage, (If(e.WholeDoc, AFPDFLibNET.PDFSearchOrder.PDFSearchFromdBegin, AFPDFLibNET.PDFSearchOrder.PDFSearchFromCurrent)), e.Exact, e.Up, True, _
+                 e.WholeDoc)
+            End If
+            lFound = 1
+            mPDFDoc.CurrentPage = mPDFDoc.SearchPage
+            mCurrentPageNumber = mPDFDoc.CurrentPage
+            DisplayCurrentPage()
+            mPDFDoc.SearchPage = mPDFDoc.CurrentPage
+        End If
+        Return lFound
+        Cursor.Current = Cursors.Default
+    End Function
+
+#End Region
+
+#Region "ITextSharp specific events"
+
+    Private Sub ItextSharp_NodeMouseClick(ByVal sender As Object, ByVal e As TreeNodeMouseClickEventArgs)
+        If e.Node.ImageKey <> "" Then
+            mCurrentPageNumber = e.Node.ImageKey
+            DisplayCurrentPage()
+        End If
+    End Sub
 
 #End Region
 

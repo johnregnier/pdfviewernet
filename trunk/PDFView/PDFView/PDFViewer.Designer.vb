@@ -24,6 +24,8 @@ Partial Class PDFViewer
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(PDFViewer))
         Me.ToolStrip1 = New System.Windows.Forms.ToolStrip
+        Me.tsPrint = New System.Windows.Forms.ToolStripButton
+        Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator
         Me.tsPageLabel = New System.Windows.Forms.ToolStripLabel
         Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator
         Me.tsPrevious = New System.Windows.Forms.ToolStripButton
@@ -34,24 +36,23 @@ Partial Class PDFViewer
         Me.ToolStripSeparator3 = New System.Windows.Forms.ToolStripSeparator
         Me.tsZoomOut = New System.Windows.Forms.ToolStripButton
         Me.tsZoomIn = New System.Windows.Forms.ToolStripButton
+        Me.tsRotateCC = New System.Windows.Forms.ToolStripButton
+        Me.tsRotateC = New System.Windows.Forms.ToolStripButton
         Me.ToolStripLabel3 = New System.Windows.Forms.ToolStripLabel
         Me.tscbZoom = New System.Windows.Forms.ToolStripComboBox
-        Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator
-        Me.tsPrint = New System.Windows.Forms.ToolStripButton
-        Me.StatusStrip1 = New System.Windows.Forms.StatusStrip
-        Me.ToolStripStatusLabel1 = New System.Windows.Forms.ToolStripStatusLabel
-        Me.ToolStripStatusLabel3 = New System.Windows.Forms.ToolStripStatusLabel
         Me.PictureBox1 = New System.Windows.Forms.PictureBox
         Me.Panel1 = New System.Windows.Forms.Panel
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel
         Me.TreeView1 = New System.Windows.Forms.TreeView
-        Me.tsRotateCC = New System.Windows.Forms.ToolStripButton
-        Me.tsRotateC = New System.Windows.Forms.ToolStripButton
+        Me.tsBottom = New System.Windows.Forms.ToolStrip
+        Me.tbSearchText = New System.Windows.Forms.ToolStripTextBox
+        Me.btSearch = New System.Windows.Forms.ToolStripButton
+        Me.btNext = New System.Windows.Forms.ToolStripButton
         Me.ToolStrip1.SuspendLayout()
-        Me.StatusStrip1.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Panel1.SuspendLayout()
         Me.TableLayoutPanel1.SuspendLayout()
+        Me.tsBottom.SuspendLayout()
         Me.SuspendLayout()
         '
         'ToolStrip1
@@ -62,6 +63,21 @@ Partial Class PDFViewer
         Me.ToolStrip1.Size = New System.Drawing.Size(543, 25)
         Me.ToolStrip1.TabIndex = 0
         Me.ToolStrip1.Text = "ToolStrip1"
+        '
+        'tsPrint
+        '
+        Me.tsPrint.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.tsPrint.Image = CType(resources.GetObject("tsPrint.Image"), System.Drawing.Image)
+        Me.tsPrint.ImageTransparentColor = System.Drawing.Color.Black
+        Me.tsPrint.Name = "tsPrint"
+        Me.tsPrint.Size = New System.Drawing.Size(23, 22)
+        Me.tsPrint.Text = "ToolStripButton1"
+        Me.tsPrint.ToolTipText = "Print"
+        '
+        'ToolStripSeparator4
+        '
+        Me.ToolStripSeparator4.Name = "ToolStripSeparator4"
+        Me.ToolStripSeparator4.Size = New System.Drawing.Size(6, 25)
         '
         'tsPageLabel
         '
@@ -135,94 +151,6 @@ Partial Class PDFViewer
         Me.tsZoomIn.Text = "ToolStripButton4"
         Me.tsZoomIn.ToolTipText = "Zoom In"
         '
-        'ToolStripLabel3
-        '
-        Me.ToolStripLabel3.Name = "ToolStripLabel3"
-        Me.ToolStripLabel3.Size = New System.Drawing.Size(10, 22)
-        Me.ToolStripLabel3.Text = " "
-        '
-        'tscbZoom
-        '
-        Me.tscbZoom.Items.AddRange(New Object() {"Fit To Screen", "Fit To Width", "Actual Size"})
-        Me.tscbZoom.Name = "tscbZoom"
-        Me.tscbZoom.Size = New System.Drawing.Size(100, 25)
-        '
-        'ToolStripSeparator4
-        '
-        Me.ToolStripSeparator4.Name = "ToolStripSeparator4"
-        Me.ToolStripSeparator4.Size = New System.Drawing.Size(6, 25)
-        '
-        'tsPrint
-        '
-        Me.tsPrint.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-        Me.tsPrint.Image = CType(resources.GetObject("tsPrint.Image"), System.Drawing.Image)
-        Me.tsPrint.ImageTransparentColor = System.Drawing.Color.Black
-        Me.tsPrint.Name = "tsPrint"
-        Me.tsPrint.Size = New System.Drawing.Size(23, 22)
-        Me.tsPrint.Text = "ToolStripButton1"
-        Me.tsPrint.ToolTipText = "Print"
-        '
-        'StatusStrip1
-        '
-        Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripStatusLabel1, Me.ToolStripStatusLabel3})
-        Me.StatusStrip1.Location = New System.Drawing.Point(0, 404)
-        Me.StatusStrip1.Name = "StatusStrip1"
-        Me.StatusStrip1.Size = New System.Drawing.Size(543, 22)
-        Me.StatusStrip1.TabIndex = 1
-        Me.StatusStrip1.Text = "StatusStrip1"
-        '
-        'ToolStripStatusLabel1
-        '
-        Me.ToolStripStatusLabel1.Name = "ToolStripStatusLabel1"
-        Me.ToolStripStatusLabel1.Size = New System.Drawing.Size(0, 17)
-        '
-        'ToolStripStatusLabel3
-        '
-        Me.ToolStripStatusLabel3.Name = "ToolStripStatusLabel3"
-        Me.ToolStripStatusLabel3.Size = New System.Drawing.Size(0, 17)
-        '
-        'PictureBox1
-        '
-        Me.PictureBox1.Location = New System.Drawing.Point(0, 0)
-        Me.PictureBox1.Name = "PictureBox1"
-        Me.PictureBox1.Size = New System.Drawing.Size(426, 370)
-        Me.PictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
-        Me.PictureBox1.TabIndex = 0
-        Me.PictureBox1.TabStop = False
-        '
-        'Panel1
-        '
-        Me.Panel1.AutoScroll = True
-        Me.Panel1.Controls.Add(Me.PictureBox1)
-        Me.Panel1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Panel1.Location = New System.Drawing.Point(111, 3)
-        Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(429, 373)
-        Me.Panel1.TabIndex = 1
-        '
-        'TableLayoutPanel1
-        '
-        Me.TableLayoutPanel1.ColumnCount = 2
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.0!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 80.0!))
-        Me.TableLayoutPanel1.Controls.Add(Me.Panel1, 1, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.TreeView1, 0, 0)
-        Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 25)
-        Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
-        Me.TableLayoutPanel1.RowCount = 1
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(543, 379)
-        Me.TableLayoutPanel1.TabIndex = 2
-        '
-        'TreeView1
-        '
-        Me.TreeView1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TreeView1.Location = New System.Drawing.Point(3, 3)
-        Me.TreeView1.Name = "TreeView1"
-        Me.TreeView1.Size = New System.Drawing.Size(102, 373)
-        Me.TreeView1.TabIndex = 2
-        '
         'tsRotateCC
         '
         Me.tsRotateCC.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
@@ -241,49 +169,140 @@ Partial Class PDFViewer
         Me.tsRotateC.Size = New System.Drawing.Size(23, 22)
         Me.tsRotateC.Text = "Rotate the page clockwise"
         '
+        'ToolStripLabel3
+        '
+        Me.ToolStripLabel3.Name = "ToolStripLabel3"
+        Me.ToolStripLabel3.Size = New System.Drawing.Size(10, 22)
+        Me.ToolStripLabel3.Text = " "
+        '
+        'tscbZoom
+        '
+        Me.tscbZoom.Items.AddRange(New Object() {"Fit To Screen", "Fit To Width", "Actual Size"})
+        Me.tscbZoom.Name = "tscbZoom"
+        Me.tscbZoom.Size = New System.Drawing.Size(100, 25)
+        '
+        'PictureBox1
+        '
+        Me.PictureBox1.Location = New System.Drawing.Point(0, 0)
+        Me.PictureBox1.Name = "PictureBox1"
+        Me.PictureBox1.Size = New System.Drawing.Size(426, 370)
+        Me.PictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.PictureBox1.TabIndex = 0
+        Me.PictureBox1.TabStop = False
+        '
+        'Panel1
+        '
+        Me.Panel1.AutoScroll = True
+        Me.Panel1.Controls.Add(Me.PictureBox1)
+        Me.Panel1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Panel1.Location = New System.Drawing.Point(111, 3)
+        Me.Panel1.Name = "Panel1"
+        Me.Panel1.Size = New System.Drawing.Size(429, 370)
+        Me.Panel1.TabIndex = 1
+        '
+        'TableLayoutPanel1
+        '
+        Me.TableLayoutPanel1.ColumnCount = 2
+        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.0!))
+        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 80.0!))
+        Me.TableLayoutPanel1.Controls.Add(Me.tsBottom, 0, 1)
+        Me.TableLayoutPanel1.Controls.Add(Me.Panel1, 1, 0)
+        Me.TableLayoutPanel1.Controls.Add(Me.TreeView1, 0, 0)
+        Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 25)
+        Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
+        Me.TableLayoutPanel1.RowCount = 2
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel1.Size = New System.Drawing.Size(543, 401)
+        Me.TableLayoutPanel1.TabIndex = 2
+        '
+        'TreeView1
+        '
+        Me.TreeView1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TreeView1.Location = New System.Drawing.Point(3, 3)
+        Me.TreeView1.Name = "TreeView1"
+        Me.TreeView1.Size = New System.Drawing.Size(102, 370)
+        Me.TreeView1.TabIndex = 2
+        '
+        'tsBottom
+        '
+        Me.TableLayoutPanel1.SetColumnSpan(Me.tsBottom, 2)
+        Me.tsBottom.Dock = System.Windows.Forms.DockStyle.Bottom
+        Me.tsBottom.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.tbSearchText, Me.btSearch, Me.btNext})
+        Me.tsBottom.Location = New System.Drawing.Point(0, 376)
+        Me.tsBottom.Name = "tsBottom"
+        Me.tsBottom.Size = New System.Drawing.Size(543, 25)
+        Me.tsBottom.TabIndex = 7
+        Me.tsBottom.Text = "ToolStrip2"
+        '
+        'tbSearchText
+        '
+        Me.tbSearchText.Name = "tbSearchText"
+        Me.tbSearchText.Size = New System.Drawing.Size(100, 25)
+        '
+        'btSearch
+        '
+        Me.btSearch.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.btSearch.Image = CType(resources.GetObject("btSearch.Image"), System.Drawing.Image)
+        Me.btSearch.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.btSearch.Name = "btSearch"
+        Me.btSearch.Size = New System.Drawing.Size(23, 22)
+        Me.btSearch.Text = "Search"
+        '
+        'btNext
+        '
+        Me.btNext.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.btNext.Image = CType(resources.GetObject("btNext.Image"), System.Drawing.Image)
+        Me.btNext.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.btNext.Name = "btNext"
+        Me.btNext.Size = New System.Drawing.Size(23, 22)
+        Me.btNext.Text = "Search for next match"
+        '
         'PDFViewer
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.Controls.Add(Me.TableLayoutPanel1)
-        Me.Controls.Add(Me.StatusStrip1)
         Me.Controls.Add(Me.ToolStrip1)
         Me.Name = "PDFViewer"
         Me.Size = New System.Drawing.Size(543, 426)
         Me.ToolStrip1.ResumeLayout(False)
         Me.ToolStrip1.PerformLayout()
-        Me.StatusStrip1.ResumeLayout(False)
-        Me.StatusStrip1.PerformLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Panel1.ResumeLayout(False)
         Me.TableLayoutPanel1.ResumeLayout(False)
+        Me.TableLayoutPanel1.PerformLayout()
+        Me.tsBottom.ResumeLayout(False)
+        Me.tsBottom.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
-  Friend WithEvents ToolStrip1 As System.Windows.Forms.ToolStrip
-  Friend WithEvents tsPageLabel As System.Windows.Forms.ToolStripLabel
-  Friend WithEvents ToolStripSeparator1 As System.Windows.Forms.ToolStripSeparator
-  Friend WithEvents tsPrevious As System.Windows.Forms.ToolStripButton
-  Friend WithEvents tsNext As System.Windows.Forms.ToolStripButton
-  Friend WithEvents ToolStripSeparator2 As System.Windows.Forms.ToolStripSeparator
-  Friend WithEvents ToolStripLabel2 As System.Windows.Forms.ToolStripLabel
-  Friend WithEvents StatusStrip1 As System.Windows.Forms.StatusStrip
-  Friend WithEvents tsPageNum As System.Windows.Forms.ToolStripTextBox
-  Friend WithEvents ToolStripSeparator3 As System.Windows.Forms.ToolStripSeparator
-  Friend WithEvents tsZoomOut As System.Windows.Forms.ToolStripButton
-  Friend WithEvents tsZoomIn As System.Windows.Forms.ToolStripButton
-  Friend WithEvents ToolStripStatusLabel1 As System.Windows.Forms.ToolStripStatusLabel
-  Friend WithEvents ToolStripStatusLabel3 As System.Windows.Forms.ToolStripStatusLabel
-  Friend WithEvents tscbZoom As System.Windows.Forms.ToolStripComboBox
-  Friend WithEvents ToolStripLabel3 As System.Windows.Forms.ToolStripLabel
-  Friend WithEvents PictureBox1 As System.Windows.Forms.PictureBox
-  Friend WithEvents Panel1 As System.Windows.Forms.Panel
-  Friend WithEvents TableLayoutPanel1 As System.Windows.Forms.TableLayoutPanel
-  Friend WithEvents TreeView1 As System.Windows.Forms.TreeView
-  Friend WithEvents tsPrint As System.Windows.Forms.ToolStripButton
+    Friend WithEvents ToolStrip1 As System.Windows.Forms.ToolStrip
+    Friend WithEvents tsPageLabel As System.Windows.Forms.ToolStripLabel
+    Friend WithEvents ToolStripSeparator1 As System.Windows.Forms.ToolStripSeparator
+    Friend WithEvents tsPrevious As System.Windows.Forms.ToolStripButton
+    Friend WithEvents tsNext As System.Windows.Forms.ToolStripButton
+    Friend WithEvents ToolStripSeparator2 As System.Windows.Forms.ToolStripSeparator
+    Friend WithEvents ToolStripLabel2 As System.Windows.Forms.ToolStripLabel
+    Friend WithEvents tsPageNum As System.Windows.Forms.ToolStripTextBox
+    Friend WithEvents ToolStripSeparator3 As System.Windows.Forms.ToolStripSeparator
+    Friend WithEvents tsZoomOut As System.Windows.Forms.ToolStripButton
+    Friend WithEvents tsZoomIn As System.Windows.Forms.ToolStripButton
+    Friend WithEvents tscbZoom As System.Windows.Forms.ToolStripComboBox
+    Friend WithEvents ToolStripLabel3 As System.Windows.Forms.ToolStripLabel
+    Friend WithEvents PictureBox1 As System.Windows.Forms.PictureBox
+    Friend WithEvents Panel1 As System.Windows.Forms.Panel
+    Friend WithEvents TableLayoutPanel1 As System.Windows.Forms.TableLayoutPanel
+    Friend WithEvents TreeView1 As System.Windows.Forms.TreeView
+    Friend WithEvents tsPrint As System.Windows.Forms.ToolStripButton
     Friend WithEvents ToolStripSeparator4 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents tsRotateCC As System.Windows.Forms.ToolStripButton
     Friend WithEvents tsRotateC As System.Windows.Forms.ToolStripButton
+    Friend WithEvents tsBottom As System.Windows.Forms.ToolStrip
+    Friend WithEvents tbSearchText As System.Windows.Forms.ToolStripTextBox
+    Friend WithEvents btSearch As System.Windows.Forms.ToolStripButton
+    Friend WithEvents btNext As System.Windows.Forms.ToolStripButton
 
 End Class
