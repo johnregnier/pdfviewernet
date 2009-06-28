@@ -36,6 +36,10 @@
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AFPDFLibNET, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\AFPDFLibNET.dll</HintPath>
+    </Reference>
     <Reference Include="FreeImageNET, Version=3.11.0.9, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\FreeImageNET.dll</HintPath>
@@ -57,7 +61,7 @@
     <Import Include="System.Diagnostics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FormUtil.vb" />
+    <Compile Include="AFPDFLibUtil.vb" />
     <Compile Include="GhostScriptLib.vb" />
     <Compile Include="ImageUtil.vb" />
     <Compile Include="iTextSharpUtil.vb" />
@@ -118,6 +122,9 @@
     <PostBuildEvent>copy "$(ProjectDir)lib\FreeImage.dll" "$(TargetDir)"
 copy "$(ProjectDir)lib\FreeImageNET.dll" "$(TargetDir)"
 copy "$(ProjectDir)lib\gsdll32.dll" "$(TargetDir)"
-copy "$(ProjectDir)lib\itextsharp.dll" "$(TargetDir)"</PostBuildEvent>
+copy "$(ProjectDir)lib\itextsharp.dll" "$(TargetDir)"
+copy "$(ProjectDir)lib\AFPDFLib.dll" "$(TargetDir)"
+copy "$(ProjectDir)lib\AFPDFLibNET.dll" "$(TargetDir)"
+echo regsvr32 /s /c "$(TargetDir)AFPDFLib.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>

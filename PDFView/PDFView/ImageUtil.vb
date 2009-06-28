@@ -215,6 +215,12 @@ Public Class ImageUtil
         Return Regex.IsMatch(filename, "\.pdf$", RegexOptions.IgnoreCase)
     End Function
 
+    Public Shared Function CropBitmap(ByRef bmp As System.Drawing.Bitmap, ByVal cropX As Integer, ByVal cropY As Integer, ByVal cropWidth As Integer, ByVal cropHeight As Integer) As System.Drawing.Bitmap
+        Dim rect As New Rectangle(cropX, cropY, cropWidth, cropHeight)
+        Dim cropped As System.Drawing.Bitmap = bmp.Clone(rect, bmp.PixelFormat)
+        Return cropped
+    End Function
+
     'Needed subroutine for 1bit conversion
     Protected Sub SetIndexedPixel(ByVal x As Integer, ByVal y As Integer, ByVal bmd As BitmapData, ByVal pixel As Boolean)
         Dim index As Integer = y * bmd.Stride + (x >> 3)

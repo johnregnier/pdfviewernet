@@ -37,13 +37,14 @@ Public Class PrinterUtil
     RP.SendFileToPrinter(PrinterName, FileName)
   End Sub
 
-  Public Shared Sub PrintImageToPrinter(ByVal myImage As Image, ByVal PrinterName As String)
+  Public Shared Sub PrintImageToPrinter(ByVal myImage As Image, ByVal myPrinterSettings As PrinterSettings)
     Dim PrintUtil As New PrinterUtil
     PrintUtil.mPrintDocument = New PrintDocument
     PrintUtil.mImage = myImage
-    PrintUtil.mPrintDocument.PrinterSettings.PrinterName = PrinterName
+    PrintUtil.mPrintDocument.PrinterSettings.PrinterName = myPrinterSettings.PrinterName
     Dim StandardPrint As New StandardPrintController
     PrintUtil.mPrintDocument.PrintController = StandardPrint
+    PrintUtil.mPrintDocument.PrinterSettings = myPrinterSettings
     PrintUtil.mPrintDocument.Print()
   End Sub
 
@@ -51,7 +52,7 @@ Public Class PrinterUtil
     Dim PD As New PrintDialog
     If PD.ShowDialog = DialogResult.OK Then
       Dim RP As New RawPrinterHelper
-      RP.SendFileToPrinter(FileName, PD.PrinterSettings.PrinterName)
+      RP.SendFileToPrinter(PD.PrinterSettings.PrinterName, FileName)
     End If
   End Sub
 
@@ -71,7 +72,7 @@ Public Class PrinterUtil
         EndingPage = PD.PrinterSettings.ToPage
       End If
       For i As Integer = (BeginningPage - 1) To (EndingPage - 1)
-        PrintImageToPrinter(PDFView.ImageUtil.GetImageFrameFromFileForPrint(FileName, i), PD.PrinterSettings.PrinterName)
+        PrintImageToPrinter(PDFView.ImageUtil.GetImageFrameFromFileForPrint(FileName, i), PD.PrinterSettings)
       Next
     End If
   End Sub
@@ -79,8 +80,19 @@ Public Class PrinterUtil
   Private Sub PrintDocument1_PrintPage(ByVal sender As System.Object, _
      ByVal e As System.Drawing.Printing.PrintPageEventArgs) _
      Handles mPrintDocument.PrintPage
+    Dim ScalePercentage As Single
     Dim g As Graphics
     g = e.Graphics
+    Dim XMaxPixels As Integer = (g.VisibleClipBounds.Width / 100) * mImage.HorizontalResolution
+    Dim YMaxPixels As Integer = (g.VisibleClipBounds.Height / 100) * mImage.VerticalResolution
+    Dim XFactor As Single = XMaxPixels / mImage.Width
+    Dim YFactor As Single = YMaxPixels / mImage.Height
+    If YFactor > XFactor Then
+      ScalePercentage = XFactor
+    Else
+      ScalePercentage = YFactor
+    End If
+    g.ScaleTransform(ScalePercentage, ScalePercentage)
     g.DrawImage(mImage, 0, 0)
     g.Dispose()
     e.HasMorePages = False
