@@ -250,10 +250,7 @@ LoadError:
             End If
         Else 'Use Ghostscript
             If ImageUtil.IsPDF(sFileName) Then 'convert one frame to a tiff for viewing
-                mPDFFrameFileName = ConvertPDF.PDFConvert.ConvertPdfToTiff(sFileName, iFrameNumber + 1)
-                sFileName = mPDFFrameFileName
-                oPictureBox.Image = ImageUtil.GetFrameFromTiff2(sFileName, 0)
-                ImageUtil.DeleteFile(sFileName)
+                oPictureBox.Image = ConvertPDF.PDFConvert.GetPageFromPDF(sFileName, iFrameNumber + 1)
             ElseIf ImageUtil.IsTiff(sFileName) Then
                 oPictureBox.Image = ImageUtil.GetFrameFromTiff2(sFileName, iFrameNumber)
             End If
