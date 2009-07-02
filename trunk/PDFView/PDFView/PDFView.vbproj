@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="AFPDFLibUtil.vb" />
     <Compile Include="GhostScriptLib.vb" />
+    <Compile Include="GhostScriptLib2.vb" />
     <Compile Include="ImageUtil.vb" />
     <Compile Include="iTextSharpUtil.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
