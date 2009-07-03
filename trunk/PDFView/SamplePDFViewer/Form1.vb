@@ -28,4 +28,13 @@
     Private Sub Button2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
         PDFView.PrinterUtil.PrintPDFImagesToPrinter(TextBox1.Text)
     End Sub
+
+    Private Sub rbXPDF_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rbXPDF.CheckedChanged
+        If rbXPDF.Checked Then
+            PdfViewer1.UseXPDF = True
+        Else
+            PdfViewer1.UseXPDF = False
+        End If
+        PdfViewer1.FileName = OpenFileDialog1.FileName
+    End Sub
 End Class
