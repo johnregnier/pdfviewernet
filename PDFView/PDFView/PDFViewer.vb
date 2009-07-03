@@ -37,10 +37,11 @@ Public Class PDFViewer
                     Try
                         mPDFDoc = New AFPDFLibNET.AFPDFDoc()
                         mPDFDoc.LoadFromFile(value)
+                        tsBottom.Visible = True
                     Catch ex As Exception
                         MsgBox("AFPDFLib.dll must be registered to COM" _
                         & vbCrLf & "Please run Command Prompt as an Administrator and type:" _
-                        & vbCrLf & "regsvr32 AFPDFLib.dll")
+                        & vbCrLf & "regsvr32 """ & System.AppDomain.CurrentDomain.BaseDirectory() & "AFPDFLib.dll""")
                     End Try
                 Else
                     If mAllPages = True Then
