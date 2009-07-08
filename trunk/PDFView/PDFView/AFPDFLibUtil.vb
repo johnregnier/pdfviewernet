@@ -62,28 +62,6 @@ Public Class AFPDFLibUtil
         End If
     End Sub
 
-    'Public Shared Function LoadBookmarks(ByRef tvwOutline As TreeView, ByRef pdfDoc As PDFLibNet.PDFWrapper) As Boolean
-    '    Dim ol As PDFLibNet.OutlineItem = Nothing
-    '    Dim outline As New List(Of PDFOutline)()
-    '    If pdfDoc IsNot Nothing AndAlso pdfDoc.OutlineCount > 0 Then
-    '        tvwOutline.SuspendLayout()
-    '        For i As Integer = 1 To pdfDoc.OutlineCount
-    '            Dim lPtr As Integer = pdfDoc.GetOutlinePtr(i)
-    '            ol = New PDFLibNet.OutlineItem()
-    '            ol.SetOutlineItemXPDF(lPtr)
-    '            Dim pdo As New PDFOutline(ol.Title, ol, pdfDoc)
-    '            outline.Add(pdo)
-    '        Next
-    '        tvwOutline.ResumeLayout()
-    '    End If
-    '    FillTree(tvwOutline, outline)
-    '    If outline.Count > 0 Then
-    '        Return True
-    '    Else
-    '        Return False
-    '    End If
-    'End Function
-
     Public Shared Function FillTree(ByRef tvwOutline As TreeView, ByRef pdfDoc As PDFLibNet.PDFWrapper) As Boolean
         FillTree = False
         tvwOutline.Nodes.Clear()

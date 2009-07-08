@@ -38,6 +38,9 @@ Public Class PDFViewer
             ImageUtil.DeleteFile(mTempPDFTiffFile)
             If ImageUtil.IsPDF(value) Then
                 If mUseXPDF Then
+                    If Not Nothing Is mPDFDoc Then
+                        mPDFDoc.Dispose()
+                    End If
                     mPDFDoc = New PDFLibNet.PDFWrapper()
                     mPDFDoc.LoadPDF(value)
                     tsBottom.Visible = True
