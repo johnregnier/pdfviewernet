@@ -123,7 +123,6 @@ copy "$(SolutionDir)PDFView\lib\FreeImageNET.dll" "$(TargetDir)"
 copy "$(SolutionDir)PDFView\lib\gsdll32.dll" "$(TargetDir)"
 copy "$(SolutionDir)PDFView\lib\itextsharp.dll" "$(TargetDir)"
 copy "$(SolutionDir)PDFView\$(OutDir)PDFView.dll" "$(TargetDir)"
-copy "$(SolutionDir)PDFView\$(OutDir)AFPDFLib.dll" "$(TargetDir)"
-copy "$(SolutionDir)PDFView\$(OutDir)AFPDFLibNET.dll" "$(TargetDir)"</PostBuildEvent>
+copy "$(SolutionDir)PDFView\$(OutDir)PDFLibNET.dll" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

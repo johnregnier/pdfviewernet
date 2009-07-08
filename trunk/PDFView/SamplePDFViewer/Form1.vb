@@ -15,13 +15,11 @@
         TextBox1.Text = OpenFileDialog1.FileName
         PdfViewer1.LoadAllPages = False
         PdfViewer1.AllowBookmarks = True
+        'PdfViewer1.ContinuousPages = True
         ' To use Ghostscript, UseXPDF = False
         ' Ghostscript is slower, but is more compatible and has higher quality rendering
         ' To use XPDF, UseXPDF = True
         ' XPDF is quite a bit faster than Ghostscript since there is no file i/o involved
-        ' XPDF requires AFPDFLib.dll to be registered with COM
-        ' regsrv32 AFPDFLib.dll
-        'PdfViewer1.UseXPDF = True
         PdfViewer1.FileName = OpenFileDialog1.FileName
     End Sub
 
