@@ -410,6 +410,9 @@ LoadError:
         End If
     End Sub
 
+    Private Delegate Sub ShowImage(ByVal sFileName As String, ByVal iFrameNumber As Integer, ByRef oPictureBox As PictureBox, ByVal XPDFDPI As Integer)
+
+
     Private Sub FlowPanel_Scroll(ByVal sender As Object, ByVal e As System.Windows.Forms.ScrollEventArgs)
         ScrollBarPosition = e.NewValue()
         Dim ImagesWereLoaded As Boolean = False
