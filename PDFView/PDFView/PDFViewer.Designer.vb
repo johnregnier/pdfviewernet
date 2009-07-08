@@ -40,17 +40,14 @@ Partial Class PDFViewer
         Me.tsRotateC = New System.Windows.Forms.ToolStripButton
         Me.ToolStripLabel3 = New System.Windows.Forms.ToolStripLabel
         Me.tscbZoom = New System.Windows.Forms.ToolStripComboBox
-        Me.PictureBox1 = New System.Windows.Forms.PictureBox
         Me.Panel1 = New System.Windows.Forms.Panel
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel
-        Me.TreeView1 = New System.Windows.Forms.TreeView
         Me.tsBottom = New System.Windows.Forms.ToolStrip
         Me.tbSearchText = New System.Windows.Forms.ToolStripTextBox
         Me.btSearch = New System.Windows.Forms.ToolStripButton
         Me.btNext = New System.Windows.Forms.ToolStripButton
+        Me.TreeView1 = New System.Windows.Forms.TreeView
         Me.ToolStrip1.SuspendLayout()
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.Panel1.SuspendLayout()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.tsBottom.SuspendLayout()
         Me.SuspendLayout()
@@ -181,19 +178,9 @@ Partial Class PDFViewer
         Me.tscbZoom.Name = "tscbZoom"
         Me.tscbZoom.Size = New System.Drawing.Size(100, 25)
         '
-        'PictureBox1
-        '
-        Me.PictureBox1.Location = New System.Drawing.Point(0, 0)
-        Me.PictureBox1.Name = "PictureBox1"
-        Me.PictureBox1.Size = New System.Drawing.Size(426, 370)
-        Me.PictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
-        Me.PictureBox1.TabIndex = 0
-        Me.PictureBox1.TabStop = False
-        '
         'Panel1
         '
         Me.Panel1.AutoScroll = True
-        Me.Panel1.Controls.Add(Me.PictureBox1)
         Me.Panel1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Panel1.Location = New System.Drawing.Point(111, 3)
         Me.Panel1.Name = "Panel1"
@@ -216,14 +203,6 @@ Partial Class PDFViewer
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel1.Size = New System.Drawing.Size(543, 401)
         Me.TableLayoutPanel1.TabIndex = 2
-        '
-        'TreeView1
-        '
-        Me.TreeView1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TreeView1.Location = New System.Drawing.Point(3, 3)
-        Me.TreeView1.Name = "TreeView1"
-        Me.TreeView1.Size = New System.Drawing.Size(102, 370)
-        Me.TreeView1.TabIndex = 2
         '
         'tsBottom
         '
@@ -259,6 +238,14 @@ Partial Class PDFViewer
         Me.btNext.Size = New System.Drawing.Size(23, 22)
         Me.btNext.Text = "Search for next match"
         '
+        'TreeView1
+        '
+        Me.TreeView1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TreeView1.Location = New System.Drawing.Point(3, 3)
+        Me.TreeView1.Name = "TreeView1"
+        Me.TreeView1.Size = New System.Drawing.Size(102, 370)
+        Me.TreeView1.TabIndex = 2
+        '
         'PDFViewer
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -269,8 +256,6 @@ Partial Class PDFViewer
         Me.Size = New System.Drawing.Size(543, 426)
         Me.ToolStrip1.ResumeLayout(False)
         Me.ToolStrip1.PerformLayout()
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.Panel1.ResumeLayout(False)
         Me.TableLayoutPanel1.ResumeLayout(False)
         Me.TableLayoutPanel1.PerformLayout()
         Me.tsBottom.ResumeLayout(False)
@@ -292,7 +277,6 @@ Partial Class PDFViewer
     Friend WithEvents tsZoomIn As System.Windows.Forms.ToolStripButton
     Friend WithEvents tscbZoom As System.Windows.Forms.ToolStripComboBox
     Friend WithEvents ToolStripLabel3 As System.Windows.Forms.ToolStripLabel
-    Friend WithEvents PictureBox1 As System.Windows.Forms.PictureBox
     Friend WithEvents Panel1 As System.Windows.Forms.Panel
     Friend WithEvents TableLayoutPanel1 As System.Windows.Forms.TableLayoutPanel
     Friend WithEvents TreeView1 As System.Windows.Forms.TreeView

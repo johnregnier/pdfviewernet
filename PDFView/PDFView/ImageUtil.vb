@@ -94,37 +94,62 @@ Public Class ImageUtil
     End Sub
 
     Public Shared Sub PictureBoxZoomActual(ByRef pPicBox As PictureBox)
-        pPicBox.Width = pPicBox.Image.Width
-        pPicBox.Height = pPicBox.Image.Height
-        pPicBox.SizeMode = PictureBoxSizeMode.Zoom
+        If Not Nothing Is pPicBox And Not Nothing Is pPicBox.Image Then
+            pPicBox.Width = pPicBox.Image.Width
+            pPicBox.Height = pPicBox.Image.Height
+            pPicBox.SizeMode = PictureBoxSizeMode.Zoom
+        End If
     End Sub
 
     Public Shared Sub PictureBoxZoomPageWidth(ByRef pPicBox As PictureBox)
-        pPicBox.Width = pPicBox.Parent.ClientSize.Width - 18
-        Dim ScaleAmount As Double = (pPicBox.Width / pPicBox.Image.Width)
-        pPicBox.Height = CInt(pPicBox.Image.Height * ScaleAmount)
-        pPicBox.SizeMode = PictureBoxSizeMode.Zoom
+        If Not Nothing Is pPicBox And Not Nothing Is pPicBox.Parent Then
+            pPicBox.Width = pPicBox.Parent.ClientSize.Width - 18
+            Dim ScaleAmount As Double = (pPicBox.Width / pPicBox.Image.Width)
+            pPicBox.Height = CInt(pPicBox.Image.Height * ScaleAmount)
+            pPicBox.SizeMode = PictureBoxSizeMode.Zoom
+        End If
     End Sub
 
     Public Shared Sub PictureBoxZoomFit(ByRef pPicBox As PictureBox)
-        pPicBox.Height = pPicBox.Parent.ClientSize.Height - 7
-        pPicBox.Width = pPicBox.Parent.ClientSize.Width - 7
-        pPicBox.SizeMode = PictureBoxSizeMode.Zoom
-        pPicBox.Location = New Point(0, 0)
+        If Not Nothing Is pPicBox And Not Nothing Is pPicBox.Parent Then
+            pPicBox.Height = pPicBox.Parent.ClientSize.Height - 7
+            pPicBox.Width = pPicBox.Parent.ClientSize.Width - 7
+            pPicBox.SizeMode = PictureBoxSizeMode.Zoom
+            pPicBox.Location = New Point(0, 0)
+        End If
     End Sub
 
     Public Shared Sub PictureBoxZoomIn(ByRef pPicBox As PictureBox)
-        pPicBox.SizeMode = PictureBoxSizeMode.Zoom
-        pPicBox.Width = CInt(pPicBox.Width * 1.25)
-        pPicBox.Height = CInt(pPicBox.Height * 1.25)
-        pPicBox.Refresh()
+        If Not Nothing Is pPicBox Then
+            pPicBox.SizeMode = PictureBoxSizeMode.Zoom
+            pPicBox.Width = CInt(pPicBox.Width * 1.25)
+            pPicBox.Height = CInt(pPicBox.Height * 1.25)
+            pPicBox.Refresh()
+        End If
     End Sub
 
     Public Shared Sub PictureBoxZoomOut(ByRef pPicBox As PictureBox)
-        pPicBox.SizeMode = PictureBoxSizeMode.Zoom
-        pPicBox.Width = CInt(pPicBox.Width / 1.25)
-        pPicBox.Height = CInt(pPicBox.Height / 1.25)
-        pPicBox.Refresh()
+        If Not Nothing Is pPicBox Then
+            pPicBox.SizeMode = PictureBoxSizeMode.Zoom
+            pPicBox.Width = CInt(pPicBox.Width / 1.25)
+            pPicBox.Height = CInt(pPicBox.Height / 1.25)
+            pPicBox.Refresh()
+        End If
+    End Sub
+
+    Public Shared Sub PictureBoxZoomFitMany(ByRef pPicBox As PictureBox)
+        If Not Nothing Is pPicBox.Parent Then
+            Dim Height As Integer = pPicBox.Parent.ClientSize.Height - 14
+            Dim Width As Integer = pPicBox.Parent.ClientSize.Width - 14
+            Dim Location As New Point(0, 0)
+            For Each itemControl As Control In pPicBox.Parent.Controls
+                If TypeOf itemControl Is PictureBox Then
+                    itemControl.Height = Height
+                    itemControl.Width = Width
+                    itemControl.Location = Location
+                End If
+            Next
+        End If
     End Sub
 
     Public Shared Function GenerateThumbnail(ByVal original As Image, ByVal percentage As Integer) As Image

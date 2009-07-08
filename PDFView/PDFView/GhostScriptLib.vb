@@ -832,9 +832,8 @@ Namespace ConvertPDF
                 converter.ResolutionY = VIEW_DPI
             End If
             converter.OutputFormat = COLOR_PNG_RGB
-            Dim input As System.IO.FileInfo = New FileInfo(filename)
             Dim output As String = System.IO.Path.GetTempPath & Now.Ticks & ".png"
-            Converted = converter.Convert(input.FullName, output)
+            Converted = converter.Convert(filename, output)
             If Converted Then
                 GetPageFromPDF = New Bitmap(output)
                 ImageUtil.DeleteFile(output)
