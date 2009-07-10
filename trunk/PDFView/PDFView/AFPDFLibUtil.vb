@@ -4,7 +4,7 @@ Imports System.Drawing.Printing
 
 Public Class AFPDFLibUtil
 
-    Const RENDER_DPI As Integer = 200
+    Const RENDER_DPI As Integer = 150
     Const PRINT_DPI As Integer = 300
 
     Public Shared Sub DrawImageFromPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal PageNumber As Integer, ByRef oPictureBox As PictureBox, Optional ByVal DPI As Integer = RENDER_DPI)
@@ -13,18 +13,20 @@ Public Class AFPDFLibUtil
             pdfDoc.CurrentX = 0
             pdfDoc.CurrentY = 0
             pdfDoc.RenderDPI = DPI
-            pdfDoc.RenderPage(oPictureBox.Handle.ToInt32())
-            oPictureBox.Image = Render(pdfDoc)
+            pdfDoc.RenderPage(oPictureBox.Handle)
+            oPictureBox.Image = Render(pdfDoc, oPictureBox)
+            oPictureBox.Refresh()
         End If
     End Sub
 
-    Public Shared Function Render(ByRef pdfDoc As PDFLibNet.PDFWrapper) As Bitmap
+    Public Shared Function Render(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByRef oPictureBox As PictureBox) As System.Drawing.Bitmap
         If pdfDoc IsNot Nothing Then
-            Dim backbuffer As New Bitmap(pdfDoc.PageWidth, pdfDoc.PageHeight)
+
+            Dim backbuffer As System.Drawing.Bitmap = New Bitmap(pdfDoc.PageWidth, pdfDoc.PageHeight)
             Dim g As Graphics = Graphics.FromImage(backbuffer)
             Using g
-                Dim lhdc As Integer = g.GetHdc().ToInt32()
-                pdfDoc.DrawPageHDC(lhdc)
+                Dim hdc As IntPtr = g.GetHdc()
+                pdfDoc.DrawPageHDC(hdc)
                 g.ReleaseHdc()
             End Using
             g.Dispose()
@@ -32,6 +34,7 @@ Public Class AFPDFLibUtil
         End If
         Return Nothing
     End Function
+
 
     Public Shared Sub PrintPDFImagesToPrinter(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByRef picbox As PictureBox)
         If pdfDoc IsNot Nothing Then
@@ -55,7 +58,7 @@ Public Class AFPDFLibUtil
                     pdfDoc.CurrentY = 0
                     pdfDoc.RenderDPI = PRINT_DPI
                     pdfDoc.RenderPage(picbox.Handle.ToInt32())
-                    PrinterUtil.PrintImageToPrinter(ImageUtil.CropBitmap(Render(pdfDoc), 0, 0, pdfDoc.PageWidth, pdfDoc.PageHeight - 2), PD.PrinterSettings)
+                    PrinterUtil.PrintImageToPrinter(ImageUtil.CropBitmap(Render(pdfDoc, picbox), 0, 0, pdfDoc.PageWidth, pdfDoc.PageHeight - 2), PD.PrinterSettings)
                     pdfDoc.RenderDPI = RENDER_DPI
                 Next
             End If
@@ -96,21 +99,6 @@ Public Class PDFOutline
         Item = outlineItem
         _doc = doc
     End Sub
-
-    'Friend Sub LoadChildren()
-    '    If _children Is Nothing Then
-    '        _children = New List(Of PDFOutline)()
-    '        For i As Integer = 1 To Item.KidsCount
-    '            Dim lPtr As Integer = Item.GetKidPtr(i)
-    '            If lPtr > 0 Then
-    '                Dim ol As New PDFLibNet.OutlineItem()
-    '                ol.SetOutlineItemXPDF(lPtr)
-    '                Dim pdo As New PDFOutline(ol.Title, ol, _doc)
-    '                _children.Add(pdo)
-    '            End If
-    '        Next
-    '    End If
-    'End Sub
 
 End Class
 
