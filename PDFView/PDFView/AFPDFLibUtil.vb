@@ -8,30 +8,38 @@ Public Class AFPDFLibUtil
     Const PRINT_DPI As Integer = 300
 
     Public Shared Sub DrawImageFromPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal PageNumber As Integer, ByRef oPictureBox As PictureBox, Optional ByVal DPI As Integer = RENDER_DPI)
-        If pdfDoc IsNot Nothing Then
-            pdfDoc.CurrentPage = PageNumber
-            pdfDoc.CurrentX = 0
-            pdfDoc.CurrentY = 0
-            pdfDoc.RenderDPI = DPI
-            pdfDoc.RenderPage(oPictureBox.Handle)
-            oPictureBox.Image = Render(pdfDoc, oPictureBox)
-            oPictureBox.Refresh()
-        End If
+        Try
+            If pdfDoc IsNot Nothing Then
+                pdfDoc.CurrentPage = PageNumber
+                pdfDoc.CurrentX = 0
+                pdfDoc.CurrentY = 0
+                pdfDoc.RenderDPI = DPI
+                pdfDoc.RenderPage(oPictureBox.Handle)
+                oPictureBox.Image = Render(pdfDoc, oPictureBox)
+                oPictureBox.Refresh()
+            End If
+        Catch ex As Exception
+            MsgBox(ex.ToString)
+        End Try
     End Sub
 
     Public Shared Function Render(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByRef oPictureBox As PictureBox) As System.Drawing.Bitmap
-        If pdfDoc IsNot Nothing Then
-
-            Dim backbuffer As System.Drawing.Bitmap = New Bitmap(pdfDoc.PageWidth, pdfDoc.PageHeight)
-            Dim g As Graphics = Graphics.FromImage(backbuffer)
-            Using g
-                Dim hdc As IntPtr = g.GetHdc()
-                pdfDoc.DrawPageHDC(hdc)
-                g.ReleaseHdc()
-            End Using
-            g.Dispose()
-            Return backbuffer
-        End If
+        Try
+            If pdfDoc IsNot Nothing Then
+                Dim backbuffer As System.Drawing.Bitmap = New Bitmap(pdfDoc.PageWidth, pdfDoc.PageHeight)
+                Dim g As Graphics = Graphics.FromImage(backbuffer)
+                Using g
+                    Dim hdc As IntPtr = g.GetHdc()
+                    pdfDoc.DrawPageHDC(hdc)
+                    g.ReleaseHdc()
+                End Using
+                g.Dispose()
+                Return backbuffer
+            End If
+        Catch ex As Exception
+            MsgBox(ex.ToString)
+            Return Nothing
+        End Try
         Return Nothing
     End Function
     Public Shared Sub ExportPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal fileName As String, Optional ByVal startPage As Integer = 1, Optional ByVal endPage As Integer = 0)

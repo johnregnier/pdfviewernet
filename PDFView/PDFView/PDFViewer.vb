@@ -29,10 +29,14 @@ Public Class PDFViewer
         End Get
         Set(ByVal value As String)
             If Nothing = value Or value = "" Then
-                GoTo LoadError
+                Exit Property
             End If
             mOriginalFileName = value
-            If ImageUtil.IsPDF(value) Then
+            If ImageUtil.IsTiff(value) Then
+                'Tiff Specific behavior
+                mUseXPDF = False
+                tsBottom.Visible = False
+            ElseIf ImageUtil.IsPDF(value) Then
                 If mUseXPDF Then
                     If Not Nothing Is mPDFDoc Then
                         mPDFDoc.Dispose()
@@ -43,21 +47,21 @@ Public Class PDFViewer
                 Else
                     tsBottom.Visible = False
                 End If
-                mPDFFileName = value
-                Cursor.Current = Cursors.WaitCursor
-                InitPageRange()
-                InitializePageView(ViewMode.FIT_WIDTH)
-                If mAllowBookmarks Then
-                    InitBookmarks()
-                End If
-                FitToScreen()
-                DisplayCurrentPage()
-                Me.Enabled = True
-                Cursor.Current = Cursors.Default
             Else
-LoadError:
                 Me.Enabled = False
             End If
+            mPDFFileName = value
+            Cursor.Current = Cursors.WaitCursor
+            InitPageRange()
+            InitializePageView(ViewMode.FIT_WIDTH)
+            If mAllowBookmarks Then
+                InitBookmarks()
+            End If
+            FitToScreen()
+            DisplayCurrentPage()
+            tscbZoom.SelectedIndex = 0
+            Me.Enabled = True
+            Cursor.Current = Cursors.Default
         End Set
     End Property
 
@@ -203,11 +207,11 @@ LoadError:
 
     Private Sub tsPrint_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsPrint.Click
         'AFPDFLib currently renders with anti-aliasing enabled which makes printed edges look slightly fuzzy
-        If mUseXPDF Then
-            AFPDFLibUtil.PrintPDFImagesToPrinter(mPDFDoc, XPDFPrintingPicBox)
-        Else
-            PrinterUtil.PrintPDFImagesToPrinter(mOriginalFileName)
-        End If
+        'If mUseXPDF Then
+        'AFPDFLibUtil.PrintPDFImagesToPrinter(mPDFDoc, XPDFPrintingPicBox)
+        'Else
+        PrinterUtil.PrintPDFImagesToPrinter(mOriginalFileName)
+        'End If
     End Sub
 
     Private Sub tsRotateCC_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsRotateCC.Click
@@ -216,6 +220,12 @@ LoadError:
 
     Private Sub tsRotateC_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsRotateC.Click
         ImageUtil.RotateImageClockwise(FindPictureBox(mCurrentPageNumber))
+    End Sub
+
+    Private Sub tsExport_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsExport.Click
+        Dim exportOptionsDialog As New ExportOptions(mPDFFileName, mPDFDoc)
+        exportOptionsDialog.ShowDialog()
+        Me.Focus()
     End Sub
 
 #Region "Constraints"
@@ -394,6 +404,7 @@ LoadError:
             FindPictureBox(0).Width = FindPictureBox(0).Image.Width
             FindPictureBox(0).Height = FindPictureBox(0).Image.Height
         End If
+        tscbZoom.Text = GetCurrentScalePercentage() & " %"
     End Sub
 
     Private Delegate Sub ShowImage(ByVal sFileName As String, ByVal iFrameNumber As Integer, ByRef oPictureBox As PictureBox, ByVal XPDFDPI As Integer)
@@ -442,9 +453,12 @@ LoadError:
     End Sub
 
     Private Function GetCurrentScalePercentage() As Integer
-        Dim OriginalWidth As Integer = FindPictureBox(0).Image.Width
-        Dim CurrentWidth As Integer = FindPictureBox(0).Width
-        GetCurrentScalePercentage = CInt((CurrentWidth / OriginalWidth) * 100)
+        GetCurrentScalePercentage = 0
+        If Not Nothing Is FindPictureBox(0).Image Then
+            Dim OriginalWidth As Integer = FindPictureBox(0).Image.Width
+            Dim CurrentWidth As Integer = FindPictureBox(0).Width
+            GetCurrentScalePercentage = CInt((CurrentWidth / OriginalWidth) * 100)
+        End If
     End Function
 
     Private Function FindPictureBox(ByVal PageNumber As Integer) As PictureBox
@@ -513,7 +527,7 @@ LoadError:
         Else
             ApplyZoom(ViewMode.FIT_TO_SCREEN)
         End If
-        tscbZoom.SelectedIndex = 0
+        UpdatePageLabel()
     End Sub
 
     Private Function TrapKey(ByVal KCode As String) As Boolean
@@ -553,7 +567,7 @@ LoadError:
     Private Sub ScrolltoTop(ByVal y As Integer)
         Dim dr As Point = FindFlowLayoutPanel().AutoScrollPosition
         If mPDFDoc.PageHeight > FindFlowLayoutPanel().Height Then
-            dr.Y = y
+            dr.Y = y * (GetCurrentScalePercentage() / 100)
         End If
         FindFlowLayoutPanel().AutoScrollPosition = dr
     End Sub
@@ -694,9 +708,5 @@ LoadError:
 
 #End Region
 
-    Private Sub tsExport_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsExport.Click
-        Dim exportOptionsDialog As New ExportOptions(mPDFFileName)
-        exportOptionsDialog.ShowDialog()
-    End Sub
 End Class
 
