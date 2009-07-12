@@ -4,7 +4,7 @@ Imports System.Drawing.Printing
 
 Public Class AFPDFLibUtil
 
-    Const RENDER_DPI As Integer = 150
+    Const RENDER_DPI As Integer = 200
     Const PRINT_DPI As Integer = 300
 
     Public Shared Sub DrawImageFromPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal PageNumber As Integer, ByRef oPictureBox As PictureBox, Optional ByVal DPI As Integer = RENDER_DPI)
@@ -34,6 +34,27 @@ Public Class AFPDFLibUtil
         End If
         Return Nothing
     End Function
+    Public Shared Sub ExportPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal fileName As String, Optional ByVal startPage As Integer = 1, Optional ByVal endPage As Integer = 0)
+        If Not Nothing Is pdfDoc Then
+            If endPage = 0 Or endPage > pdfDoc.PageCount Then
+                endPage = pdfDoc.PageCount
+            End If
+            Try
+                If fileName.EndsWith(".ps") Then
+                    pdfDoc.PrintToFile(fileName, startPage, endPage)
+                ElseIf fileName.EndsWith(".jpg") Then
+                    pdfDoc.ExportJpg(fileName, 70)
+                ElseIf fileName.EndsWith(".txt") Then
+                    pdfDoc.ExportText(fileName, startPage, endPage, True, True)
+                ElseIf fileName.EndsWith(".html") Then
+                    pdfDoc.ExportHtml(fileName, startPage, endPage, True, True)
+                End If
+            Catch ex As Exception
+                MessageBox.Show(ex.ToString())
+            End Try
+        End If
+    End Sub
+
 
 
     Public Shared Sub PrintPDFImagesToPrinter(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByRef picbox As PictureBox)

@@ -47,6 +47,10 @@ Partial Class PDFViewer
         Me.btSearch = New System.Windows.Forms.ToolStripButton
         Me.btNext = New System.Windows.Forms.ToolStripButton
         Me.TreeView1 = New System.Windows.Forms.TreeView
+        Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog
+        Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog
+        Me.ToolStripSeparator5 = New System.Windows.Forms.ToolStripSeparator
+        Me.tsExport = New System.Windows.Forms.ToolStripButton
         Me.ToolStrip1.SuspendLayout()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.tsBottom.SuspendLayout()
@@ -208,12 +212,12 @@ Partial Class PDFViewer
         '
         Me.TableLayoutPanel1.SetColumnSpan(Me.tsBottom, 2)
         Me.tsBottom.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.tsBottom.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.tbSearchText, Me.btSearch, Me.btNext})
+        Me.tsBottom.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.tbSearchText, Me.btSearch, Me.btNext, Me.ToolStripSeparator5, Me.tsExport})
         Me.tsBottom.Location = New System.Drawing.Point(0, 376)
         Me.tsBottom.Name = "tsBottom"
         Me.tsBottom.Size = New System.Drawing.Size(543, 25)
         Me.tsBottom.TabIndex = 7
-        Me.tsBottom.Text = "ToolStrip2"
+        Me.tsBottom.Text = "Export PDF to another file format"
         '
         'tbSearchText
         '
@@ -245,6 +249,24 @@ Partial Class PDFViewer
         Me.TreeView1.Name = "TreeView1"
         Me.TreeView1.Size = New System.Drawing.Size(102, 370)
         Me.TreeView1.TabIndex = 2
+        '
+        'OpenFileDialog1
+        '
+        Me.OpenFileDialog1.FileName = "OpenFileDialog1"
+        '
+        'ToolStripSeparator5
+        '
+        Me.ToolStripSeparator5.Name = "ToolStripSeparator5"
+        Me.ToolStripSeparator5.Size = New System.Drawing.Size(6, 25)
+        '
+        'tsExport
+        '
+        Me.tsExport.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.tsExport.Image = CType(resources.GetObject("tsExport.Image"), System.Drawing.Image)
+        Me.tsExport.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.tsExport.Name = "tsExport"
+        Me.tsExport.Size = New System.Drawing.Size(23, 22)
+        Me.tsExport.Text = "Export PDF to another file format"
         '
         'PDFViewer
         '
@@ -288,5 +310,9 @@ Partial Class PDFViewer
     Friend WithEvents tbSearchText As System.Windows.Forms.ToolStripTextBox
     Friend WithEvents btSearch As System.Windows.Forms.ToolStripButton
     Friend WithEvents btNext As System.Windows.Forms.ToolStripButton
+    Friend WithEvents OpenFileDialog1 As System.Windows.Forms.OpenFileDialog
+    Friend WithEvents SaveFileDialog1 As System.Windows.Forms.SaveFileDialog
+    Friend WithEvents ToolStripSeparator5 As System.Windows.Forms.ToolStripSeparator
+    Friend WithEvents tsExport As System.Windows.Forms.ToolStripButton
 
 End Class

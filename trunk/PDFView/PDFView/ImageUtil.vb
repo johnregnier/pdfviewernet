@@ -10,77 +10,77 @@ Imports System.Windows.Forms
 
 Public Class ImageUtil
 
-  Public Shared Function MakeGrayscale(ByVal original As System.Drawing.Bitmap) As System.Drawing.Bitmap
-    'create a blank bitmap the same size as original
-    Dim newBitmap As New System.Drawing.Bitmap(original.Width, original.Height)
+    Public Shared Function MakeGrayscale(ByVal original As System.Drawing.Bitmap) As System.Drawing.Bitmap
+        'create a blank bitmap the same size as original
+        Dim newBitmap As New System.Drawing.Bitmap(original.Width, original.Height)
 
-    'get a graphics object from the new image
-    Dim g As Graphics = Graphics.FromImage(newBitmap)
+        'get a graphics object from the new image
+        Dim g As Graphics = Graphics.FromImage(newBitmap)
 
-    'create the grayscale ColorMatrix
-    Dim colorMatrix As New ColorMatrix(New Single()() {New Single() {0.3, 0.3, 0.3, 0, 0}, New Single() {0.59, 0.59, 0.59, 0, 0}, New Single() {0.11, 0.11, 0.11, 0, 0}, New Single() {0, 0, 0, 1, 0}, New Single() {0, 0, 0, 0, 1}})
+        'create the grayscale ColorMatrix
+        Dim colorMatrix As New ColorMatrix(New Single()() {New Single() {0.3, 0.3, 0.3, 0, 0}, New Single() {0.59, 0.59, 0.59, 0, 0}, New Single() {0.11, 0.11, 0.11, 0, 0}, New Single() {0, 0, 0, 1, 0}, New Single() {0, 0, 0, 0, 1}})
 
-    'create some image attributes
-    Dim attributes As New ImageAttributes()
+        'create some image attributes
+        Dim attributes As New ImageAttributes()
 
-    'set the color matrix attribute
-    attributes.SetColorMatrix(colorMatrix)
+        'set the color matrix attribute
+        attributes.SetColorMatrix(colorMatrix)
 
-    'draw the original image on the new image
-    'using the grayscale color matrix
-    g.DrawImage(original, New Rectangle(0, 0, original.Width, original.Height), 0, 0, original.Width, original.Height, _
-     GraphicsUnit.Pixel, attributes)
+        'draw the original image on the new image
+        'using the grayscale color matrix
+        g.DrawImage(original, New Rectangle(0, 0, original.Width, original.Height), 0, 0, original.Width, original.Height, _
+         GraphicsUnit.Pixel, attributes)
 
-    'dispose the Graphics object
-    g.Dispose()
+        'dispose the Graphics object
+        g.Dispose()
 
-    Return newBitmap
-  End Function
+        Return newBitmap
+    End Function
 
-  Public Shared Function BitmapTo1Bpp(ByVal img As System.Drawing.Bitmap) As System.Drawing.Bitmap
+    Public Shared Function BitmapTo1Bpp(ByVal img As System.Drawing.Bitmap) As System.Drawing.Bitmap
 
-    If img.PixelFormat <> PixelFormat.Format32bppPArgb Then
-      Dim temp As New System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format32bppPArgb)
-      Dim g As Graphics = Graphics.FromImage(temp)
-      g.DrawImage(img, New Rectangle(0, 0, img.Width, img.Height), 0, 0, img.Width, img.Height, GraphicsUnit.Pixel)
-      img.Dispose()
-      g.Dispose()
-      img = temp
-    End If
-
-    Dim imageTemp As Image
-    imageTemp = img
-
-    'lock the bits of the original bitmap
-    Dim bmdo As BitmapData = img.LockBits(New Rectangle(0, 0, img.Width, img.Height), ImageLockMode.ReadOnly, img.PixelFormat)
-
-    'and the new 1bpp bitmap
-    Dim bm As New System.Drawing.Bitmap(imageTemp.Width, imageTemp.Height, PixelFormat.Format1bppIndexed)
-    Dim bmdn As BitmapData = bm.LockBits(New Rectangle(0, 0, bm.Width, bm.Height), ImageLockMode.ReadWrite, PixelFormat.Format1bppIndexed)
-
-    'for diagnostics
-    Dim dt As DateTime = DateTime.Now
-
-    'scan through the pixels Y by X
-    Dim y As Integer
-    For y = 0 To img.Height - 1
-      Dim x As Integer
-      For x = 0 To img.Width - 1
-        'generate the address of the colour pixel
-        Dim index As Integer = y * bmdo.Stride + x * 4
-        'check its brightness
-        If Color.FromArgb(Marshal.ReadByte(bmdo.Scan0, index + 2), Marshal.ReadByte(bmdo.Scan0, index + 1), Marshal.ReadByte(bmdo.Scan0, index)).GetBrightness() > 0.5F Then
-          Dim imgUtil As New ImageUtil
-          imgUtil.SetIndexedPixel(x, y, bmdn, True) 'set it if its bright.
+        If img.PixelFormat <> PixelFormat.Format32bppPArgb Then
+            Dim temp As New System.Drawing.Bitmap(img.Width, img.Height, PixelFormat.Format32bppPArgb)
+            Dim g As Graphics = Graphics.FromImage(temp)
+            g.DrawImage(img, New Rectangle(0, 0, img.Width, img.Height), 0, 0, img.Width, img.Height, GraphicsUnit.Pixel)
+            img.Dispose()
+            g.Dispose()
+            img = temp
         End If
-      Next x
-    Next y
-    'tidy up
-    bm.UnlockBits(bmdn)
-    img.UnlockBits(bmdo)
-    imageTemp = Nothing
-    'display the 1bpp image.
-    Return bm
+
+        Dim imageTemp As Image
+        imageTemp = img
+
+        'lock the bits of the original bitmap
+        Dim bmdo As BitmapData = img.LockBits(New Rectangle(0, 0, img.Width, img.Height), ImageLockMode.ReadOnly, img.PixelFormat)
+
+        'and the new 1bpp bitmap
+        Dim bm As New System.Drawing.Bitmap(imageTemp.Width, imageTemp.Height, PixelFormat.Format1bppIndexed)
+        Dim bmdn As BitmapData = bm.LockBits(New Rectangle(0, 0, bm.Width, bm.Height), ImageLockMode.ReadWrite, PixelFormat.Format1bppIndexed)
+
+        'for diagnostics
+        Dim dt As DateTime = DateTime.Now
+
+        'scan through the pixels Y by X
+        Dim y As Integer
+        For y = 0 To img.Height - 1
+            Dim x As Integer
+            For x = 0 To img.Width - 1
+                'generate the address of the colour pixel
+                Dim index As Integer = y * bmdo.Stride + x * 4
+                'check its brightness
+                If Color.FromArgb(Marshal.ReadByte(bmdo.Scan0, index + 2), Marshal.ReadByte(bmdo.Scan0, index + 1), Marshal.ReadByte(bmdo.Scan0, index)).GetBrightness() > 0.5F Then
+                    Dim imgUtil As New ImageUtil
+                    imgUtil.SetIndexedPixel(x, y, bmdn, True) 'set it if its bright.
+                End If
+            Next x
+        Next y
+        'tidy up
+        bm.UnlockBits(bmdn)
+        img.UnlockBits(bmdo)
+        imageTemp = Nothing
+        'display the 1bpp image.
+        Return bm
     End Function
 
     Public Shared Sub RotateImageClockwise(ByRef pPicBox As PictureBox)
@@ -197,11 +197,13 @@ Public Class ImageUtil
 
     Public Shared Function GetImageFrameFromFileForPrint(ByVal sFileName As String, ByVal iFrameNumber As Integer) As Image
         If ImageUtil.IsPDF(sFileName) Then 'convert one frame to a tiff for viewing
-            sFileName = ConvertPDF.PDFConvert.ConvertPdfToTiff(sFileName, iFrameNumber + 1, True)
-            GetImageFrameFromFileForPrint = ImageUtil.GetFrameFromTiff2(sFileName, 0)
-            ImageUtil.DeleteFile(sFileName)
+            Dim FileNameNoPath As String = System.Text.RegularExpressions.Regex.Replace(sFileName, "^.+\\(.+$)", "$1")
+            Dim tempOutputFileName As String = System.IO.Path.GetTempPath & System.Text.RegularExpressions.Regex.Replace(FileNameNoPath, "\.\w\w\w$", ".tif")
+            tempOutputFileName = ConvertPDF.PDFConvert.ConvertPdfToGraphic(sFileName, tempOutputFileName, "tiff24nc", 300, iFrameNumber + 1, iFrameNumber + 1, True)
+            GetImageFrameFromFileForPrint = ImageUtil.GetFrameFromTiff(tempOutputFileName, 0)
+            ImageUtil.DeleteFile(tempOutputFileName)
         ElseIf ImageUtil.IsTiff(sFileName) Then
-            GetImageFrameFromFileForPrint = ImageUtil.GetFrameFromTiff2(sFileName, iFrameNumber)
+            GetImageFrameFromFileForPrint = ImageUtil.GetFrameFromTiff(sFileName, iFrameNumber)
         End If
     End Function
 
