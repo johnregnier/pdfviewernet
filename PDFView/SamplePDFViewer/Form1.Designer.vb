@@ -24,16 +24,16 @@ Partial Class Form1
     Private Sub InitializeComponent()
         Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog
         Me.Panel1 = New System.Windows.Forms.Panel
+        Me.Panel3 = New System.Windows.Forms.Panel
+        Me.rbGS = New System.Windows.Forms.RadioButton
+        Me.rbXPDF = New System.Windows.Forms.RadioButton
         Me.TextBox1 = New System.Windows.Forms.TextBox
         Me.Button1 = New System.Windows.Forms.Button
         Me.Panel2 = New System.Windows.Forms.Panel
         Me.PdfViewer1 = New PDFView.PDFViewer
-        Me.Panel3 = New System.Windows.Forms.Panel
-        Me.rbXPDF = New System.Windows.Forms.RadioButton
-        Me.rbGS = New System.Windows.Forms.RadioButton
         Me.Panel1.SuspendLayout()
-        Me.Panel2.SuspendLayout()
         Me.Panel3.SuspendLayout()
+        Me.Panel2.SuspendLayout()
         Me.SuspendLayout()
         '
         'OpenFileDialog1
@@ -50,6 +50,37 @@ Partial Class Form1
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(539, 30)
         Me.Panel1.TabIndex = 0
+        '
+        'Panel3
+        '
+        Me.Panel3.Controls.Add(Me.rbGS)
+        Me.Panel3.Controls.Add(Me.rbXPDF)
+        Me.Panel3.Location = New System.Drawing.Point(307, 3)
+        Me.Panel3.Name = "Panel3"
+        Me.Panel3.Size = New System.Drawing.Size(148, 23)
+        Me.Panel3.TabIndex = 2
+        '
+        'rbGS
+        '
+        Me.rbGS.AutoSize = True
+        Me.rbGS.Location = New System.Drawing.Point(62, 3)
+        Me.rbGS.Name = "rbGS"
+        Me.rbGS.Size = New System.Drawing.Size(80, 17)
+        Me.rbGS.TabIndex = 1
+        Me.rbGS.Text = "GhostScript"
+        Me.rbGS.UseVisualStyleBackColor = True
+        '
+        'rbXPDF
+        '
+        Me.rbXPDF.AutoSize = True
+        Me.rbXPDF.Checked = True
+        Me.rbXPDF.Location = New System.Drawing.Point(3, 3)
+        Me.rbXPDF.Name = "rbXPDF"
+        Me.rbXPDF.Size = New System.Drawing.Size(53, 17)
+        Me.rbXPDF.TabIndex = 0
+        Me.rbXPDF.TabStop = True
+        Me.rbXPDF.Text = "XPDF"
+        Me.rbXPDF.UseVisualStyleBackColor = True
         '
         'TextBox1
         '
@@ -79,46 +110,15 @@ Partial Class Form1
         '
         'PdfViewer1
         '
-        Me.PdfViewer1.AllowBookmarks = False
+        Me.PdfViewer1.AllowBookmarks = True
+        Me.PdfViewer1.ContinuousPages = False
         Me.PdfViewer1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.PdfViewer1.FileName = Nothing
-        Me.PdfViewer1.LoadAllPages = False
         Me.PdfViewer1.Location = New System.Drawing.Point(0, 0)
         Me.PdfViewer1.Name = "PdfViewer1"
         Me.PdfViewer1.Size = New System.Drawing.Size(539, 434)
         Me.PdfViewer1.TabIndex = 0
-        Me.PdfViewer1.UseXPDF = False
-        '
-        'Panel3
-        '
-        Me.Panel3.Controls.Add(Me.rbGS)
-        Me.Panel3.Controls.Add(Me.rbXPDF)
-        Me.Panel3.Location = New System.Drawing.Point(307, 3)
-        Me.Panel3.Name = "Panel3"
-        Me.Panel3.Size = New System.Drawing.Size(148, 23)
-        Me.Panel3.TabIndex = 2
-        '
-        'rbXPDF
-        '
-        Me.rbXPDF.AutoSize = True
-        Me.rbXPDF.Location = New System.Drawing.Point(3, 3)
-        Me.rbXPDF.Name = "rbXPDF"
-        Me.rbXPDF.Size = New System.Drawing.Size(53, 17)
-        Me.rbXPDF.TabIndex = 0
-        Me.rbXPDF.Text = "XPDF"
-        Me.rbXPDF.UseVisualStyleBackColor = True
-        '
-        'rbGS
-        '
-        Me.rbGS.AutoSize = True
-        Me.rbGS.Checked = True
-        Me.rbGS.Location = New System.Drawing.Point(62, 3)
-        Me.rbGS.Name = "rbGS"
-        Me.rbGS.Size = New System.Drawing.Size(80, 17)
-        Me.rbGS.TabIndex = 1
-        Me.rbGS.TabStop = True
-        Me.rbGS.Text = "GhostScript"
-        Me.rbGS.UseVisualStyleBackColor = True
+        Me.PdfViewer1.UseXPDF = True
         '
         'Form1
         '
@@ -132,9 +132,9 @@ Partial Class Form1
         Me.Text = "Free PDF .NET Viewer"
         Me.Panel1.ResumeLayout(False)
         Me.Panel1.PerformLayout()
-        Me.Panel2.ResumeLayout(False)
         Me.Panel3.ResumeLayout(False)
         Me.Panel3.PerformLayout()
+        Me.Panel2.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
@@ -143,9 +143,9 @@ Partial Class Form1
     Friend WithEvents TextBox1 As System.Windows.Forms.TextBox
     Friend WithEvents Button1 As System.Windows.Forms.Button
     Friend WithEvents Panel2 As System.Windows.Forms.Panel
-    Friend WithEvents PdfViewer1 As PDFView.PDFViewer
     Friend WithEvents Panel3 As System.Windows.Forms.Panel
     Friend WithEvents rbGS As System.Windows.Forms.RadioButton
     Friend WithEvents rbXPDF As System.Windows.Forms.RadioButton
+    Friend WithEvents PdfViewer1 As PDFView.PDFViewer
 
 End Class

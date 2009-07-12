@@ -111,10 +111,13 @@ Namespace ConvertPDF
         Const BW_TIFF_G4 As String = "tiffg4"
         Const BW_TIFF_LZW As String = "tifflzw"
         Const GRAY_TIFF_NC As String = "tiffgray"
+        Const GRAY_PNG = "pnggray"
+        Const GRAY_JPG = "jpeggray"
         Const COLOR_TIFF_RGB As String = "tiff24nc"
         Const COLOR_TIFF_CMYK As String = "tiff32nc"
         Const COLOR_TIFF_CMYK_SEP As String = "tiffsep"
         Const COLOR_PNG_RGB As String = "png16m"
+        Const COLOR_JPEG = "jpeg"
         Const PRINT_DPI As Integer = 300
         Const VIEW_DPI As Integer = 200
 #End Region
@@ -765,44 +768,53 @@ Namespace ConvertPDF
 
 #Region "Simple Conversion Functions"
 
-        Public Shared Function ConvertPdfToTiff(ByVal filename As String, Optional ByVal PageNumber As Integer = 0, Optional ByVal ToPrinter As Boolean = False) As String
-            ConvertPdfToTiff = ""
+        Public Shared Function ConvertPdfToGraphic(ByVal inputFileName As String, _
+                                                   ByVal outputFileName As String, _
+                                                   ByVal fileFormat As String, _
+                                                   ByVal DPI As Integer, _
+                                                   Optional ByVal startPageNumber As Integer = 0, _
+                                                   Optional ByVal endPageNumber As Integer = 0, _
+                                                   Optional ByVal ToPrinter As Boolean = False _
+                                                   ) As String
+            ConvertPdfToGraphic = ""
             Dim converter As New ConvertPDF.PDFConvert
             Dim Converted As Boolean = False
-            'converter.RenderingThreads = 4
-            converter.OutputToMultipleFile = False
-            If PageNumber = 0 Then
+            converter.RenderingThreads = Environment.ProcessorCount
+            If fileFormat.Contains("tif") Then
+                converter.OutputToMultipleFile = False
+            Else
+                converter.OutputToMultipleFile = True
+            End If
+            If startPageNumber = 0 Then
                 converter.FirstPageToConvert = -1
                 converter.LastPageToConvert = -1
             Else
-                converter.FirstPageToConvert = PageNumber
-                converter.LastPageToConvert = PageNumber
+                converter.FirstPageToConvert = startPageNumber
+                converter.LastPageToConvert = endPageNumber
             End If
             converter.FitPage = False
-            converter.JPEGQuality = 10
-            If ToPrinter = True Then 'Settings for decent print quality
+            converter.JPEGQuality = 70
+            If ToPrinter = True Then 'Turn off anti-aliasing
                 converter.TextAlphaBit = -1
                 converter.GraphicsAlphaBit = -1
-                converter.ResolutionX = 300
-                converter.ResolutionY = 300
-            Else 'Settings for screen resolution
+            Else 'Turn on anti-aliasing
                 converter.TextAlphaBit = 4
                 converter.GraphicsAlphaBit = 4
-                converter.ResolutionX = 200
-                converter.ResolutionY = 200
             End If
-            converter.OutputFormat = COLOR_TIFF_RGB
-            Dim input As System.IO.FileInfo = New FileInfo(filename)
-            Dim output As String = String.Format("{0}\{1}{2}", System.IO.Path.GetTempPath, input.Name, ".tif")
-            'If the output file exist alrady be sure to add a random name at the end until is unique!
-            While File.Exists(output)
-                output = output.Replace(".tif", String.Format("{1}{0}", ".tif", DateTime.Now.Ticks))
+            converter.ResolutionX = DPI
+            converter.ResolutionY = DPI
+            converter.OutputFormat = fileFormat
+            Dim input As System.IO.FileInfo = New FileInfo(inputFileName)
+            'If the output file exists already, be sure to add a random name at the end until it is unique
+            While File.Exists(outputFileName)
+                Dim suffix As String = System.Text.RegularExpressions.Regex.Replace(outputFileName, "^.+\.(.+$)", "$1")
+                outputFileName = outputFileName.Replace("." & suffix, "(" & Now.Ticks & ")." & suffix)
             End While
-            Converted = converter.Convert(input.FullName, output)
+            Converted = converter.Convert(input.FullName, outputFileName)
             If Converted Then
-                ConvertPdfToTiff = output
+                ConvertPdfToGraphic = outputFileName
             Else
-                ConvertPdfToTiff = ""
+                ConvertPdfToGraphic = ""
             End If
         End Function
 

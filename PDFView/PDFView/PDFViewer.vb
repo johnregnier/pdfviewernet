@@ -8,15 +8,12 @@ Imports PDFLibNet
 Public Class PDFViewer
     Private mOriginalFileName
     Private mPDFFileName As String
-    Private mPDFFrameFileName As String
     Private mPDFPageCount As Integer
     Private mCurrentPageNumber As Integer
     Private m_PanStartPoint As Point
-    Private mTempPDFTiffFile As String
-    Private mAllPages As Boolean
     Private mBookmarks As ArrayList
-    Private mAllowBookmarks As Boolean
-    Private mUseXPDF As Boolean
+    Private mAllowBookmarks As Boolean = True
+    Private mUseXPDF As Boolean = True
     Private mPDFDoc As PDFLibNet.PDFWrapper
     Private FromBeginning As Boolean = True
     Private XPDFPrintingPicBox As New PictureBox
@@ -35,7 +32,6 @@ Public Class PDFViewer
                 GoTo LoadError
             End If
             mOriginalFileName = value
-            ImageUtil.DeleteFile(mTempPDFTiffFile)
             If ImageUtil.IsPDF(value) Then
                 If mUseXPDF Then
                     If Not Nothing Is mPDFDoc Then
@@ -45,10 +41,6 @@ Public Class PDFViewer
                     mPDFDoc.LoadPDF(value)
                     tsBottom.Visible = True
                 Else
-                    If mAllPages = True Then
-                        value = ConvertPDF.PDFConvert.ConvertPdfToTiff(value, 0)
-                        mTempPDFTiffFile = value
-                    End If
                     tsBottom.Visible = False
                 End If
                 mPDFFileName = value
@@ -69,15 +61,6 @@ LoadError:
         End Set
     End Property
 
-    Public Property LoadAllPages() As Boolean
-        Get
-            Return mAllPages
-        End Get
-        Set(ByVal value As Boolean)
-            mAllPages = value
-        End Set
-    End Property
-
     Public Property ContinuousPages() As Boolean
         Get
             Return mContinuousPages
@@ -93,9 +76,6 @@ LoadError:
         End Get
         Set(ByVal value As Boolean)
             mUseXPDF = value
-            If mUseXPDF Then
-                mAllPages = False
-            End If
         End Set
     End Property
 
@@ -124,14 +104,23 @@ LoadError:
         End Get
     End Property
 
+    Public Sub SelectFile()
+        OpenFileDialog1.Filter = "PDF files (*.pdf)|*.pdf|" & "TIFF files (*.tif)|*.tif"
+        OpenFileDialog1.FileName = ""
+        OpenFileDialog1.ShowDialog()
+        FileName = OpenFileDialog1.FileName
+    End Sub
+
     Private Sub PDFViewer_ControlRemoved(ByVal sender As Object, ByVal e As System.Windows.Forms.ControlEventArgs) Handles Me.ControlRemoved
-        ImageUtil.DeleteFile(mTempPDFTiffFile)
-        ImageUtil.DeleteFile(mPDFFrameFileName)
+        If Not Nothing Is mPDFDoc Then
+            mPDFDoc.Dispose()
+        End If
     End Sub
 
     Private Sub PDFViewer_Disposed(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Disposed
-        ImageUtil.DeleteFile(mTempPDFTiffFile)
-        ImageUtil.DeleteFile(mPDFFrameFileName)
+        If Not Nothing Is mPDFDoc Then
+            mPDFDoc.Dispose()
+        End If
     End Sub
 
     Private Sub PDFViewer_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
@@ -268,9 +257,6 @@ LoadError:
     Private Function ShowImageFromFile(ByVal sFileName As String, ByVal iFrameNumber As Integer, ByRef oPictureBox As PictureBox, Optional ByVal XPDFDPI As Integer = 0) As Image
         oPictureBox.Invalidate()
         'Cursor.Current = Cursors.WaitCursor
-        If mPDFFrameFileName <> "" Then
-            ImageUtil.DeleteFile(mPDFFrameFileName)
-        End If
         If mUseXPDF Then 'Use AFPDFLib (XPDF)
             If ImageUtil.IsPDF(sFileName) Then
                 If XPDFDPI > 0 Then
@@ -283,7 +269,7 @@ LoadError:
             If ImageUtil.IsPDF(sFileName) Then 'convert one frame to a tiff for viewing
                 oPictureBox.Image = ConvertPDF.PDFConvert.GetPageFromPDF(sFileName, iFrameNumber + 1)
             ElseIf ImageUtil.IsTiff(sFileName) Then
-                oPictureBox.Image = ImageUtil.GetFrameFromTiff2(sFileName, iFrameNumber)
+                oPictureBox.Image = ImageUtil.GetFrameFromTiff(sFileName, iFrameNumber)
             End If
         End If
         oPictureBox.Update()
@@ -708,5 +694,9 @@ LoadError:
 
 #End Region
 
+    Private Sub tsExport_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsExport.Click
+        Dim exportOptionsDialog As New ExportOptions(mPDFFileName)
+        exportOptionsDialog.ShowDialog()
+    End Sub
 End Class
 
