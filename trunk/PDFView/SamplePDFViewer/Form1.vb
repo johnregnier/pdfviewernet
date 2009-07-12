@@ -10,6 +10,7 @@
 
     Private Sub Button1_Click_1(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
         PdfViewer1.SelectFile()
+        TextBox1.Text = PdfViewer1.FileName
     End Sub
 
     Private Sub rbXPDF_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rbXPDF.CheckedChanged

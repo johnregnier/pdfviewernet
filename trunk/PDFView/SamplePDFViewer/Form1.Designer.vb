@@ -111,7 +111,6 @@ Partial Class Form1
         'PdfViewer1
         '
         Me.PdfViewer1.AllowBookmarks = True
-        Me.PdfViewer1.ContinuousPages = False
         Me.PdfViewer1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.PdfViewer1.FileName = Nothing
         Me.PdfViewer1.Location = New System.Drawing.Point(0, 0)
