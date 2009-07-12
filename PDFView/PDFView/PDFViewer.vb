@@ -61,14 +61,14 @@ LoadError:
         End Set
     End Property
 
-    Public Property ContinuousPages() As Boolean
-        Get
-            Return mContinuousPages
-        End Get
-        Set(ByVal value As Boolean)
-            mContinuousPages = value
-        End Set
-    End Property
+    'Public Property ContinuousPages() As Boolean
+    '    Get
+    '        Return mContinuousPages
+    '    End Get
+    '    Set(ByVal value As Boolean)
+    '        mContinuousPages = value
+    '    End Set
+    'End Property
 
     Public Property UseXPDF() As Boolean
         Get
