@@ -41,7 +41,7 @@ Public Class PDFViewer
                     If Not Nothing Is mPDFDoc Then
                         mPDFDoc.Dispose()
                     End If
-                    mPDFDoc = New PDFLibNet.PDFWrapper()
+                    mPDFDoc = New PDFLibNet.PDFWrapper("")
                     mPDFDoc.LoadPDF(value)
                     tsBottom.Visible = True
                 Else
