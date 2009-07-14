@@ -86,7 +86,7 @@ Public Class AFPDFLibUtil
                     pdfDoc.CurrentX = 0
                     pdfDoc.CurrentY = 0
                     pdfDoc.RenderDPI = PRINT_DPI
-                    pdfDoc.RenderPage(picbox.Handle.ToInt32())
+                    pdfDoc.RenderPageForPrint(picbox.Handle.ToInt32())
                     PrinterUtil.PrintImageToPrinter(ImageUtil.CropBitmap(Render(pdfDoc, picbox), 0, 0, pdfDoc.PageWidth, pdfDoc.PageHeight - 2), PD.PrinterSettings)
                     pdfDoc.RenderDPI = RENDER_DPI
                 Next
