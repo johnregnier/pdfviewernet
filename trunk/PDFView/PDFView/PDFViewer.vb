@@ -206,12 +206,11 @@ Public Class PDFViewer
     End Sub
 
     Private Sub tsPrint_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsPrint.Click
-        'AFPDFLib currently renders with anti-aliasing enabled which makes printed edges look slightly fuzzy
-        'If mUseXPDF Then
-        'AFPDFLibUtil.PrintPDFImagesToPrinter(mPDFDoc, XPDFPrintingPicBox)
-        'Else
-        PrinterUtil.PrintPDFImagesToPrinter(mOriginalFileName)
-        'End If
+        If mUseXPDF Then
+            AFPDFLibUtil.PrintPDFImagesToPrinter(mPDFDoc, XPDFPrintingPicBox)
+        Else
+            PrinterUtil.PrintPDFImagesToPrinter(mOriginalFileName)
+        End If
     End Sub
 
     Private Sub tsRotateCC_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsRotateCC.Click
