@@ -5,7 +5,7 @@ Imports System.Drawing.Printing
 Public Class AFPDFLibUtil
 
     Const RENDER_DPI As Integer = 200
-    Const PRINT_DPI As Integer = 300
+    Const PRINT_DPI As Integer = 600
 
     Public Shared Sub DrawImageFromPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal PageNumber As Integer, ByRef oPictureBox As PictureBox, Optional ByVal DPI As Integer = RENDER_DPI)
         Try
@@ -55,7 +55,7 @@ Public Class AFPDFLibUtil
                 ElseIf fileName.EndsWith(".txt") Then
                     pdfDoc.ExportText(fileName, startPage, endPage, True, True)
                 ElseIf fileName.EndsWith(".html") Then
-                    pdfDoc.ExportHtml(fileName, startPage, endPage, True, True)
+                    pdfDoc.ExportHtml(fileName, startPage, endPage, True, True, False)
                 End If
             Catch ex As Exception
                 MessageBox.Show(ex.ToString())
@@ -86,10 +86,15 @@ Public Class AFPDFLibUtil
                     pdfDoc.CurrentX = 0
                     pdfDoc.CurrentY = 0
                     pdfDoc.RenderDPI = PRINT_DPI
-                    pdfDoc.RenderPageForPrint(picbox.Handle.ToInt32())
+                    PDFLibNet.xPDFParams.Antialias = False
+                    PDFLibNet.xPDFParams.VectorAntialias = False
+                    pdfDoc.RenderPage(picbox.Handle.ToInt32(), True)
                     PrinterUtil.PrintImageToPrinter(ImageUtil.CropBitmap(Render(pdfDoc, picbox), 0, 0, pdfDoc.PageWidth, pdfDoc.PageHeight - 2), PD.PrinterSettings)
                     pdfDoc.RenderDPI = RENDER_DPI
                 Next
+                PDFLibNet.xPDFParams.Antialias = True
+                PDFLibNet.xPDFParams.VectorAntialias = True
+                pdfDoc.RenderPage(picbox.Handle.ToInt32(), True)
             End If
         End If
     End Sub

@@ -45,8 +45,8 @@
                 ConvertPDF.PDFConvert.ConvertPdfToGraphic(mPdfFileName, SaveFileDialog1.FileName, COLOR_PNG_RGB, nuDPI.Value, nuStart.Value, nuDown.Value, False)
             ElseIf filename.EndsWith(".txt") Then
                 mpdfDoc.ExportText(filename, nuStart.Value, nuDown.Value, True, True)
-            ElseIf filename.EndsWith(".html") Then
-                mpdfDoc.ExportHtml(filename, nuStart.Value, nuDown.Value, True, True)
+                'ElseIf filename.EndsWith(".html") Then
+                '    mpdfDoc.ExportHtml(filename, nuStart.Value, nuDown.Value, True, True, False)
             End If
             Windows.Forms.Cursor.Current = Windows.Forms.Cursors.Default
         End If
@@ -70,14 +70,19 @@
             SaveFileDialog1.Filter = rbHtml.Tag
         ElseIf rbJpeg.Checked Then
             SaveFileDialog1.Filter = rbJpeg.Tag
+            GroupBox3.Enabled = True
         ElseIf rbPostscript.Checked Then
             SaveFileDialog1.Filter = rbPostscript.Tag
+            GroupBox3.Enabled = False
         ElseIf rbText.Checked Then
             SaveFileDialog1.Filter = rbText.Tag
+            GroupBox3.Enabled = False
         ElseIf rbPNG.Checked Then
             SaveFileDialog1.Filter = rbPNG.Tag
+            GroupBox3.Enabled = True
         ElseIf rbTIFF.Checked Then
             SaveFileDialog1.Filter = rbTIFF.Tag
+            GroupBox3.Enabled = True
         End If
     End Sub
 

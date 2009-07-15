@@ -38,9 +38,9 @@ Partial Class ExportOptions
         Me.btCancel = New System.Windows.Forms.Button
         Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog
         Me.GroupBox3 = New System.Windows.Forms.GroupBox
-        Me.nuDPI = New System.Windows.Forms.NumericUpDown
-        Me.Label3 = New System.Windows.Forms.Label
         Me.Label4 = New System.Windows.Forms.Label
+        Me.Label3 = New System.Windows.Forms.Label
+        Me.nuDPI = New System.Windows.Forms.NumericUpDown
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         CType(Me.nuDown, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -67,7 +67,7 @@ Partial Class ExportOptions
         'rbTIFF
         '
         Me.rbTIFF.AutoSize = True
-        Me.rbTIFF.Location = New System.Drawing.Point(139, 65)
+        Me.rbTIFF.Location = New System.Drawing.Point(139, 42)
         Me.rbTIFF.Name = "rbTIFF"
         Me.rbTIFF.Size = New System.Drawing.Size(47, 17)
         Me.rbTIFF.TabIndex = 5
@@ -91,7 +91,7 @@ Partial Class ExportOptions
         'rbJpeg
         '
         Me.rbJpeg.AutoSize = True
-        Me.rbJpeg.Location = New System.Drawing.Point(139, 42)
+        Me.rbJpeg.Location = New System.Drawing.Point(139, 19)
         Me.rbJpeg.Name = "rbJpeg"
         Me.rbJpeg.Size = New System.Drawing.Size(55, 17)
         Me.rbJpeg.TabIndex = 3
@@ -115,7 +115,7 @@ Partial Class ExportOptions
         'rbHtml
         '
         Me.rbHtml.AutoSize = True
-        Me.rbHtml.Location = New System.Drawing.Point(139, 19)
+        Me.rbHtml.Location = New System.Drawing.Point(139, 65)
         Me.rbHtml.Name = "rbHtml"
         Me.rbHtml.Size = New System.Drawing.Size(115, 17)
         Me.rbHtml.TabIndex = 1
@@ -123,6 +123,7 @@ Partial Class ExportOptions
         Me.rbHtml.Tag = "HTML (*.html)|*.html"
         Me.rbHtml.Text = "HTML (Web Page)"
         Me.rbHtml.UseVisualStyleBackColor = True
+        Me.rbHtml.Visible = False
         '
         'rbPostscript
         '
@@ -215,15 +216,14 @@ Partial Class ExportOptions
         Me.GroupBox3.TabStop = False
         Me.GroupBox3.Text = "Image Options"
         '
-        'nuDPI
+        'Label4
         '
-        Me.nuDPI.Location = New System.Drawing.Point(66, 22)
-        Me.nuDPI.Maximum = New Decimal(New Integer() {1200, 0, 0, 0})
-        Me.nuDPI.Minimum = New Decimal(New Integer() {72, 0, 0, 0})
-        Me.nuDPI.Name = "nuDPI"
-        Me.nuDPI.Size = New System.Drawing.Size(58, 20)
-        Me.nuDPI.TabIndex = 0
-        Me.nuDPI.Value = New Decimal(New Integer() {72, 0, 0, 0})
+        Me.Label4.AutoSize = True
+        Me.Label4.Location = New System.Drawing.Point(129, 24)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(25, 13)
+        Me.Label4.TabIndex = 2
+        Me.Label4.Text = "DPI"
         '
         'Label3
         '
@@ -234,14 +234,15 @@ Partial Class ExportOptions
         Me.Label3.TabIndex = 1
         Me.Label3.Text = "Resolution:"
         '
-        'Label4
+        'nuDPI
         '
-        Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(129, 24)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(25, 13)
-        Me.Label4.TabIndex = 2
-        Me.Label4.Text = "DPI"
+        Me.nuDPI.Location = New System.Drawing.Point(66, 22)
+        Me.nuDPI.Maximum = New Decimal(New Integer() {1200, 0, 0, 0})
+        Me.nuDPI.Minimum = New Decimal(New Integer() {72, 0, 0, 0})
+        Me.nuDPI.Name = "nuDPI"
+        Me.nuDPI.Size = New System.Drawing.Size(58, 20)
+        Me.nuDPI.TabIndex = 0
+        Me.nuDPI.Value = New Decimal(New Integer() {72, 0, 0, 0})
         '
         'ExportOptions
         '
