@@ -42,6 +42,8 @@ Namespace ConvertPDF
         Private Const GS_QuiteOperation As String = "-q"
         Private Const GS_StandardOutputDevice As String = "-"
         Private Const GS_MultiplePageCharacter As String = "%"
+        Private Const GS_MaxBitmap As String = "-dMaxBitmap={0}"
+        Private Const GS_BufferSpace As String = "-dBufferSpace={0}"
 #End Region
 #Region "Windows Import"
         ''' <summary>Needed to copy memory from one location to another, used to fill the struct</summary>
@@ -130,6 +132,8 @@ Namespace ConvertPDF
         Private _iResolutionX As Integer
         Private _iResolutionY As Integer
         Private _iJPEGQuality As Integer
+        Private _iMaxBitmap As Integer = 0
+        Private _iMaxBuffer As Integer = 0
         ''' <summary>The first page to convert in image</summary>
         Private _iFirstPageToConvert As Integer = -1
         ''' <summary>The last page to conver in an image</summary>
@@ -233,6 +237,24 @@ Namespace ConvertPDF
             End Get
             Set(ByVal value As Integer)
                 _iHeight = value
+            End Set
+        End Property
+
+        Public Property MaxBitmap() As Integer
+            Get
+                Return _iMaxBitmap
+            End Get
+            Set(ByVal value As Integer)
+                _iMaxBitmap = value
+            End Set
+        End Property
+
+        Public Property MaxBuffer() As Integer
+            Get
+                Return _iMaxBuffer
+            End Get
+            Set(ByVal value As Integer)
+                _iMaxBuffer = value
             End Set
         End Property
 
@@ -600,6 +622,13 @@ Namespace ConvertPDF
                 If _bFitPage Then
                     lstExtraArgs.Add(GS_FitPage)
                 End If
+                'Should I try to speed up rendering?
+                If _iMaxBitmap > 0 Then
+                    lstExtraArgs.Add([String].Format(GS_MaxBitmap, _iMaxBitmap))
+                End If
+                If _iMaxBuffer > 0 Then
+                    lstExtraArgs.Add([String].Format(GS_BufferSpace, _iMaxBuffer))
+                End If
                 'Do i have a forced resolution?
                 If _iResolutionX > 0 Then
                     If _iResolutionY > 0 Then
@@ -823,6 +852,8 @@ Namespace ConvertPDF
             Dim Converted As Boolean = False
             converter.RenderingThreads = Environment.ProcessorCount
             converter.OutputToMultipleFile = False
+            converter.MaxBitmap = 100000000 '100 MB
+            converter.MaxBuffer = 200000000 '200 MB
             If PageNumber > 0 Then
                 converter.FirstPageToConvert = PageNumber
                 converter.LastPageToConvert = PageNumber

@@ -5,7 +5,7 @@ Imports System.Drawing.Printing
 Public Class AFPDFLibUtil
 
     Const RENDER_DPI As Integer = 200
-    Const PRINT_DPI As Integer = 600
+    Const PRINT_DPI As Integer = 300
 
     Public Shared Sub DrawImageFromPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal PageNumber As Integer, ByRef oPictureBox As PictureBox, Optional ByVal DPI As Integer = RENDER_DPI)
         Try
