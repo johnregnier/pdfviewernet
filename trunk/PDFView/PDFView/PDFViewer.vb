@@ -34,7 +34,6 @@ Public Class PDFViewer
             mOriginalFileName = value
             If ImageUtil.IsTiff(value) Then
                 'Tiff Specific behavior
-                mUseXPDF = False
                 tsBottom.Visible = False
             ElseIf ImageUtil.IsPDF(value) Then
                 If mUseXPDF Then
@@ -54,8 +53,10 @@ Public Class PDFViewer
             Cursor.Current = Cursors.WaitCursor
             InitPageRange()
             InitializePageView(ViewMode.FIT_WIDTH)
-            If mAllowBookmarks Then
+            If mAllowBookmarks And ImageUtil.IsPDF(mOriginalFileName) Then
                 InitBookmarks()
+            Else
+                HideBookmarks()
             End If
             FitToScreen()
             DisplayCurrentPage()
@@ -206,7 +207,7 @@ Public Class PDFViewer
     End Sub
 
     Private Sub tsPrint_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsPrint.Click
-        If mUseXPDF Then
+        If mUseXPDF And ImageUtil.IsPDF(mOriginalFileName) Then
             AFPDFLibUtil.PrintPDFImagesToPrinter(mPDFDoc, XPDFPrintingPicBox)
         Else
             PrinterUtil.PrintPDFImagesToPrinter(mOriginalFileName)
@@ -266,13 +267,11 @@ Public Class PDFViewer
     Private Function ShowImageFromFile(ByVal sFileName As String, ByVal iFrameNumber As Integer, ByRef oPictureBox As PictureBox, Optional ByVal XPDFDPI As Integer = 0) As Image
         oPictureBox.Invalidate()
         'Cursor.Current = Cursors.WaitCursor
-        If mUseXPDF Then 'Use AFPDFLib (XPDF)
-            If ImageUtil.IsPDF(sFileName) Then
-                If XPDFDPI > 0 Then
-                    AFPDFLibUtil.DrawImageFromPDF(mPDFDoc, iFrameNumber + 1, oPictureBox, XPDFDPI)
-                Else
-                    AFPDFLibUtil.DrawImageFromPDF(mPDFDoc, iFrameNumber + 1, oPictureBox)
-                End If
+        If mUseXPDF And ImageUtil.IsPDF(sFileName) Then 'Use AFPDFLib (XPDF)
+            If XPDFDPI > 0 Then
+                AFPDFLibUtil.DrawImageFromPDF(mPDFDoc, iFrameNumber + 1, oPictureBox, XPDFDPI)
+            Else
+                AFPDFLibUtil.DrawImageFromPDF(mPDFDoc, iFrameNumber + 1, oPictureBox)
             End If
         Else 'Use Ghostscript
             If ImageUtil.IsPDF(sFileName) Then 'convert one frame to a tiff for viewing
@@ -407,7 +406,6 @@ Public Class PDFViewer
     End Sub
 
     Private Delegate Sub ShowImage(ByVal sFileName As String, ByVal iFrameNumber As Integer, ByRef oPictureBox As PictureBox, ByVal XPDFDPI As Integer)
-
 
     Private Sub FlowPanel_Scroll(ByVal sender As Object, ByVal e As System.Windows.Forms.ScrollEventArgs)
         ScrollBarPosition = e.NewValue()
