@@ -123,7 +123,6 @@ Partial Class ExportOptions
         Me.rbHtml.Tag = "HTML (*.html)|*.html"
         Me.rbHtml.Text = "HTML (Web Page)"
         Me.rbHtml.UseVisualStyleBackColor = True
-        Me.rbHtml.Visible = False
         '
         'rbPostscript
         '
@@ -255,7 +254,7 @@ Partial Class ExportOptions
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
         Me.Name = "ExportOptions"
-        Me.Text = "Export PDF"
+        Me.Text = "Export PDF Options"
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
         Me.GroupBox2.ResumeLayout(False)

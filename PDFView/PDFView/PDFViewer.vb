@@ -34,7 +34,7 @@ Public Class PDFViewer
             mOriginalFileName = value
             If ImageUtil.IsTiff(value) Then
                 'Tiff Specific behavior
-                tsBottom.Visible = False
+                InitBottomToolbar("TIFF")
             ElseIf ImageUtil.IsPDF(value) Then
                 If mUseXPDF Then
                     If Not Nothing Is mPDFDoc Then
@@ -42,9 +42,9 @@ Public Class PDFViewer
                     End If
                     mPDFDoc = New PDFLibNet.PDFWrapper("")
                     mPDFDoc.LoadPDF(value)
-                    tsBottom.Visible = True
+                    InitBottomToolbar("XPDF")
                 Else
-                    tsBottom.Visible = False
+                    InitBottomToolbar("GS")
                 End If
             Else
                 Me.Enabled = False
@@ -223,8 +223,13 @@ Public Class PDFViewer
     End Sub
 
     Private Sub tsExport_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsExport.Click
-        Dim exportOptionsDialog As New ExportOptions(mPDFFileName, mPDFDoc)
-        exportOptionsDialog.ShowDialog()
+        If ImageUtil.IsPDF(mOriginalFileName) Then
+            Dim exportOptionsDialog As New ExportOptions(mPDFFileName, mPDFDoc)
+            exportOptionsDialog.ShowDialog()
+        ElseIf ImageUtil.IsTiff(mOriginalFileName) Then
+            Dim exportOptionsDialog As New ExportImageOptions(mPDFFileName)
+            exportOptionsDialog.ShowDialog()
+        End If
         Me.Focus()
     End Sub
 
@@ -312,6 +317,28 @@ Public Class PDFViewer
             TreeView1.SelectedNode = TreeView1.Nodes.Item(0)
         Else
             HideBookmarks()
+        End If
+    End Sub
+
+    Private Sub InitBottomToolbar(ByVal Mode As String)
+        If Mode = "TIFF" Then
+            btSearch.Visible = False
+            btNext.Visible = False
+            tbSearchText.Visible = False
+            ToolStripSeparator5.Visible = False
+            tsExport.Visible = True
+        ElseIf Mode = "GS" Then
+            btSearch.Visible = False
+            btNext.Visible = False
+            tbSearchText.Visible = False
+            ToolStripSeparator5.Visible = False
+            tsExport.Visible = False
+        ElseIf Mode = "XPDF" Then
+            btSearch.Visible = True
+            btNext.Visible = True
+            tbSearchText.Visible = True
+            ToolStripSeparator5.Visible = True
+            tsExport.Visible = True
         End If
     End Sub
 

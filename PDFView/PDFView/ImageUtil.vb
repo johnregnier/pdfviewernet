@@ -211,18 +211,14 @@ Public Class ImageUtil
         If ImageUtil.IsPDF(sFileName) Then
             GetImageFrameCount = iTextSharpUtil.GetPDFPageCount(sFileName)
         ElseIf ImageUtil.IsTiff(sFileName) Then
-            Dim dib As FIMULTIBITMAP = New FIMULTIBITMAP()
-            dib = FreeImage.OpenMultiBitmapEx(sFileName)
-            GetImageFrameCount = FreeImage.GetPageCount(dib)
-            FreeImage.CloseMultiBitmapEx(dib)
+            GetImageFrameCount = GetTiffFrameCount(sFileName)
         End If
     End Function
 
     Public Shared Function GetTiffFrameCount(ByVal FileName As String) As Integer
-        Dim fs As FileStream = File.Open(FileName, FileMode.Open, FileAccess.Read)
-        Dim bm As System.Drawing.Bitmap = CType(System.Drawing.Bitmap.FromStream(fs), System.Drawing.Bitmap)
+        Dim bm As New System.Drawing.Bitmap(FileName)
         GetTiffFrameCount = bm.GetFrameCount(FrameDimension.Page)
-        fs.Close()
+        bm.Dispose()
     End Function
 
     Public Shared Sub DeleteFile(ByVal filename As String)

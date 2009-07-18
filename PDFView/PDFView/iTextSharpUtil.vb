@@ -1,9 +1,11 @@
 ﻿Imports iTextSharp.text.pdf
+Imports iTextSharp.text
 Imports System.IO
 Imports System.Text
 Imports System.Xml
 Imports System.Text.RegularExpressions
 Imports System.Windows.Forms
+Imports System.Drawing.Imaging
 
 Public Class iTextSharpUtil
 
@@ -56,5 +58,51 @@ Public Class iTextSharpUtil
         End Using
         Return True
     End Function
+
+    Public Shared Function TiffToPDF(ByVal psFilename As String, ByVal outputFileName As String, ByVal startPage As Integer, ByVal endPage As Integer, ByVal psPageSize As iTextSharp.text.Rectangle)
+        ' creation of the document with a certain size and certain margins
+        Dim document As New Document(psPageSize, 50, 50, 50, 50)
+        'Document.compress = false;
+
+        Try
+            ' creation of the different writers
+            Dim writer As PdfWriter = PdfWriter.GetInstance(document, New FileStream(outputFileName, FileMode.Create))
+
+            Dim bm As New System.Drawing.Bitmap(psFilename)
+            Dim total As Integer = bm.GetFrameCount(FrameDimension.Page)
+
+            Console.WriteLine("Number of images in this TIFF: " & total)
+
+            If endPage > total Then
+                endPage = total
+            End If
+
+            If startPage < 1 Then
+                startPage = 1
+            End If
+
+            ' Which of the multiple images in the TIFF file do we want to load
+            ' 0 refers to the first, 1 to the second and so on.
+            document.Open()
+            Dim cb As PdfContentByte = writer.DirectContent
+            For k As Integer = startPage To endPage
+                bm.SelectActiveFrame(FrameDimension.Page, k - 1)
+                Dim img As Image = Image.GetInstance(bm, ImageFormat.Tiff)
+                img.ScalePercent(72.0F / bm.HorizontalResolution * 100)
+                img.SetAbsolutePosition(0, 0)
+                Console.WriteLine("Image: " & k)
+                cb.AddImage(img)
+                document.NewPage()
+            Next
+            bm.Dispose()
+            document.Close()
+            TiffToPDF = outputFileName
+        Catch de As Exception
+            Console.[Error].WriteLine(de.Message)
+            Console.[Error].WriteLine(de.StackTrace)
+            TiffToPDF = ""
+        End Try
+    End Function
+
 
 End Class
