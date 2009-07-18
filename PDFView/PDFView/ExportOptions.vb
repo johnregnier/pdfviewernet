@@ -40,13 +40,19 @@
             ElseIf filename.EndsWith(".jpg") Then
                 ConvertPDF.PDFConvert.ConvertPdfToGraphic(mPdfFileName, SaveFileDialog1.FileName, COLOR_JPEG, nuDPI.Value, nuStart.Value, nuDown.Value, False)
             ElseIf filename.EndsWith(".tif") Then
-                ConvertPDF.PDFConvert.ConvertPdfToGraphic(mPdfFileName, SaveFileDialog1.FileName, COLOR_TIFF_RGB, nuDPI.Value, nuStart.Value, nuDown.Value, False)
+                Dim returnFileName As String
+                returnFileName = ConvertPDF.PDFConvert.ConvertPdfToGraphic(mPdfFileName, SaveFileDialog1.FileName, COLOR_TIFF_RGB, nuDPI.Value, nuStart.Value, nuDown.Value, False)
+                Try
+                    ImageUtil.CompressTiff(returnFileName)
+                Catch
+                    MsgBox("An error occurred while applying LZW compression to the TIFF file. The TIFF file has been saved in an uncompressed format instead.", MsgBoxStyle.OkOnly, "TIFF Compression Error")
+                End Try
             ElseIf filename.EndsWith(".png") Then
-                ConvertPDF.PDFConvert.ConvertPdfToGraphic(mPdfFileName, SaveFileDialog1.FileName, COLOR_PNG_RGB, nuDPI.Value, nuStart.Value, nuDown.Value, False)
+                    ConvertPDF.PDFConvert.ConvertPdfToGraphic(mPdfFileName, SaveFileDialog1.FileName, COLOR_PNG_RGB, nuDPI.Value, nuStart.Value, nuDown.Value, False)
             ElseIf filename.EndsWith(".txt") Then
-                mpdfDoc.ExportText(filename, nuStart.Value, nuDown.Value, True, True)
+                    mpdfDoc.ExportText(filename, nuStart.Value, nuDown.Value, True, True)
             ElseIf filename.EndsWith(".html") Then
-                mpdfDoc.ExportHtml(filename, nuStart.Value, nuDown.Value, True, True, False)
+                    mpdfDoc.ExportHtml(filename, nuStart.Value, nuDown.Value, True, True, False)
             End If
             Windows.Forms.Cursor.Current = Windows.Forms.Cursors.Default
         End If

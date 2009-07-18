@@ -244,6 +244,58 @@ Public Class ImageUtil
         Return cropped
     End Function
 
+    Public Shared Sub CompressTiff(ByVal Filename As String)
+        Dim myBitmap As System.Drawing.Bitmap
+        Dim myImageCodecInfo As ImageCodecInfo
+        Dim myEncoder As Encoder
+        Dim myEncoderParameter1 As EncoderParameter
+        Dim myEncoderParameter2 As EncoderParameter
+        Dim myEncoderParameters As EncoderParameters
+
+        ' Create a Bitmap object based on a BMP file.
+        myBitmap = New System.Drawing.Bitmap(Filename)
+
+        ' Get an ImageCodecInfo object that represents the TIFF codec.
+        myImageCodecInfo = GetEncoderInfo("image/tiff")
+
+        ' Create an Encoder object based on the GUID
+        ' for the Compression parameter category.
+        myEncoder = Encoder.Compression
+
+        ' Create an EncoderParameters object.
+        ' An EncoderParameters object has an array of EncoderParameter
+        ' objects. In this case, there is only one
+        ' EncoderParameter object in the array.
+        myEncoderParameters = New EncoderParameters(2)
+
+        ' Save the bitmap as a TIFF file with LZW compression.
+        myEncoderParameter1 = New EncoderParameter(myEncoder, Fix(EncoderValue.CompressionLZW))
+        myEncoderParameter2 = New EncoderParameter(Encoder.SaveFlag, CLng(EncoderValue.MultiFrame))
+
+        myEncoderParameters.Param(0) = myEncoderParameter1
+        myEncoderParameters.Param(1) = myEncoderParameter2
+        Dim outputfilename As String = Filename.Replace(".tif", Now.Ticks & ".tif")
+        myBitmap.Save(outputfilename, myImageCodecInfo, myEncoderParameters)
+        Dim FrameCount As Integer = myBitmap.GetFrameCount(FrameDimension.Page)
+        If FrameCount > 1 Then
+            For iFrame As Integer = 1 To FrameCount - 1
+                myBitmap.SelectActiveFrame(FrameDimension.Page, iFrame)
+                myEncoderParameters.Param(0) = New EncoderParameter(Encoder.SaveFlag, CLng(EncoderValue.FrameDimensionPage))
+                myBitmap.SaveAdd(myBitmap, myEncoderParameters)
+            Next
+        End If
+        myEncoderParameters.Param(0) = New EncoderParameter(Encoder.SaveFlag, CLng(EncoderValue.Flush))
+        myBitmap.SaveAdd(myEncoderParameters)
+        myBitmap.Dispose()
+        While File.Exists(Filename)
+            Try
+                File.Delete(Filename)
+            Catch
+            End Try
+        End While
+        File.Move(outputfilename, Filename)
+    End Sub
+
     'Needed subroutine for 1bit conversion
     Protected Sub SetIndexedPixel(ByVal x As Integer, ByVal y As Integer, ByVal bmd As BitmapData, ByVal pixel As Boolean)
         Dim index As Integer = y * bmd.Stride + (x >> 3)
@@ -256,5 +308,21 @@ Public Class ImageUtil
         End If
         Marshal.WriteByte(bmd.Scan0, index, p)
     End Sub
+
+    Private Shared Function GetEncoderInfo(ByVal mimeType As String) As ImageCodecInfo
+        Dim j As Integer
+        Dim encoders() As ImageCodecInfo
+        encoders = ImageCodecInfo.GetImageEncoders()
+
+        j = 0
+        While j < encoders.Length
+            If encoders(j).MimeType = mimeType Then
+                Return encoders(j)
+            End If
+            j += 1
+        End While
+        Return Nothing
+
+    End Function
 
 End Class
