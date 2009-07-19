@@ -2,21 +2,28 @@
 
 Public Class ExportImageOptions
 
-    Dim mPdfFileName As String
+    Dim mImgFileNames As String()
     Dim mFilter As String = ""
+    Dim IsMultiple As Boolean = False
+    Public SavedFileName As String = ""
 
-    Public Sub New(ByVal imgFileName As String)
+    Public Sub New(ByVal imgFileNames As String(), ByVal isMulti As Boolean)
 
         ' This call is required by the Windows Form Designer.
         InitializeComponent()
 
-        ' Add any initialization after the InitializeComponent() call.
-        Dim pageCount As Integer = ImageUtil.GetImageFrameCount(imgFileName)
-        mPdfFileName = imgFileName
-        nuStart.Maximum = pageCount
-        nuStart.Value = 1
-        nuDown.Maximum = pageCount
-        nuDown.Value = pageCount
+        IsMultiple = isMulti
+
+        If Not IsMultiple Then
+            Dim pageCount As Integer = ImageUtil.GetImageFrameCount(imgFileNames(0))
+            nuStart.Maximum = pageCount
+            nuStart.Value = 1
+            nuDown.Maximum = pageCount
+            nuDown.Value = pageCount
+        Else
+            GroupBox2.Visible = False
+        End If
+        mImgFileNames = imgFileNames
         SaveFileDialog1.Filter = rbPDF.Tag
     End Sub
 
@@ -58,7 +65,12 @@ Public Class ExportImageOptions
             Windows.Forms.Cursor.Current = Windows.Forms.Cursors.WaitCursor
             Dim filename As String = SaveFileDialog1.FileName
             If filename.EndsWith(".pdf") Then
-                iTextSharpUtil.TiffToPDF(mPdfFileName, SaveFileDialog1.FileName, nuStart.Value, nuDown.Value, cbPageSize.SelectedValue.Value)
+                If IsMultiple Then
+                    iTextSharpUtil.GraphicListToPDF(mImgFileNames, SaveFileDialog1.FileName, cbPageSize.SelectedValue.Value)
+                Else
+                    iTextSharpUtil.TiffToPDF(mImgFileNames(0), SaveFileDialog1.FileName, nuStart.Value, nuDown.Value, cbPageSize.SelectedValue.Value)
+                End If
+                SavedFileName = SaveFileDialog1.FileName
             End If
             Windows.Forms.Cursor.Current = Windows.Forms.Cursors.Default
         End If

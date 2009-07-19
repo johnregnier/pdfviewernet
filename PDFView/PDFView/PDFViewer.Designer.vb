@@ -46,11 +46,12 @@ Partial Class PDFViewer
         Me.tbSearchText = New System.Windows.Forms.ToolStripTextBox
         Me.btSearch = New System.Windows.Forms.ToolStripButton
         Me.btNext = New System.Windows.Forms.ToolStripButton
+        Me.ToolStripSeparator5 = New System.Windows.Forms.ToolStripSeparator
+        Me.tsExport = New System.Windows.Forms.ToolStripButton
         Me.TreeView1 = New System.Windows.Forms.TreeView
         Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog
         Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog
-        Me.ToolStripSeparator5 = New System.Windows.Forms.ToolStripSeparator
-        Me.tsExport = New System.Windows.Forms.ToolStripButton
+        Me.tsImport = New System.Windows.Forms.ToolStripButton
         Me.ToolStrip1.SuspendLayout()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.tsBottom.SuspendLayout()
@@ -212,7 +213,7 @@ Partial Class PDFViewer
         '
         Me.TableLayoutPanel1.SetColumnSpan(Me.tsBottom, 2)
         Me.tsBottom.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.tsBottom.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.tbSearchText, Me.btSearch, Me.btNext, Me.ToolStripSeparator5, Me.tsExport})
+        Me.tsBottom.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.tbSearchText, Me.btSearch, Me.btNext, Me.ToolStripSeparator5, Me.tsExport, Me.tsImport})
         Me.tsBottom.Location = New System.Drawing.Point(0, 376)
         Me.tsBottom.Name = "tsBottom"
         Me.tsBottom.Size = New System.Drawing.Size(543, 25)
@@ -242,18 +243,6 @@ Partial Class PDFViewer
         Me.btNext.Size = New System.Drawing.Size(23, 22)
         Me.btNext.Text = "Search for next match"
         '
-        'TreeView1
-        '
-        Me.TreeView1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TreeView1.Location = New System.Drawing.Point(3, 3)
-        Me.TreeView1.Name = "TreeView1"
-        Me.TreeView1.Size = New System.Drawing.Size(102, 370)
-        Me.TreeView1.TabIndex = 2
-        '
-        'OpenFileDialog1
-        '
-        Me.OpenFileDialog1.FileName = "OpenFileDialog1"
-        '
         'ToolStripSeparator5
         '
         Me.ToolStripSeparator5.Name = "ToolStripSeparator5"
@@ -267,6 +256,27 @@ Partial Class PDFViewer
         Me.tsExport.Name = "tsExport"
         Me.tsExport.Size = New System.Drawing.Size(23, 22)
         Me.tsExport.Text = "Export PDF to another file format"
+        '
+        'TreeView1
+        '
+        Me.TreeView1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TreeView1.Location = New System.Drawing.Point(3, 3)
+        Me.TreeView1.Name = "TreeView1"
+        Me.TreeView1.Size = New System.Drawing.Size(102, 370)
+        Me.TreeView1.TabIndex = 2
+        '
+        'OpenFileDialog1
+        '
+        Me.OpenFileDialog1.FileName = "OpenFileDialog1"
+        '
+        'tsImport
+        '
+        Me.tsImport.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.tsImport.Image = CType(resources.GetObject("tsImport.Image"), System.Drawing.Image)
+        Me.tsImport.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.tsImport.Name = "tsImport"
+        Me.tsImport.Size = New System.Drawing.Size(23, 22)
+        Me.tsImport.Text = "Import images to the PDF file format"
         '
         'PDFViewer
         '
@@ -314,5 +324,6 @@ Partial Class PDFViewer
     Friend WithEvents SaveFileDialog1 As System.Windows.Forms.SaveFileDialog
     Friend WithEvents ToolStripSeparator5 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents tsExport As System.Windows.Forms.ToolStripButton
+    Friend WithEvents tsImport As System.Windows.Forms.ToolStripButton
 
 End Class
