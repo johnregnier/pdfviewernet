@@ -110,10 +110,29 @@ Public Class PDFViewer
     End Property
 
     Public Sub SelectFile()
-        OpenFileDialog1.Filter = "PDF files (*.pdf)|*.pdf|" & "TIFF files (*.tif)|*.tif"
+        OpenFileDialog1.Filter = "PDF or TIFF files (*.pdf;*.tif)|*.pdf;*.tif"
         OpenFileDialog1.FileName = ""
+        OpenFileDialog1.Title = "Select a PDF or TIFF file to open"
+        OpenFileDialog1.Multiselect = False
         OpenFileDialog1.ShowDialog()
         FileName = OpenFileDialog1.FileName
+    End Sub
+
+    Private Sub ConvertGraphicsToPDF()
+        OpenFileDialog1.Filter = "Image Files(*.BMP;*.JPG;*.GIF;*.PNG;*.TIF)|*.BMP;*.JPG;*.GIF;*.PNG;*.TIF"
+        OpenFileDialog1.FileName = ""
+        OpenFileDialog1.Title = "Select multiple image files to convert to PDF"
+        OpenFileDialog1.Multiselect = True
+        If OpenFileDialog1.ShowDialog() = Windows.Forms.DialogResult.OK Then
+            Dim exportOptionsDialog As New ExportImageOptions(OpenFileDialog1.FileNames, True)
+            exportOptionsDialog.ShowDialog()
+            Try
+                FileName = exportOptionsDialog.SavedFileName
+            Catch ex As Exception
+                'do nothing
+            End Try
+        End If
+
     End Sub
 
     Private Sub PDFViewer_ControlRemoved(ByVal sender As Object, ByVal e As System.Windows.Forms.ControlEventArgs) Handles Me.ControlRemoved
@@ -227,10 +246,16 @@ Public Class PDFViewer
             Dim exportOptionsDialog As New ExportOptions(mPDFFileName, mPDFDoc)
             exportOptionsDialog.ShowDialog()
         ElseIf ImageUtil.IsTiff(mOriginalFileName) Then
-            Dim exportOptionsDialog As New ExportImageOptions(mPDFFileName)
+            Dim FileArray(0) As String
+            FileArray(0) = mPDFFileName
+            Dim exportOptionsDialog As New ExportImageOptions(FileArray, False)
             exportOptionsDialog.ShowDialog()
         End If
         Me.Focus()
+    End Sub
+
+    Private Sub tsImport_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsImport.Click
+        ConvertGraphicsToPDF()
     End Sub
 
 #Region "Constraints"
@@ -327,6 +352,7 @@ Public Class PDFViewer
             tbSearchText.Visible = False
             ToolStripSeparator5.Visible = False
             tsExport.Visible = True
+            tsExport.ToolTipText = "Export TIFF file to the PDF file format"
         ElseIf Mode = "GS" Then
             btSearch.Visible = False
             btNext.Visible = False
@@ -339,6 +365,7 @@ Public Class PDFViewer
             tbSearchText.Visible = True
             ToolStripSeparator5.Visible = True
             tsExport.Visible = True
+            tsExport.ToolTipText = "Export PDF to another file format"
         End If
     End Sub
 

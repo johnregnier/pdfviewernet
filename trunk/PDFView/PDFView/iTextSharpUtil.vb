@@ -61,7 +61,7 @@ Public Class iTextSharpUtil
 
     Public Shared Function TiffToPDF(ByVal psFilename As String, ByVal outputFileName As String, ByVal startPage As Integer, ByVal endPage As Integer, ByVal psPageSize As iTextSharp.text.Rectangle)
         ' creation of the document with a certain size and certain margins
-        Dim document As New Document(psPageSize, 50, 50, 50, 50)
+        Dim document As New Document(psPageSize, 0, 0, 0, 0)
         'Document.compress = false;
 
         Try
@@ -88,8 +88,18 @@ Public Class iTextSharpUtil
             For k As Integer = startPage To endPage
                 bm.SelectActiveFrame(FrameDimension.Page, k - 1)
                 Dim img As Image = Image.GetInstance(bm, ImageFormat.Tiff)
-                img.ScalePercent(72.0F / bm.HorizontalResolution * 100)
-                img.SetAbsolutePosition(0, 0)
+                Dim Xpercent As Single = document.PageSize.Width / img.Width
+                Dim Ypercent As Single = document.PageSize.Height / img.Height
+                Dim ScalePercentage As Single
+                If Xpercent < Ypercent Then
+                    ScalePercentage = Xpercent
+                Else
+                    ScalePercentage = Ypercent
+                End If
+                img.ScalePercent(ScalePercentage * 100)
+                Dim xPos As Integer = (document.PageSize.Width - (img.Width * ScalePercentage)) / 2
+                Dim yPos As Integer = (document.PageSize.Height - (img.Height * ScalePercentage)) / 2
+                img.SetAbsolutePosition(xPos, yPos)
                 Console.WriteLine("Image: " & k)
                 cb.AddImage(img)
                 document.NewPage()
@@ -101,6 +111,55 @@ Public Class iTextSharpUtil
             Console.[Error].WriteLine(de.Message)
             Console.[Error].WriteLine(de.StackTrace)
             TiffToPDF = ""
+        End Try
+    End Function
+
+    Public Shared Function GraphicListToPDF(ByVal psFilenames As String(), ByVal outputFileName As String, ByVal psPageSize As iTextSharp.text.Rectangle)
+        ' creation of the document with a certain size and certain margins
+        Dim document As New Document(psPageSize, 0, 0, 0, 0)
+        'Document.compress = false;
+
+        Try
+            Dim writer As PdfWriter = PdfWriter.GetInstance(document, New FileStream(outputFileName, FileMode.Create))
+            document.Open()
+            Dim cb As PdfContentByte = writer.DirectContent
+            For Each psFileName As String In psFilenames
+                ' creation of the different writers
+
+                Dim bm As New System.Drawing.Bitmap(psFileName)
+                Dim total As Integer = bm.GetFrameCount(FrameDimension.Page)
+
+                For k As Integer = 1 To total
+                    bm.SelectActiveFrame(FrameDimension.Page, k - 1)
+                    Dim img As Image
+                    If Regex.IsMatch(psFileName, "\.jpg$", RegexOptions.IgnoreCase) Then img = Image.GetInstance(bm, ImageFormat.Jpeg)
+                    If Regex.IsMatch(psFileName, "\.png$", RegexOptions.IgnoreCase) Then img = Image.GetInstance(bm, ImageFormat.Png)
+                    If Regex.IsMatch(psFileName, "\.bmp$", RegexOptions.IgnoreCase) Then img = Image.GetInstance(bm, ImageFormat.Bmp)
+                    If Regex.IsMatch(psFileName, "\.tif$", RegexOptions.IgnoreCase) Then img = Image.GetInstance(bm, ImageFormat.Tiff)
+                    If Regex.IsMatch(psFileName, "\.gif$", RegexOptions.IgnoreCase) Then img = Image.GetInstance(bm, ImageFormat.Gif)
+                    Dim Xpercent As Single = document.PageSize.Width / img.Width
+                    Dim Ypercent As Single = document.PageSize.Height / img.Height
+                    Dim ScalePercentage As Single
+                    If Xpercent < Ypercent Then
+                        ScalePercentage = Xpercent
+                    Else
+                        ScalePercentage = Ypercent
+                    End If
+                    img.ScalePercent(ScalePercentage * 100)
+                    Dim xPos As Integer = (document.PageSize.Width - (img.Width * ScalePercentage)) / 2
+                    Dim yPos As Integer = (document.PageSize.Height - (img.Height * ScalePercentage)) / 2
+                    img.SetAbsolutePosition(xPos, yPos)
+                    cb.AddImage(img)
+                    document.NewPage()
+                Next
+                bm.Dispose()
+            Next
+            document.Close()
+            GraphicListToPDF = outputFileName
+        Catch de As Exception
+            Console.[Error].WriteLine(de.Message)
+            Console.[Error].WriteLine(de.StackTrace)
+            GraphicListToPDF = ""
         End Try
     End Function
 
