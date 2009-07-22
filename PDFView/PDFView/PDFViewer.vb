@@ -37,13 +37,33 @@ Public Class PDFViewer
                 InitBottomToolbar("TIFF")
             ElseIf ImageUtil.IsPDF(value) Then
                 If mUseXPDF Then
+LoadPDFFile:
                     If Not Nothing Is mPDFDoc Then
                         mPDFDoc.Dispose()
                     End If
-                    mPDFDoc = New PDFLibNet.PDFWrapper("")
-                    mPDFDoc.LoadPDF(value)
+                    Try
+                        mPDFDoc = New PDFLibNet.PDFWrapper("")
+                        mPDFDoc.LoadPDF(value)
+                    Catch ex As System.Security.SecurityException
+                        Dim frmPassword As New Password
+                        If frmPassword.ShowDialog() = DialogResult.OK Then
+                            If Not frmPassword.UserPassword = "" Then
+                                mPDFDoc.UserPassword = frmPassword.UserPassword
+                            End If
+                            If Not frmPassword.UserPassword = "" Then
+                                mPDFDoc.OwnerPassword = frmPassword.OwnerPassword
+                            End If
+                            GoTo LoadPDFFile
+                        End If
+                    Catch ex As Exception
+                        If Not Nothing Is mPDFDoc Then
+                            mPDFDoc.Dispose()
+                        End If
+                        GoTo GhostScriptFallBack
+                    End Try
                     InitBottomToolbar("XPDF")
                 Else
+GhostScriptFallBack:
                     InitBottomToolbar("GS")
                 End If
             Else
