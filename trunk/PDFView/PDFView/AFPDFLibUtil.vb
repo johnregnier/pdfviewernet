@@ -4,155 +4,155 @@ Imports System.Drawing.Printing
 
 Public Class AFPDFLibUtil
 
-    Const RENDER_DPI As Integer = 200
-    Const PRINT_DPI As Integer = 300
+  Const RENDER_DPI As Integer = 200
+  Const PRINT_DPI As Integer = 300
 
-    Public Shared Sub DrawImageFromPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal PageNumber As Integer, ByRef oPictureBox As PictureBox, Optional ByVal DPI As Integer = RENDER_DPI)
-        Try
-            If pdfDoc IsNot Nothing Then
-                pdfDoc.CurrentPage = PageNumber
-                pdfDoc.CurrentX = 0
-                pdfDoc.CurrentY = 0
-                pdfDoc.RenderDPI = DPI
-                pdfDoc.RenderPage(oPictureBox.Handle)
-                oPictureBox.Image = Render(pdfDoc, oPictureBox)
-                oPictureBox.Refresh()
-            End If
-        Catch ex As Exception
-            MsgBox(ex.ToString)
-        End Try
-    End Sub
+  Public Shared Sub DrawImageFromPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal PageNumber As Integer, ByRef oPictureBox As PictureBox, Optional ByVal DPI As Integer = RENDER_DPI)
+    Try
+      If pdfDoc IsNot Nothing Then
+        pdfDoc.CurrentPage = PageNumber
+        pdfDoc.CurrentX = 0
+        pdfDoc.CurrentY = 0
+        pdfDoc.RenderDPI = DPI
+        pdfDoc.RenderPage(oPictureBox.Handle)
+        oPictureBox.Image = Render(pdfDoc, oPictureBox)
+        oPictureBox.Refresh()
+      End If
+    Catch ex As Exception
+      Throw ex
+    End Try
+  End Sub
 
-    Public Shared Function Render(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByRef oPictureBox As PictureBox) As System.Drawing.Bitmap
-        Try
-            If pdfDoc IsNot Nothing Then
-                Dim backbuffer As System.Drawing.Bitmap = New Bitmap(pdfDoc.PageWidth, pdfDoc.PageHeight)
-                Dim g As Graphics = Graphics.FromImage(backbuffer)
-                Using g
-                    Dim hdc As IntPtr = g.GetHdc()
-                    pdfDoc.DrawPageHDC(hdc)
-                    g.ReleaseHdc()
-                End Using
-                g.Dispose()
-                Return backbuffer
-            End If
-        Catch ex As Exception
-            MsgBox(ex.ToString)
-            Return Nothing
-        End Try
-        Return Nothing
-    End Function
-    Public Shared Sub ExportPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal fileName As String, Optional ByVal startPage As Integer = 1, Optional ByVal endPage As Integer = 0)
-        If Not Nothing Is pdfDoc Then
-            If endPage = 0 Or endPage > pdfDoc.PageCount Then
-                endPage = pdfDoc.PageCount
-            End If
-            Try
-                If fileName.EndsWith(".ps") Then
-                    pdfDoc.PrintToFile(fileName, startPage, endPage)
-                ElseIf fileName.EndsWith(".jpg") Then
-                    pdfDoc.ExportJpg(fileName, 70)
-                ElseIf fileName.EndsWith(".txt") Then
-                    pdfDoc.ExportText(fileName, startPage, endPage, True, True)
-                ElseIf fileName.EndsWith(".html") Then
-                    pdfDoc.ExportHtml(fileName, startPage, endPage, True, True, False)
-                End If
-            Catch ex As Exception
-                MessageBox.Show(ex.ToString())
-            End Try
+  Public Shared Function Render(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByRef oPictureBox As PictureBox) As System.Drawing.Bitmap
+    Try
+      If pdfDoc IsNot Nothing Then
+        Dim backbuffer As System.Drawing.Bitmap = New Bitmap(pdfDoc.PageWidth, pdfDoc.PageHeight)
+        Dim g As Graphics = Graphics.FromImage(backbuffer)
+        Using g
+          Dim hdc As IntPtr = g.GetHdc()
+          pdfDoc.DrawPageHDC(hdc)
+          g.ReleaseHdc()
+        End Using
+        g.Dispose()
+        Return backbuffer
+      End If
+    Catch ex As Exception
+      Throw ex
+      Return Nothing
+    End Try
+    Return Nothing
+  End Function
+  Public Shared Sub ExportPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal fileName As String, Optional ByVal startPage As Integer = 1, Optional ByVal endPage As Integer = 0)
+    If Not Nothing Is pdfDoc Then
+      If endPage = 0 Or endPage > pdfDoc.PageCount Then
+        endPage = pdfDoc.PageCount
+      End If
+      Try
+        If fileName.EndsWith(".ps") Then
+          pdfDoc.PrintToFile(fileName, startPage, endPage)
+        ElseIf fileName.EndsWith(".jpg") Then
+          pdfDoc.ExportJpg(fileName, 70)
+        ElseIf fileName.EndsWith(".txt") Then
+          pdfDoc.ExportText(fileName, startPage, endPage, True, True)
+        ElseIf fileName.EndsWith(".html") Then
+          pdfDoc.ExportHtml(fileName, startPage, endPage, True, True, False)
         End If
-    End Sub
+      Catch ex As Exception
+        MessageBox.Show(ex.ToString())
+      End Try
+    End If
+  End Sub
 
 
 
-    Public Shared Sub PrintPDFImagesToPrinter(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByRef picbox As PictureBox)
-        If pdfDoc IsNot Nothing Then
-            Dim PD As New PrintDialog
-            Dim PageCount As Integer = pdfDoc.PageCount
-            PD.AllowSomePages = True
-            PD.PrinterSettings.FromPage = 1
-            PD.PrinterSettings.ToPage = PageCount
-            PD.PrinterSettings.MaximumPage = PageCount
-            PD.PrinterSettings.MinimumPage = 1
-            If PD.ShowDialog = DialogResult.OK Then
-                Dim BeginningPage As Integer = 1
-                Dim EndingPage As Integer = PageCount
-                If PD.PrinterSettings.PrintRange = PrintRange.SomePages Then
-                    BeginningPage = PD.PrinterSettings.FromPage
-                    EndingPage = PD.PrinterSettings.ToPage
-                End If
-                For i As Integer = (BeginningPage - 1) To (EndingPage - 1)
-                    pdfDoc.CurrentPage = i + 1
-                    pdfDoc.CurrentX = 0
-                    pdfDoc.CurrentY = 0
-                    pdfDoc.RenderDPI = PRINT_DPI
-                    PDFLibNet.xPDFParams.Antialias = False
-                    PDFLibNet.xPDFParams.VectorAntialias = False
-                    pdfDoc.RenderPage(picbox.Handle.ToInt32(), True)
-                    PrinterUtil.PrintImageToPrinter(ImageUtil.CropBitmap(Render(pdfDoc, picbox), 0, 0, pdfDoc.PageWidth, pdfDoc.PageHeight - 2), PD.PrinterSettings)
-                    pdfDoc.RenderDPI = RENDER_DPI
-                Next
-                PDFLibNet.xPDFParams.Antialias = True
-                PDFLibNet.xPDFParams.VectorAntialias = True
-                pdfDoc.RenderPage(picbox.Handle.ToInt32(), True)
-            End If
+  Public Shared Sub PrintPDFImagesToPrinter(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByRef picbox As PictureBox)
+    If pdfDoc IsNot Nothing Then
+      Dim PD As New PrintDialog
+      Dim PageCount As Integer = pdfDoc.PageCount
+      PD.AllowSomePages = True
+      PD.PrinterSettings.FromPage = 1
+      PD.PrinterSettings.ToPage = PageCount
+      PD.PrinterSettings.MaximumPage = PageCount
+      PD.PrinterSettings.MinimumPage = 1
+      If PD.ShowDialog = DialogResult.OK Then
+        Dim BeginningPage As Integer = 1
+        Dim EndingPage As Integer = PageCount
+        If PD.PrinterSettings.PrintRange = PrintRange.SomePages Then
+          BeginningPage = PD.PrinterSettings.FromPage
+          EndingPage = PD.PrinterSettings.ToPage
         End If
-    End Sub
-
-    Public Shared Function FillTree(ByRef tvwOutline As TreeView, ByRef pdfDoc As PDFLibNet.PDFWrapper) As Boolean
-        FillTree = False
-        tvwOutline.Nodes.Clear()
-        For Each ol As PDFLibNet.OutlineItem In pdfDoc.Outline
-            Dim tn As New TreeNode(ol.Title)
-            tn.Tag = ol
-            If ol.KidsCount > 0 Then
-                tn.Nodes.Add(New TreeNode("dummy"))
-            End If
-            tvwOutline.Nodes.Add(tn)
-            FillTree = True
+        For i As Integer = (BeginningPage - 1) To (EndingPage - 1)
+          pdfDoc.CurrentPage = i + 1
+          pdfDoc.CurrentX = 0
+          pdfDoc.CurrentY = 0
+          pdfDoc.RenderDPI = PRINT_DPI
+          PDFLibNet.xPDFParams.Antialias = False
+          PDFLibNet.xPDFParams.VectorAntialias = False
+          pdfDoc.RenderPage(picbox.Handle.ToInt32(), True)
+          PrinterUtil.PrintImageToPrinter(ImageUtil.CropBitmap(Render(pdfDoc, picbox), 0, 0, pdfDoc.PageWidth, pdfDoc.PageHeight - 2), PD.PrinterSettings)
+          pdfDoc.RenderDPI = RENDER_DPI
         Next
-    End Function
+        PDFLibNet.xPDFParams.Antialias = True
+        PDFLibNet.xPDFParams.VectorAntialias = True
+        pdfDoc.RenderPage(picbox.Handle.ToInt32(), True)
+      End If
+    End If
+  End Sub
+
+  Public Shared Function FillTree(ByRef tvwOutline As TreeView, ByRef pdfDoc As PDFLibNet.PDFWrapper) As Boolean
+    FillTree = False
+    tvwOutline.Nodes.Clear()
+    For Each ol As PDFLibNet.OutlineItem In pdfDoc.Outline
+      Dim tn As New TreeNode(ol.Title)
+      tn.Tag = ol
+      If ol.KidsCount > 0 Then
+        tn.Nodes.Add(New TreeNode("dummy"))
+      End If
+      tvwOutline.Nodes.Add(tn)
+      FillTree = True
+    Next
+  End Function
 
 End Class
 
 Public Class PDFOutline
 
-    Public Title As String
-    Public Item As PDFLibNet.OutlineItem
-    Friend _doc As PDFLibNet.PDFWrapper = Nothing
-    Friend _children As List(Of PDFOutline)
+  Public Title As String
+  Public Item As PDFLibNet.OutlineItem
+  Friend _doc As PDFLibNet.PDFWrapper = Nothing
+  Friend _children As List(Of PDFOutline)
 
-    Public ReadOnly Property Children() As List(Of PDFOutline)
-        Get
-            Return _children
-        End Get
-    End Property
+  Public ReadOnly Property Children() As List(Of PDFOutline)
+    Get
+      Return _children
+    End Get
+  End Property
 
-    Friend Sub New(ByVal title__1 As String, ByVal outlineItem As PDFLibNet.OutlineItem, ByVal doc As PDFLibNet.PDFWrapper)
-        Title = title__1
-        Item = outlineItem
-        _doc = doc
-    End Sub
+  Friend Sub New(ByVal title__1 As String, ByVal outlineItem As PDFLibNet.OutlineItem, ByVal doc As PDFLibNet.PDFWrapper)
+    Title = title__1
+    Item = outlineItem
+    _doc = doc
+  End Sub
 
 End Class
 
 Public Class SearchArgs
-    Inherits EventArgs
-    Public Text As String
-    Public FromBegin As Boolean
-    Public Exact As Boolean
-    Public WholeDoc As Boolean
-    Public FindNext As Boolean
-    Public Up As Boolean
+  Inherits EventArgs
+  Public Text As String
+  Public FromBegin As Boolean
+  Public Exact As Boolean
+  Public WholeDoc As Boolean
+  Public FindNext As Boolean
+  Public Up As Boolean
 
-    Friend Sub New(ByVal text__1 As String, ByVal frombegin__2 As Boolean, ByVal exact__3 As Boolean, ByVal wholedoc__4 As Boolean, ByVal findnext__5 As Boolean, ByVal up__6 As Boolean)
-        Text = text__1
-        FromBegin = frombegin__2
-        Exact = exact__3
-        WholeDoc = wholedoc__4
-        FindNext = findnext__5
-        Up = up__6
-    End Sub
+  Friend Sub New(ByVal text__1 As String, ByVal frombegin__2 As Boolean, ByVal exact__3 As Boolean, ByVal wholedoc__4 As Boolean, ByVal findnext__5 As Boolean, ByVal up__6 As Boolean)
+    Text = text__1
+    FromBegin = frombegin__2
+    Exact = exact__3
+    WholeDoc = wholedoc__4
+    FindNext = findnext__5
+    Up = up__6
+  End Sub
 End Class
 
 
