@@ -9,7 +9,10 @@ Imports System.IO
 Public Class PrinterUtil
 
   Private WithEvents mPrintDocument As PrintDocument
-  Private mImage As Image
+  Private mFileName As String
+  Private mStartPage As Integer
+  Private mEndPage As Integer
+  Private mCurrentPage As Integer
 
   Public Shared Function ListAllInstalledPrinters() As List(Of String)
     ListAllInstalledPrinters = New List(Of String)
@@ -37,15 +40,22 @@ Public Class PrinterUtil
     RP.SendFileToPrinter(PrinterName, FileName)
   End Sub
 
-  Public Shared Sub PrintImageToPrinter(ByVal myImage As Image, ByVal myPrinterSettings As PrinterSettings)
+  Public Shared Sub PrintImageToPrinter(ByRef myFileName As String, ByVal myPrinterSettings As PrinterSettings)
     Dim PrintUtil As New PrinterUtil
     PrintUtil.mPrintDocument = New PrintDocument
-    PrintUtil.mImage = myImage
+    PrintUtil.mFileName = myFileName
     PrintUtil.mPrintDocument.PrinterSettings.PrinterName = myPrinterSettings.PrinterName
     Dim StandardPrint As New StandardPrintController
     PrintUtil.mPrintDocument.PrintController = StandardPrint
     PrintUtil.mPrintDocument.PrinterSettings = myPrinterSettings
+    PrintUtil.mStartPage = myPrinterSettings.FromPage
+    PrintUtil.mEndPage = myPrinterSettings.ToPage
+    PrintUtil.mCurrentPage = PrintUtil.mStartPage
+    Cursor.Current = Cursors.WaitCursor
     PrintUtil.mPrintDocument.Print()
+    PrintUtil = Nothing
+    GC.Collect()
+    Cursor.Current = Cursors.Default
   End Sub
 
   Public Shared Sub PrintPDFDirectlyToPrinter(ByVal FileName As String)
@@ -56,9 +66,10 @@ Public Class PrinterUtil
     End If
   End Sub
 
-  Public Shared Sub PrintPDFImagesToPrinter(ByVal FileName As String)
+  Public Shared Sub PrintImagesToPrinter(ByVal FileName As String)
     Dim PD As New PrintDialog
     Dim PageCount As Integer = PDFView.ImageUtil.GetImageFrameCount(FileName)
+    PD.AllowPrintToFile = True
     PD.AllowSomePages = True
     PD.PrinterSettings.FromPage = 1
     PD.PrinterSettings.ToPage = PageCount
@@ -71,31 +82,33 @@ Public Class PrinterUtil
         BeginningPage = PD.PrinterSettings.FromPage
         EndingPage = PD.PrinterSettings.ToPage
       End If
-      For i As Integer = (BeginningPage - 1) To (EndingPage - 1)
-        PrintImageToPrinter(PDFView.ImageUtil.GetImageFrameFromFileForPrint(FileName, i), PD.PrinterSettings)
-      Next
+      PrintImageToPrinter(FileName, PD.PrinterSettings)
     End If
   End Sub
 
-  Private Sub PrintDocument1_PrintPage(ByVal sender As System.Object, _
-     ByVal e As System.Drawing.Printing.PrintPageEventArgs) _
-     Handles mPrintDocument.PrintPage
+  Private Sub PrintDocument1_PrintPage(ByVal sender As Object, _
+     ByVal e As PrintPageEventArgs) Handles mPrintDocument.PrintPage
+    Dim image As Image = ImageUtil.GetImagePageFromFileForPrint(mFileName, mCurrentPage)
     Dim ScalePercentage As Single
-    Dim g As Graphics
-    g = e.Graphics
-    Dim XMaxPixels As Integer = (g.VisibleClipBounds.Width / 100) * mImage.HorizontalResolution
-    Dim YMaxPixels As Integer = (g.VisibleClipBounds.Height / 100) * mImage.VerticalResolution
-    Dim XFactor As Single = XMaxPixels / mImage.Width
-    Dim YFactor As Single = YMaxPixels / mImage.Height
+    Dim XMaxPixels As Integer = (e.Graphics.VisibleClipBounds.Width / 100) * image.HorizontalResolution
+    Dim YMaxPixels As Integer = (e.Graphics.VisibleClipBounds.Height / 100) * image.VerticalResolution
+    Dim XFactor As Single = XMaxPixels / image.Width
+    Dim YFactor As Single = YMaxPixels / image.Height
     If YFactor > XFactor Then
       ScalePercentage = XFactor
     Else
       ScalePercentage = YFactor
     End If
-    g.ScaleTransform(ScalePercentage, ScalePercentage)
-    g.DrawImage(mImage, 0, 0)
-    g.Dispose()
-    e.HasMorePages = False
+    e.Graphics.ScaleTransform(ScalePercentage, ScalePercentage)
+    'Send to printer
+    e.Graphics.DrawImage(image, 0, 0)
+    If mCurrentPage >= mEndPage Then
+      e.HasMorePages = False
+    Else
+      e.HasMorePages = True
+    End If
+    image.Dispose()
+    mCurrentPage += 1
   End Sub
 
 End Class

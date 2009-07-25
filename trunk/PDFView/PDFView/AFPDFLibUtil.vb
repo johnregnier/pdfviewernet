@@ -63,42 +63,6 @@ Public Class AFPDFLibUtil
     End If
   End Sub
 
-
-
-  Public Shared Sub PrintPDFImagesToPrinter(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByRef picbox As PictureBox)
-    If pdfDoc IsNot Nothing Then
-      Dim PD As New PrintDialog
-      Dim PageCount As Integer = pdfDoc.PageCount
-      PD.AllowSomePages = True
-      PD.PrinterSettings.FromPage = 1
-      PD.PrinterSettings.ToPage = PageCount
-      PD.PrinterSettings.MaximumPage = PageCount
-      PD.PrinterSettings.MinimumPage = 1
-      If PD.ShowDialog = DialogResult.OK Then
-        Dim BeginningPage As Integer = 1
-        Dim EndingPage As Integer = PageCount
-        If PD.PrinterSettings.PrintRange = PrintRange.SomePages Then
-          BeginningPage = PD.PrinterSettings.FromPage
-          EndingPage = PD.PrinterSettings.ToPage
-        End If
-        For i As Integer = (BeginningPage - 1) To (EndingPage - 1)
-          pdfDoc.CurrentPage = i + 1
-          pdfDoc.CurrentX = 0
-          pdfDoc.CurrentY = 0
-          pdfDoc.RenderDPI = PRINT_DPI
-          PDFLibNet.xPDFParams.Antialias = False
-          PDFLibNet.xPDFParams.VectorAntialias = False
-          pdfDoc.RenderPage(picbox.Handle.ToInt32(), True)
-          PrinterUtil.PrintImageToPrinter(ImageUtil.CropBitmap(Render(pdfDoc, picbox), 0, 0, pdfDoc.PageWidth, pdfDoc.PageHeight - 2), PD.PrinterSettings)
-          pdfDoc.RenderDPI = RENDER_DPI
-        Next
-        PDFLibNet.xPDFParams.Antialias = True
-        PDFLibNet.xPDFParams.VectorAntialias = True
-        pdfDoc.RenderPage(picbox.Handle.ToInt32(), True)
-      End If
-    End If
-  End Sub
-
   Public Shared Function FillTree(ByRef tvwOutline As TreeView, ByRef pdfDoc As PDFLibNet.PDFWrapper) As Boolean
     FillTree = False
     tvwOutline.Nodes.Clear()

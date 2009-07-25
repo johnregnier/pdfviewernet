@@ -195,17 +195,13 @@ Public Class ImageUtil
         FreeImage.CloseMultiBitmapEx(dib)
     End Function
 
-    Public Shared Function GetImageFrameFromFileForPrint(ByVal sFileName As String, ByVal iFrameNumber As Integer) As Image
-        If ImageUtil.IsPDF(sFileName) Then 'convert one frame to a tiff for viewing
-            Dim FileNameNoPath As String = System.Text.RegularExpressions.Regex.Replace(sFileName, "^.+\\(.+$)", "$1")
-            Dim tempOutputFileName As String = System.IO.Path.GetTempPath & System.Text.RegularExpressions.Regex.Replace(FileNameNoPath, "\.\w\w\w$", ".tif")
-            tempOutputFileName = ConvertPDF.PDFConvert.ConvertPdfToGraphic(sFileName, tempOutputFileName, "tiff24nc", 300, iFrameNumber + 1, iFrameNumber + 1, True)
-            GetImageFrameFromFileForPrint = ImageUtil.GetFrameFromTiff(tempOutputFileName, 0)
-            ImageUtil.DeleteFile(tempOutputFileName)
-        ElseIf ImageUtil.IsTiff(sFileName) Then
-            GetImageFrameFromFileForPrint = ImageUtil.GetFrameFromTiff(sFileName, iFrameNumber)
-        End If
-    End Function
+  Public Shared Function GetImagePageFromFileForPrint(ByVal sFileName As String, ByVal iPageNumber As Integer) As Image
+    If ImageUtil.IsPDF(sFileName) Then 'convert one frame to a tiff for viewing
+      GetImagePageFromFileForPrint = ConvertPDF.PDFConvert.GetPageFromPDF(sFileName, iPageNumber, True)
+    ElseIf ImageUtil.IsTiff(sFileName) Then
+      GetImagePageFromFileForPrint = ImageUtil.GetFrameFromTiff(sFileName, iPageNumber - 1)
+    End If
+  End Function
 
     Public Shared Function GetImageFrameCount(ByVal sFileName As String) As Integer
         If ImageUtil.IsPDF(sFileName) Then
