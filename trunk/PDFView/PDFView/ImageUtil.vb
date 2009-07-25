@@ -195,9 +195,9 @@ Public Class ImageUtil
         FreeImage.CloseMultiBitmapEx(dib)
     End Function
 
-  Public Shared Function GetImagePageFromFileForPrint(ByVal sFileName As String, ByVal iPageNumber As Integer) As Image
-    If ImageUtil.IsPDF(sFileName) Then 'convert one frame to a tiff for viewing
-      GetImagePageFromFileForPrint = ConvertPDF.PDFConvert.GetPageFromPDF(sFileName, iPageNumber, True)
+  Public Shared Function GetImagePageFromFileForPrint(ByVal sFileName As String, ByVal iPageNumber As Integer, Optional ByVal DPI As Integer = 300) As Image
+    If ImageUtil.IsPDF(sFileName) Then 'get image of page from file for printing
+      GetImagePageFromFileForPrint = ConvertPDF.PDFConvert.GetPageFromPDF(sFileName, iPageNumber, DPI)
     ElseIf ImageUtil.IsTiff(sFileName) Then
       GetImagePageFromFileForPrint = ImageUtil.GetFrameFromTiff(sFileName, iPageNumber - 1)
     End If

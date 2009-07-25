@@ -847,43 +847,43 @@ Namespace ConvertPDF
             End If
         End Function
 
-        Public Shared Function GetPageFromPDF(ByVal filename As String, ByVal PageNumber As Integer, Optional ByVal ToPrinter As Boolean = False) As Image
-            Dim converter As New ConvertPDF.PDFConvert
-            Dim Converted As Boolean = False
-            converter.RenderingThreads = Environment.ProcessorCount
-            converter.OutputToMultipleFile = False
-            converter.MaxBitmap = 100000000 '100 MB
-            converter.MaxBuffer = 200000000 '200 MB
-            If PageNumber > 0 Then
-                converter.FirstPageToConvert = PageNumber
-                converter.LastPageToConvert = PageNumber
-            Else
-                GetPageFromPDF = Nothing
-                Exit Function
-            End If
-            converter.FitPage = False
-            converter.JPEGQuality = 10
-            If ToPrinter = True Then 'Settings for decent print quality
-                converter.TextAlphaBit = -1
-                converter.GraphicsAlphaBit = -1
-                converter.ResolutionX = PRINT_DPI
-                converter.ResolutionY = PRINT_DPI
-            Else 'Settings for screen resolution
-                converter.TextAlphaBit = 4
-                converter.GraphicsAlphaBit = 4
-                converter.ResolutionX = VIEW_DPI
-                converter.ResolutionY = VIEW_DPI
-            End If
-            converter.OutputFormat = COLOR_PNG_RGB
-            Dim output As String = System.IO.Path.GetTempPath & Now.Ticks & ".png"
-            Converted = converter.Convert(filename, output)
-            If Converted Then
-                GetPageFromPDF = New Bitmap(output)
-                ImageUtil.DeleteFile(output)
-            Else
-                GetPageFromPDF = Nothing
-            End If
-        End Function
+    Public Shared Function GetPageFromPDF(ByVal filename As String, ByVal PageNumber As Integer, Optional ByVal DPI As Integer = VIEW_DPI) As Image
+      Dim converter As New ConvertPDF.PDFConvert
+      Dim Converted As Boolean = False
+      converter.RenderingThreads = Environment.ProcessorCount
+      converter.OutputToMultipleFile = False
+      converter.MaxBitmap = 100000000 '100 MB
+      converter.MaxBuffer = 200000000 '200 MB
+      If PageNumber > 0 Then
+        converter.FirstPageToConvert = PageNumber
+        converter.LastPageToConvert = PageNumber
+      Else
+        GetPageFromPDF = Nothing
+        Exit Function
+      End If
+      converter.FitPage = False
+      converter.JPEGQuality = 70
+      If DPI <> VIEW_DPI Then 'Custom Settings for print quality
+        converter.TextAlphaBit = -1
+        converter.GraphicsAlphaBit = -1
+        converter.ResolutionX = DPI
+        converter.ResolutionY = DPI
+      Else 'Settings for screen resolution
+        converter.TextAlphaBit = 4
+        converter.GraphicsAlphaBit = 4
+        converter.ResolutionX = VIEW_DPI
+        converter.ResolutionY = VIEW_DPI
+      End If
+      converter.OutputFormat = COLOR_PNG_RGB
+      Dim output As String = System.IO.Path.GetTempPath & Now.Ticks & ".png"
+      Converted = converter.Convert(filename, output)
+      If Converted Then
+        GetPageFromPDF = New Bitmap(output)
+        ImageUtil.DeleteFile(output)
+      Else
+        GetPageFromPDF = Nothing
+      End If
+    End Function
 
 #End Region
     End Class
