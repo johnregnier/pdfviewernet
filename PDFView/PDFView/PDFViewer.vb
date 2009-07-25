@@ -124,7 +124,7 @@ GhostScriptFallBack:
 
   Public ReadOnly Property Print(ByVal FileName As String)
     Get
-      PrinterUtil.PrintPDFImagesToPrinter(FileName)
+      PrinterUtil.PrintImagesToPrinter(FileName)
       Return 1
     End Get
   End Property
@@ -246,10 +246,8 @@ GhostScriptFallBack:
   End Sub
 
   Private Sub tsPrint_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsPrint.Click
-    If mUseXPDF And ImageUtil.IsPDF(mOriginalFileName) Then
-      AFPDFLibUtil.PrintPDFImagesToPrinter(mPDFDoc, XPDFPrintingPicBox)
-    Else
-      PrinterUtil.PrintPDFImagesToPrinter(mOriginalFileName)
+    If ImageUtil.IsPDF(mOriginalFileName) Or ImageUtil.IsTiff(mOriginalFileName) Then
+      PrinterUtil.PrintImagesToPrinter(mOriginalFileName)
     End If
   End Sub
 
