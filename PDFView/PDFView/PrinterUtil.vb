@@ -88,27 +88,41 @@ Public Class PrinterUtil
 
   Private Sub PrintDocument1_PrintPage(ByVal sender As Object, _
      ByVal e As PrintPageEventArgs) Handles mPrintDocument.PrintPage
-    Dim image As Image = ImageUtil.GetImagePageFromFileForPrint(mFileName, mCurrentPage)
+
+    Dim RenderDPI As Integer = 300 'Set to 600 if this resolution is too low (speed vs. time)
+    Dim image As Image = ImageUtil.GetImagePageFromFileForPrint(mFileName, mCurrentPage, RenderDPI)
+
     Dim ScalePercentage As Single
     Dim XMaxPixels As Integer = (e.Graphics.VisibleClipBounds.Width / 100) * image.HorizontalResolution
     Dim YMaxPixels As Integer = (e.Graphics.VisibleClipBounds.Height / 100) * image.VerticalResolution
     Dim XFactor As Single = XMaxPixels / image.Width
     Dim YFactor As Single = YMaxPixels / image.Height
+    Dim OptimalDPI As Integer
+
     If YFactor > XFactor Then
       ScalePercentage = XFactor
+      OptimalDPI = RenderDPI * XFactor
     Else
       ScalePercentage = YFactor
+      OptimalDPI = RenderDPI * YFactor
     End If
+
+    If ScalePercentage < 0.75F Then 'Re-render the image to create a smaller print file and save printer processing time
+      image = ImageUtil.GetImagePageFromFileForPrint(mFileName, mCurrentPage, OptimalDPI)
+    End If
+
     e.Graphics.ScaleTransform(ScalePercentage, ScalePercentage)
-    'Send to printer
     e.Graphics.DrawImage(image, 0, 0)
+
     If mCurrentPage >= mEndPage Then
       e.HasMorePages = False
     Else
       e.HasMorePages = True
     End If
+
     image.Dispose()
     mCurrentPage += 1
+
   End Sub
 
 End Class
