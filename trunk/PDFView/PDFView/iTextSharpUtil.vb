@@ -87,7 +87,7 @@ Public Class iTextSharpUtil
             Dim cb As PdfContentByte = writer.DirectContent
             For k As Integer = startPage To endPage
                 bm.SelectActiveFrame(FrameDimension.Page, k - 1)
-                Dim img As Image = Image.GetInstance(bm, ImageFormat.Tiff)
+        Dim img As iTextSharp.text.Image = iTextSharp.text.Image.GetInstance(bm, ImageFormat.Tiff)
                 Dim Xpercent As Single = document.PageSize.Width / img.Width
                 Dim Ypercent As Single = document.PageSize.Height / img.Height
                 Dim ScalePercentage As Single
@@ -131,12 +131,12 @@ Public Class iTextSharpUtil
 
                 For k As Integer = 1 To total
                     bm.SelectActiveFrame(FrameDimension.Page, k - 1)
-                    Dim img As Image
-                    If Regex.IsMatch(psFileName, "\.jpg$", RegexOptions.IgnoreCase) Then img = Image.GetInstance(bm, ImageFormat.Jpeg)
-                    If Regex.IsMatch(psFileName, "\.png$", RegexOptions.IgnoreCase) Then img = Image.GetInstance(bm, ImageFormat.Png)
-                    If Regex.IsMatch(psFileName, "\.bmp$", RegexOptions.IgnoreCase) Then img = Image.GetInstance(bm, ImageFormat.Bmp)
-                    If Regex.IsMatch(psFileName, "\.tif$", RegexOptions.IgnoreCase) Then img = Image.GetInstance(bm, ImageFormat.Tiff)
-                    If Regex.IsMatch(psFileName, "\.gif$", RegexOptions.IgnoreCase) Then img = Image.GetInstance(bm, ImageFormat.Gif)
+          Dim img As iTextSharp.text.Image
+          If Regex.IsMatch(psFileName, "\.jpg$", RegexOptions.IgnoreCase) Then img = iTextSharp.text.Image.GetInstance(bm, ImageFormat.Jpeg)
+          If Regex.IsMatch(psFileName, "\.png$", RegexOptions.IgnoreCase) Then img = iTextSharp.text.Image.GetInstance(bm, ImageFormat.Png)
+          If Regex.IsMatch(psFileName, "\.bmp$", RegexOptions.IgnoreCase) Then img = iTextSharp.text.Image.GetInstance(bm, ImageFormat.Bmp)
+          If Regex.IsMatch(psFileName, "\.tif$", RegexOptions.IgnoreCase) Then img = iTextSharp.text.Image.GetInstance(bm, ImageFormat.Tiff)
+          If Regex.IsMatch(psFileName, "\.gif$", RegexOptions.IgnoreCase) Then img = iTextSharp.text.Image.GetInstance(bm, ImageFormat.Gif)
                     Dim Xpercent As Single = document.PageSize.Width / img.Width
                     Dim Ypercent As Single = document.PageSize.Height / img.Height
                     Dim ScalePercentage As Single

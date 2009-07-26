@@ -90,7 +90,7 @@ Public Class PrinterUtil
      ByVal e As PrintPageEventArgs) Handles mPrintDocument.PrintPage
 
     Dim RenderDPI As Integer = 300 'Set to 600 if this resolution is too low (speed vs. time)
-    Dim image As Image = ImageUtil.GetImagePageFromFileForPrint(mFileName, mCurrentPage, RenderDPI)
+    Dim image As System.Drawing.Image = ImageUtil.GetImagePageFromFileForPrint(mFileName, mCurrentPage, RenderDPI)
 
     Dim ScalePercentage As Single
     Dim XMaxPixels As Integer = (e.Graphics.VisibleClipBounds.Width / 100) * image.HorizontalResolution

@@ -847,7 +847,7 @@ Namespace ConvertPDF
             End If
         End Function
 
-    Public Shared Function GetPageFromPDF(ByVal filename As String, ByVal PageNumber As Integer, Optional ByVal DPI As Integer = VIEW_DPI) As Image
+    Public Shared Function GetPageFromPDF(ByVal filename As String, ByVal PageNumber As Integer, Optional ByVal DPI As Integer = VIEW_DPI) As System.Drawing.Image
       Dim converter As New ConvertPDF.PDFConvert
       Dim Converted As Boolean = False
       converter.RenderingThreads = Environment.ProcessorCount

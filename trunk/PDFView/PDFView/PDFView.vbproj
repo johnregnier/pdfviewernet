@@ -53,6 +53,10 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.XML" />
+    <Reference Include="tessnet2, Version=2.0.4.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\tessnet2.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />
@@ -106,6 +110,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="PrinterUtil.vb" />
+    <Compile Include="TesseractOCR.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ExportImageOptions.resx">
@@ -155,6 +160,8 @@
 copy "$(ProjectDir)lib\FreeImageNET.dll" "$(TargetDir)"
 copy "$(ProjectDir)lib\gsdll32.dll" "$(TargetDir)"
 copy "$(ProjectDir)lib\itextsharp.dll" "$(TargetDir)"
-copy "$(ProjectDir)lib\PDFLibNET.dll" "$(TargetDir)"</PostBuildEvent>
+copy "$(ProjectDir)lib\PDFLibNET.dll" "$(TargetDir)"
+copy "$(ProjectDir)lib\tessnet2.dll" "$(TargetDir)"
+xcopy "$(ProjectDir)lib\tessdata" "$(TargetDir)tessdata" /s /e /i /h /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>
