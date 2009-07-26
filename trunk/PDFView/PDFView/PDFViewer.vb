@@ -36,6 +36,9 @@ Public Class PDFViewer
         'Tiff Specific behavior
         InitBottomToolbar("TIFF")
       ElseIf ImageUtil.IsPDF(value) Then
+        If Not Nothing Is mPDFDoc Then
+          mPDFDoc.Dispose()
+        End If
         If mUseXPDF Then
 LoadPDFFile:
           If Not Nothing Is mPDFDoc Then
@@ -137,6 +140,33 @@ GhostScriptFallBack:
     OpenFileDialog1.ShowDialog()
     FileName = OpenFileDialog1.FileName
   End Sub
+
+  Public Function OCRCurrentPage() As String
+    Cursor.Current = Cursors.WaitCursor
+    Dim TempFile As String = System.IO.Path.GetTempPath & Now.Ticks & ".txt"
+    OCRCurrentPage = ""
+    Try
+      AFPDFLibUtil.ExportPDF(mPDFDoc, TempFile, mCurrentPageNumber, mCurrentPageNumber)
+      OCRCurrentPage = System.IO.File.ReadAllText(TempFile)
+      System.IO.File.Delete(TempFile)
+      If OCRCurrentPage = "" Then
+        GoTo OCRCurrentImage
+      End If
+    Catch ex As Exception
+      If OCRCurrentPage = "" Then
+        GoTo OCRCurrentImage
+      End If
+    End Try
+    Cursor.Current = Cursors.Default
+    Exit Function
+OCRCurrentImage:
+    Try
+      OCRCurrentPage = TesseractOCR.OCRImage(FindPictureBox(0).Image)
+    Catch ex As Exception
+      'OCR failed
+    End Try
+    Cursor.Current = Cursors.Default
+  End Function
 
   Private Sub ConvertGraphicsToPDF()
     OpenFileDialog1.Filter = "Image Files(*.BMP;*.JPG;*.GIF;*.PNG;*.TIF)|*.BMP;*.JPG;*.GIF;*.PNG;*.TIF"
