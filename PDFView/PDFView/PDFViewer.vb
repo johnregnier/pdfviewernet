@@ -21,7 +21,7 @@ Public Class PDFViewer
   Private PageInitDone As Boolean = False
   Private ScrollBarPosition As Integer = 0
   Private ScrollUnitsPerPage As Integer = 0
-  Private ContinuousImages As List(Of Image)
+  Private ContinuousImages As List(Of System.Drawing.Image)
 
   Public Property FileName() As String
     Get
@@ -312,7 +312,7 @@ GhostScriptFallBack:
 
 #Region "Helper Functions"
 
-  Private Function ShowImageFromFile(ByVal sFileName As String, ByVal iFrameNumber As Integer, ByRef oPictureBox As PictureBox, Optional ByVal XPDFDPI As Integer = 0) As Image
+  Private Function ShowImageFromFile(ByVal sFileName As String, ByVal iFrameNumber As Integer, ByRef oPictureBox As PictureBox, Optional ByVal XPDFDPI As Integer = 0) As System.Drawing.Image
     oPictureBox.Invalidate()
     'Cursor.Current = Cursors.WaitCursor
     If mUseXPDF And ImageUtil.IsPDF(sFileName) Then 'Use AFPDFLib (XPDF)

@@ -48,7 +48,7 @@ Public Class ImageUtil
             img = temp
         End If
 
-        Dim imageTemp As Image
+    Dim imageTemp As System.Drawing.Image
         imageTemp = img
 
         'lock the bits of the original bitmap
@@ -152,50 +152,50 @@ Public Class ImageUtil
         End If
     End Sub
 
-    Public Shared Function GenerateThumbnail(ByVal original As Image, ByVal percentage As Integer) As Image
-        If percentage < 1 Then
-            Throw New Exception("Thumbnail size must be aat least 1% of the original size")
-        End If
-        Dim tn As New System.Drawing.Bitmap(CInt(original.Width * 0.01F * percentage), CInt(original.Height * 0.01F * percentage))
-        Dim g As Graphics = Graphics.FromImage(tn)
-        g.InterpolationMode = Drawing2D.InterpolationMode.HighQualityBilinear
-        g.DrawImage(original, New Rectangle(0, 0, tn.Width, tn.Height), 0, 0, original.Width, original.Height, GraphicsUnit.Pixel)
-        g.Dispose()
-        Return CType(tn, Image)
-    End Function
+  Public Shared Function GenerateThumbnail(ByVal original As System.Drawing.Image, ByVal percentage As Integer) As System.Drawing.Image
+    If percentage < 1 Then
+      Throw New Exception("Thumbnail size must be aat least 1% of the original size")
+    End If
+    Dim tn As New System.Drawing.Bitmap(CInt(original.Width * 0.01F * percentage), CInt(original.Height * 0.01F * percentage))
+    Dim g As Graphics = Graphics.FromImage(tn)
+    g.InterpolationMode = Drawing2D.InterpolationMode.HighQualityBilinear
+    g.DrawImage(original, New Rectangle(0, 0, tn.Width, tn.Height), 0, 0, original.Width, original.Height, GraphicsUnit.Pixel)
+    g.Dispose()
+    Return CType(tn, System.Drawing.Image)
+  End Function
 
-    Public Shared Function SaveImageToTiff(ByVal img As Image) As String
-        Dim sTemp As String = My.Computer.FileSystem.SpecialDirectories.Temp & "\DDI_"
-        Dim sTStamp As String = Format(Now, "yyyyMMddhhmmssfff")
-        Dim FileName As String = sTemp & sTStamp & ".tif"
-        img.Save(FileName, ImageFormat.Tiff)
-        Return FileName
-    End Function
+  Public Shared Function SaveImageToTiff(ByVal img As System.Drawing.Image) As String
+    Dim sTemp As String = My.Computer.FileSystem.SpecialDirectories.Temp & "\DDI_"
+    Dim sTStamp As String = Format(Now, "yyyyMMddhhmmssfff")
+    Dim FileName As String = sTemp & sTStamp & ".tif"
+    img.Save(FileName, ImageFormat.Tiff)
+    Return FileName
+  End Function
 
-    Public Shared Function GetFrameFromTiff(ByVal Filename As String, ByVal FrameNumber As Integer) As Image
-        Dim fs As FileStream = File.Open(Filename, FileMode.Open, FileAccess.Read)
-        Dim bm As System.Drawing.Bitmap = CType(System.Drawing.Bitmap.FromStream(fs), System.Drawing.Bitmap)
-        bm.SelectActiveFrame(FrameDimension.Page, FrameNumber)
-        Dim temp As New System.Drawing.Bitmap(bm.Width, bm.Height)
-        Dim g As Graphics = Graphics.FromImage(temp)
-        g.InterpolationMode = InterpolationMode.NearestNeighbor
-        g.DrawImage(bm, 0, 0, bm.Width, bm.Height)
-        g.Dispose()
-        GetFrameFromTiff = temp
-        fs.Close()
-    End Function
+  Public Shared Function GetFrameFromTiff(ByVal Filename As String, ByVal FrameNumber As Integer) As System.Drawing.Image
+    Dim fs As FileStream = File.Open(Filename, FileMode.Open, FileAccess.Read)
+    Dim bm As System.Drawing.Bitmap = CType(System.Drawing.Bitmap.FromStream(fs), System.Drawing.Bitmap)
+    bm.SelectActiveFrame(FrameDimension.Page, FrameNumber)
+    Dim temp As New System.Drawing.Bitmap(bm.Width, bm.Height)
+    Dim g As Graphics = Graphics.FromImage(temp)
+    g.InterpolationMode = InterpolationMode.NearestNeighbor
+    g.DrawImage(bm, 0, 0, bm.Width, bm.Height)
+    g.Dispose()
+    GetFrameFromTiff = temp
+    fs.Close()
+  End Function
 
-    Public Shared Function GetFrameFromTiff2(ByVal Filename As String, ByVal FrameNumber As Integer) As Image
-        Dim dib As FIMULTIBITMAP = New FIMULTIBITMAP()
-        dib = FreeImage.OpenMultiBitmapEx(Filename)
-        Dim page As FIBITMAP = New FIBITMAP()
-        page = FreeImage.LockPage(dib, FrameNumber)
-        GetFrameFromTiff2 = FreeImage.GetBitmap(page)
-        page.SetNull()
-        FreeImage.CloseMultiBitmapEx(dib)
-    End Function
+  Public Shared Function GetFrameFromTiff2(ByVal Filename As String, ByVal FrameNumber As Integer) As System.Drawing.Image
+    Dim dib As FIMULTIBITMAP = New FIMULTIBITMAP()
+    dib = FreeImage.OpenMultiBitmapEx(Filename)
+    Dim page As FIBITMAP = New FIBITMAP()
+    page = FreeImage.LockPage(dib, FrameNumber)
+    GetFrameFromTiff2 = FreeImage.GetBitmap(page)
+    page.SetNull()
+    FreeImage.CloseMultiBitmapEx(dib)
+  End Function
 
-  Public Shared Function GetImagePageFromFileForPrint(ByVal sFileName As String, ByVal iPageNumber As Integer, Optional ByVal DPI As Integer = 300) As Image
+  Public Shared Function GetImagePageFromFileForPrint(ByVal sFileName As String, ByVal iPageNumber As Integer, Optional ByVal DPI As Integer = 300) As System.Drawing.Image
     If ImageUtil.IsPDF(sFileName) Then 'get image of page from file for printing
       GetImagePageFromFileForPrint = ConvertPDF.PDFConvert.GetPageFromPDF(sFileName, iPageNumber, DPI)
     ElseIf ImageUtil.IsTiff(sFileName) Then
