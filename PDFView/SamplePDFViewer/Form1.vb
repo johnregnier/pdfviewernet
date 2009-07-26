@@ -22,4 +22,7 @@
         PdfViewer1.FileName = PdfViewer1.FileName
     End Sub
 
+  Private Sub btOCR_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btOCR.Click
+    MsgBox(PdfViewer1.OCRCurrentPage)
+  End Sub
 End Class
