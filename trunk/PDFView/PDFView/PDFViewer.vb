@@ -161,7 +161,7 @@ GhostScriptFallBack:
     Exit Function
 OCRCurrentImage:
     Try
-      OCRCurrentPage = TesseractOCR.OCRImage(FindPictureBox(0).Image)
+      OCRCurrentPage = TesseractOCR.OCRImage(FindPictureBox(0).Image, TesseractOCR.Language.English)
     Catch ex As Exception
       'OCR failed
     End Try
