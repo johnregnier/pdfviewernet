@@ -3,10 +3,10 @@ Imports System.Windows.Forms
 
 Public Class TesseractOCR
 
-  Public Shared Function OCRImage(ByVal bm As System.Drawing.Image) As String
+  Public Shared Function OCRImage(ByVal bm As System.Drawing.Image, ByVal language As String) As String
     OCRImage = ""
     Dim oOCR As New tessnet2.Tesseract
-    oOCR.Init(Nothing, "eng", False)
+    oOCR.Init(Nothing, language, False)
     Dim WordList As New List(Of tessnet2.Word)
     WordList = oOCR.doOCR(bm, Rectangle.Empty)
     Dim LineCount As Integer = tessnet2.Tesseract.LineCount(WordList)
@@ -55,6 +55,20 @@ Public Class TesseractOCR
     End If
   End Function
 
+  Public Structure Language
+    Shared English As String = "eng"
+    Shared Spanish As String = "spa"
+    Shared German As String = "deu"
+    Shared Italian As String = "ita"
+    Shared French As String = "fra"
+    Shared Dutch As String = "nld"
+    Shared Portuguese As String = "por"
+    Shared Vietnamese As String = "vie"
+    Shared Basque As String = "eus"
+    Shared Fraktur As String = "deu-f"
+    Dim i As Integer
+  End Structure
+
 End Class
 
 Public Class PDFWordIndex
@@ -65,3 +79,5 @@ Public Class PDFWordIndex
   Public FontSize As Integer
   Public Text As String
 End Class
+
+
