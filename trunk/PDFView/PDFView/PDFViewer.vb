@@ -149,11 +149,11 @@ GhostScriptFallBack:
       AFPDFLibUtil.ExportPDF(mPDFDoc, TempFile, mCurrentPageNumber, mCurrentPageNumber)
       OCRCurrentPage = System.IO.File.ReadAllText(TempFile)
       System.IO.File.Delete(TempFile)
-      If OCRCurrentPage = "" Then
+      If Regex.IsMatch(OCRCurrentPage, "\w") = False Then
         GoTo OCRCurrentImage
       End If
     Catch ex As Exception
-      If OCRCurrentPage = "" Then
+      If Regex.IsMatch(OCRCurrentPage, "\w") = False Then
         GoTo OCRCurrentImage
       End If
     End Try

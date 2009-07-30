@@ -137,7 +137,6 @@ Public Class iTextSharpUtil
   Public Shared Function GraphicListToPDF(ByVal psFilenames As String(), ByVal outputFileName As String, ByVal psPageSize As iTextSharp.text.Rectangle)
     ' creation of the document with a certain size and certain margins
     Dim document As New Document(psPageSize, 0, 0, 0, 0)
-    'Document.compress = false;
 
     Try
       Dim writer As PdfWriter = PdfWriter.GetInstance(document, New FileStream(outputFileName, FileMode.Create))
@@ -151,6 +150,10 @@ Public Class iTextSharpUtil
 
         For k As Integer = 1 To total
           bm.SelectActiveFrame(FrameDimension.Page, k - 1)
+          'Auto Rotate counterclockwise if needed
+          If document.PageSize.Height > document.PageSize.Width And bm.Width > bm.Height Then
+            bm.RotateFlip(Drawing.RotateFlipType.Rotate270FlipNone)
+          End If
           Dim img As iTextSharp.text.Image
           If Regex.IsMatch(psFileName, "\.jpg$", RegexOptions.IgnoreCase) Then img = iTextSharp.text.Image.GetInstance(bm, ImageFormat.Jpeg)
           If Regex.IsMatch(psFileName, "\.png$", RegexOptions.IgnoreCase) Then img = iTextSharp.text.Image.GetInstance(bm, ImageFormat.Png)
