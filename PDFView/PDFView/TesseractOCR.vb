@@ -8,7 +8,7 @@ Public Class TesseractOCR
     Dim oOCR As New tessnet2.Tesseract
     oOCR.Init(Nothing, language, False)
     Dim WordList As New List(Of tessnet2.Word)
-    WordList = oOCR.doOCR(bm, Rectangle.Empty)
+    WordList = oOCR.doOCR(ImageUtil.MakeGrayscale(bm), Rectangle.Empty)
     Dim LineCount As Integer = tessnet2.Tesseract.LineCount(WordList)
     For i As Integer = 0 To LineCount - 1
       OCRImage &= tessnet2.Tesseract.GetLineText(WordList, i) & vbCrLf
