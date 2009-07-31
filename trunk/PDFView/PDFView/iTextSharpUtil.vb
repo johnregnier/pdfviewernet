@@ -121,6 +121,23 @@ Public Class iTextSharpUtil
         Dim yPos As Integer = (document.PageSize.Height - (img.Height * ScalePercentage)) / 2
         img.SetAbsolutePosition(xPos, yPos)
         Console.WriteLine("Image: " & k)
+        Dim bf As BaseFont = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.WINANSI, BaseFont.EMBEDDED)
+        cb.BeginText()
+        Dim indexList As List(Of PDFWordIndex)
+        indexList = TesseractOCR.GetPDFIndex(bm)
+        For Each item As PDFWordIndex In indexList
+          Dim text As String = item.Text
+          cb.SetFontAndSize(bf, item.FontSize * 1.7)
+          'Must convert image x,y (x units per inch) to PDF x,y (72 units per inch)
+          'Must know PDF page size to calculate the scale factor
+          'Must invert Y coordinate so we go top -> bottom
+          Dim x As Integer = (item.X * ScalePercentage) + xPos
+          Dim y As Integer = (item.Y * ScalePercentage) + yPos
+          y = (document.PageSize.Height - y) - item.FontSize
+          cb.SetTextMatrix(x, y)
+          cb.ShowText(text)
+        Next
+        cb.EndText()
         cb.AddImage(img)
         document.NewPage()
       Next
@@ -134,7 +151,7 @@ Public Class iTextSharpUtil
     End Try
   End Function
 
-  Public Shared Function GraphicListToPDF(ByVal psFilenames As String(), ByVal outputFileName As String, ByVal psPageSize As iTextSharp.text.Rectangle)
+  Public Shared Function GraphicListToPDF(ByVal psFilenames As String(), ByVal outputFileName As String, ByVal psPageSize As iTextSharp.text.Rectangle, ByVal DoOCR As Boolean)
     ' creation of the document with a certain size and certain margins
     Dim document As New Document(psPageSize, 0, 0, 0, 0)
 
@@ -150,9 +167,11 @@ Public Class iTextSharpUtil
 
         For k As Integer = 1 To total
           bm.SelectActiveFrame(FrameDimension.Page, k - 1)
-          'Auto Rotate counterclockwise if needed
-          If document.PageSize.Height > document.PageSize.Width And bm.Width > bm.Height Then
-            bm.RotateFlip(Drawing.RotateFlipType.Rotate270FlipNone)
+          If DoOCR = False Then 'Will need to OCR before rotating and make PDF text generation do a horizontal adjust on the OCR word coordinates
+            'Auto Rotate counterclockwise if needed
+            If document.PageSize.Height > document.PageSize.Width And bm.Width > bm.Height Then
+              bm.RotateFlip(Drawing.RotateFlipType.Rotate270FlipNone)
+            End If
           End If
           Dim img As iTextSharp.text.Image
           If Regex.IsMatch(psFileName, "\.jpg$", RegexOptions.IgnoreCase) Then img = iTextSharp.text.Image.GetInstance(bm, ImageFormat.Jpeg)
@@ -172,6 +191,39 @@ Public Class iTextSharpUtil
           Dim xPos As Integer = (document.PageSize.Width - (img.Width * ScalePercentage)) / 2
           Dim yPos As Integer = (document.PageSize.Height - (img.Height * ScalePercentage)) / 2
           img.SetAbsolutePosition(xPos, yPos)
+          If DoOCR Then
+            Dim bf As BaseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED)
+            cb.BeginText()
+            Dim indexList As List(Of PDFWordIndex)
+            indexList = TesseractOCR.GetPDFIndex(bm)
+
+            For Each item As PDFWordIndex In indexList
+              Dim fontSize As Integer = Math.Ceiling(item.FontSize + (ScalePercentage * item.FontSize))
+              Dim text As String = item.Text
+              cb.SetFontAndSize(bf, fontSize)
+              'Must convert image x,y (x units per inch) to PDF x,y (72 units per inch)
+              'Must know PDF page size to calculate the scale factor
+              'Must invert Y coordinate so we go top -> bottom
+              Dim x As Integer = (item.X * ScalePercentage) + xPos
+              Dim y As Integer = (item.Y * ScalePercentage) + yPos
+              y = (document.PageSize.Height - y) - item.FontSize
+              Dim a As Integer = x + (item.Width * ScalePercentage)
+              Dim b As Integer = y - (item.Height * ScalePercentage)
+              'cb.SetTextMatrix(x, y)
+              cb.ShowTextAlignedKerned(Element.ALIGN_JUSTIFIED_ALL, text, x, y, 0)
+              'Dim ct As ColumnText = New ColumnText(cb)
+              'ct.SetSimpleColumn(x, y, a, b, 0, Element.ALIGN_JUSTIFIED)
+              'ct.AddText(New Phrase(text))
+              'While ct.Go(True) = ColumnText.NO_MORE_COLUMN
+              '  cb.SetFontAndSize(bf, fontSize - 1)
+              'End While
+              'Dim ct1 As ColumnText = New ColumnText(cb)
+              'ct1.SetSimpleColumn(x, y, a, b, 0, Element.ALIGN_JUSTIFIED)
+              'ct1.AddText(New Phrase(text))
+              'ct1.Go()
+            Next
+            cb.EndText()
+          End If
           cb.AddImage(img)
           document.NewPage()
         Next
