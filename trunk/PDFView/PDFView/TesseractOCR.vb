@@ -33,15 +33,13 @@ Public Class TesseractOCR
     End If
   End Sub
 
-  Public Shared Function GetPDFIndex(ByRef img As System.Drawing.Image) As List(Of PDFWordIndex)
+  Public Shared Function GetPDFIndex(ByRef imgOCR As System.Drawing.Image) As List(Of PDFWordIndex)
     GetPDFIndex = New List(Of PDFWordIndex)
     Dim oOCR As New tessnet2.Tesseract
     oOCR.Init(Nothing, "eng", False)
     Dim WordList As New List(Of tessnet2.Word)
-    WordList = oOCR.doOCR(img, Rectangle.Empty)
+    WordList = oOCR.doOCR(imgOCR, Rectangle.Empty)
     If WordList IsNot Nothing Then
-      Dim g As Graphics = Graphics.FromImage(img)
-      g.DrawImage(img, 0, 0)
       For Each word As tessnet2.Word In WordList
         Dim pdfWordIndex As New PDFWordIndex
         pdfWordIndex.X = word.Left

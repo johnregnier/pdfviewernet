@@ -174,11 +174,7 @@ Public Class iTextSharpUtil
             End If
           End If
           Dim img As iTextSharp.text.Image
-          If Regex.IsMatch(psFileName, "\.jpg$", RegexOptions.IgnoreCase) Then img = iTextSharp.text.Image.GetInstance(bm, ImageFormat.Jpeg)
-          If Regex.IsMatch(psFileName, "\.png$", RegexOptions.IgnoreCase) Then img = iTextSharp.text.Image.GetInstance(bm, ImageFormat.Png)
-          If Regex.IsMatch(psFileName, "\.bmp$", RegexOptions.IgnoreCase) Then img = iTextSharp.text.Image.GetInstance(bm, ImageFormat.Bmp)
-          If Regex.IsMatch(psFileName, "\.tif$", RegexOptions.IgnoreCase) Then img = iTextSharp.text.Image.GetInstance(bm, ImageFormat.Tiff)
-          If Regex.IsMatch(psFileName, "\.gif$", RegexOptions.IgnoreCase) Then img = iTextSharp.text.Image.GetInstance(bm, ImageFormat.Gif)
+          img = iTextSharp.text.Image.GetInstance(bm, bm.RawFormat)
           Dim Xpercent As Single = document.PageSize.Width / img.Width
           Dim Ypercent As Single = document.PageSize.Height / img.Height
           Dim ScalePercentage As Single
@@ -191,40 +187,48 @@ Public Class iTextSharpUtil
           Dim xPos As Integer = (document.PageSize.Width - (img.Width * ScalePercentage)) / 2
           Dim yPos As Integer = (document.PageSize.Height - (img.Height * ScalePercentage)) / 2
           img.SetAbsolutePosition(xPos, yPos)
-          If DoOCR Then
-            Dim bf As BaseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED)
-            cb.BeginText()
-            Dim indexList As List(Of PDFWordIndex)
-            indexList = TesseractOCR.GetPDFIndex(bm)
+          Try
+            If DoOCR Then
+              Dim bf As BaseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED)
+              cb.BeginText()
+              Dim indexList As List(Of PDFWordIndex)
+              indexList = TesseractOCR.GetPDFIndex(bm)
 
-            For Each item As PDFWordIndex In indexList
-              Dim fontSize As Integer = Math.Ceiling(item.FontSize + (ScalePercentage * item.FontSize))
-              Dim text As String = item.Text
-              cb.SetFontAndSize(bf, fontSize)
-              'Must convert image x,y (x units per inch) to PDF x,y (72 units per inch)
-              'Must know PDF page size to calculate the scale factor
-              'Must invert Y coordinate so we go top -> bottom
-              Dim x As Integer = (item.X * ScalePercentage) + xPos
-              Dim y As Integer = (item.Y * ScalePercentage) + yPos
-              y = (document.PageSize.Height - y) - item.FontSize
-              Dim a As Integer = x + (item.Width * ScalePercentage)
-              Dim b As Integer = y - (item.Height * ScalePercentage)
-              'cb.SetTextMatrix(x, y)
-              cb.ShowTextAlignedKerned(Element.ALIGN_JUSTIFIED_ALL, text, x, y, 0)
-              'Dim ct As ColumnText = New ColumnText(cb)
-              'ct.SetSimpleColumn(x, y, a, b, 0, Element.ALIGN_JUSTIFIED)
-              'ct.AddText(New Phrase(text))
-              'While ct.Go(True) = ColumnText.NO_MORE_COLUMN
-              '  cb.SetFontAndSize(bf, fontSize - 1)
-              'End While
-              'Dim ct1 As ColumnText = New ColumnText(cb)
-              'ct1.SetSimpleColumn(x, y, a, b, 0, Element.ALIGN_JUSTIFIED)
-              'ct1.AddText(New Phrase(text))
-              'ct1.Go()
-            Next
-            cb.EndText()
-          End If
-          cb.AddImage(img)
+              For Each item As PDFWordIndex In indexList
+                Dim fontSize As Integer = item.FontSize + (ScalePercentage * item.FontSize)
+                Dim text As String = item.Text
+                cb.SetFontAndSize(bf, fontSize)
+                'Must convert image x,y (x units per inch) to PDF x,y (72 units per inch)
+                'Must know PDF page size to calculate the scale factor
+                'Must invert Y coordinate so we go top -> bottom
+                Dim x As Integer = (item.X * ScalePercentage) + xPos
+                Dim y As Integer = (item.Y * ScalePercentage) + yPos
+                y = (document.PageSize.Height - y) - item.FontSize
+                Dim a As Integer = x + (item.Width * ScalePercentage)
+                Dim b As Integer = y - (item.Height * ScalePercentage)
+                'cb.SetTextMatrix(x, y)
+                cb.ShowTextAlignedKerned(Element.ALIGN_JUSTIFIED_ALL, text, x, y, 0)
+                'Dim ct As ColumnText = New ColumnText(cb)
+                'ct.SetSimpleColumn(x, y, a, b, 0, Element.ALIGN_JUSTIFIED)
+                'ct.AddText(New Phrase(text))
+                'While ct.Go(True) = ColumnText.NO_MORE_COLUMN
+                '  cb.SetFontAndSize(bf, fontSize - 1)
+                'End While
+                'Dim ct1 As ColumnText = New ColumnText(cb)
+                'ct1.SetSimpleColumn(x, y, a, b, 0, Element.ALIGN_JUSTIFIED)
+                'ct1.AddText(New Phrase(text))
+                'ct1.Go()
+              Next
+              cb.EndText()
+            End If
+          Catch ex As Exception
+            MsgBox(ex.ToString)
+          End Try
+          Try
+            cb.AddImage(img)
+          Catch ex As Exception
+            MsgBox(ex.ToString)
+          End Try
           document.NewPage()
         Next
         bm.Dispose()
