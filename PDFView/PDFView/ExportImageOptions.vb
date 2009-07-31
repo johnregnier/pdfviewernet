@@ -28,7 +28,8 @@ Public Class ExportImageOptions
     End Sub
 
     Private Sub ExportImageOptions_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
-        LoadPageSizes()
+    LoadPageSizes()
+    cbLanguage.SelectedIndex = 0
     End Sub
 
     Private Sub LoadPageSizes()
@@ -65,15 +66,16 @@ Public Class ExportImageOptions
             Windows.Forms.Cursor.Current = Windows.Forms.Cursors.WaitCursor
             Dim filename As String = SaveFileDialog1.FileName
             If filename.EndsWith(".pdf") Then
-                If IsMultiple Then
-                    iTextSharpUtil.GraphicListToPDF(mImgFileNames, SaveFileDialog1.FileName, cbPageSize.SelectedValue.Value)
-                Else
-                    iTextSharpUtil.TiffToPDF(mImgFileNames(0), SaveFileDialog1.FileName, nuStart.Value, nuDown.Value, cbPageSize.SelectedValue.Value)
-                End If
-                SavedFileName = SaveFileDialog1.FileName
-            End If
-            Windows.Forms.Cursor.Current = Windows.Forms.Cursors.Default
-        End If
-        Me.Hide()
+        'If IsMultiple Then
+        iTextSharpUtil.GraphicListToPDF(mImgFileNames, SaveFileDialog1.FileName, cbPageSize.SelectedValue.Value, cbOCR.Checked)
+        'Else
+        'iTextSharpUtil.TiffToPDF(mImgFileNames(0), SaveFileDialog1.FileName, nuStart.Value, nuDown.Value, cbPageSize.SelectedValue.Value)
+        'End If
+        SavedFileName = SaveFileDialog1.FileName
+      End If
+      Windows.Forms.Cursor.Current = Windows.Forms.Cursors.Default
+    End If
+    Me.Hide()
     End Sub
+
 End Class
