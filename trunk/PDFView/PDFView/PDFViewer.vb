@@ -174,7 +174,7 @@ OCRCurrentImage:
     OpenFileDialog1.Title = "Select multiple image files to convert to PDF"
     OpenFileDialog1.Multiselect = True
     If OpenFileDialog1.ShowDialog() = Windows.Forms.DialogResult.OK Then
-      Dim exportOptionsDialog As New ExportImageOptions(OpenFileDialog1.FileNames, True)
+      Dim exportOptionsDialog As New ExportImageOptions(OpenFileDialog1.FileNames)
       exportOptionsDialog.ShowDialog()
       Try
         FileName = exportOptionsDialog.SavedFileName
@@ -296,7 +296,7 @@ OCRCurrentImage:
     ElseIf ImageUtil.IsTiff(mOriginalFileName) Then
       Dim FileArray(0) As String
       FileArray(0) = mPDFFileName
-      Dim exportOptionsDialog As New ExportImageOptions(FileArray, False)
+      Dim exportOptionsDialog As New ExportImageOptions(FileArray)
       exportOptionsDialog.ShowDialog()
     End If
     Me.Focus()
