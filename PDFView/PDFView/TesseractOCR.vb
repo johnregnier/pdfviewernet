@@ -33,10 +33,10 @@ Public Class TesseractOCR
     End If
   End Sub
 
-  Public Shared Function GetPDFIndex(ByRef imgOCR As System.Drawing.Image) As List(Of PDFWordIndex)
+  Public Shared Function GetPDFIndex(ByRef imgOCR As System.Drawing.Image, ByVal language As String) As List(Of PDFWordIndex)
     GetPDFIndex = New List(Of PDFWordIndex)
     Dim oOCR As New tessnet2.Tesseract
-    oOCR.Init(Nothing, "eng", False)
+    oOCR.Init(Nothing, language, False)
     Dim WordList As New List(Of tessnet2.Word)
     WordList = oOCR.doOCR(imgOCR, Rectangle.Empty)
     If WordList IsNot Nothing Then
@@ -54,6 +54,7 @@ Public Class TesseractOCR
   End Function
 
   Public Structure Language
+    Dim i As Integer
     Shared English As String = "eng"
     Shared Spanish As String = "spa"
     Shared German As String = "deu"
@@ -64,7 +65,6 @@ Public Class TesseractOCR
     Shared Vietnamese As String = "vie"
     Shared Basque As String = "eus"
     Shared Fraktur As String = "deu-f"
-    Dim i As Integer
   End Structure
 
 End Class

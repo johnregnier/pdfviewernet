@@ -92,6 +92,12 @@ Public Class PrinterUtil
     Dim RenderDPI As Integer = 300 'Set to 600 if this resolution is too low (speed vs. time)
     Dim image As System.Drawing.Image = ImageUtil.GetImagePageFromFileForPrint(mFileName, mCurrentPage, RenderDPI)
 
+    'Comment out if you do not want Auto-Rotate
+    If (image.Height > image.Width And e.Graphics.VisibleClipBounds.Width > e.Graphics.VisibleClipBounds.Height) _
+    Or (image.Width > image.Height And e.Graphics.VisibleClipBounds.Height > e.Graphics.VisibleClipBounds.Width) Then
+      image.RotateFlip(RotateFlipType.Rotate270FlipNone)
+    End If
+
     Dim ScalePercentage As Single
     Dim XMaxPixels As Integer = (e.Graphics.VisibleClipBounds.Width / 100) * image.HorizontalResolution
     Dim YMaxPixels As Integer = (e.Graphics.VisibleClipBounds.Height / 100) * image.VerticalResolution
@@ -109,6 +115,10 @@ Public Class PrinterUtil
 
     If ScalePercentage < 0.75F Then 'Re-render the image to create a smaller print file and save printer processing time
       image = ImageUtil.GetImagePageFromFileForPrint(mFileName, mCurrentPage, OptimalDPI)
+      If (image.Height > image.Width And e.Graphics.VisibleClipBounds.Width > e.Graphics.VisibleClipBounds.Height) _
+      Or (image.Width > image.Height And e.Graphics.VisibleClipBounds.Height > e.Graphics.VisibleClipBounds.Width) Then
+        image.RotateFlip(RotateFlipType.Rotate270FlipNone)
+      End If
     End If
 
     e.Graphics.ScaleTransform(ScalePercentage, ScalePercentage)
