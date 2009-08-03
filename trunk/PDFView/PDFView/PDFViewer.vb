@@ -22,6 +22,9 @@ Public Class PDFViewer
   Private ScrollBarPosition As Integer = 0
   Private ScrollUnitsPerPage As Integer = 0
   Private ContinuousImages As List(Of System.Drawing.Image)
+  Private mUserPassword As String = ""
+  Private mOwnerPassword As String = ""
+  Private mPassword As String = ""
 
   Public Property FileName() As String
     Get
@@ -32,32 +35,54 @@ Public Class PDFViewer
         Exit Property
       End If
       mOriginalFileName = value
+      Dim userPassword As String = Nothing
       If ImageUtil.IsTiff(value) Then
         'Tiff Specific behavior
         InitBottomToolbar("TIFF")
       ElseIf ImageUtil.IsPDF(value) Then
-        If Not Nothing Is mPDFDoc Then
-          mPDFDoc.Dispose()
+        If iTextSharpUtil.IsEncrypted(value) Then
+FileIsEncrypted:
+          Dim frmPassword As New Password
+          Dim result As DialogResult = frmPassword.ShowDialog()
+          If result = DialogResult.OK Then
+            If Not frmPassword.OwnerPassword = "" Then
+              mOwnerPassword = frmPassword.OwnerPassword
+              If iTextSharpUtil.IsPasswordValid(value, frmPassword.OwnerPassword) = False Then
+                MsgBox("Owner password is incorrect.", MsgBoxStyle.Critical, "Incorrect Password")
+                Exit Property
+              Else
+                mOwnerPassword = frmPassword.OwnerPassword
+                mPassword = mOwnerPassword
+              End If
+            End If
+            If Not frmPassword.UserPassword = "" Then
+              If iTextSharpUtil.IsPasswordValid(value, frmPassword.UserPassword) = False Then
+                MsgBox("User password is incorrect.", MsgBoxStyle.Critical, "Incorrect Password")
+                Exit Property
+              Else
+                mUserPassword = frmPassword.UserPassword
+                mPassword = mUserPassword
+              End If
+            End If
+          End If
         End If
         If mUseXPDF Then
-LoadPDFFile:
           If Not Nothing Is mPDFDoc Then
             mPDFDoc.Dispose()
           End If
           Try
             mPDFDoc = New PDFLibNet.PDFWrapper("")
+            If mOwnerPassword <> "" Then
+              mPDFDoc.OwnerPassword = mOwnerPassword
+              mPassword = mOwnerPassword
+            End If
+            If mUserPassword <> "" Then
+              mPDFDoc.UserPassword = mUserPassword
+              mPassword = mUserPassword
+            End If
             mPDFDoc.LoadPDF(value)
           Catch ex As System.Security.SecurityException
-            Dim frmPassword As New Password
-            If frmPassword.ShowDialog() = DialogResult.OK Then
-              If Not frmPassword.UserPassword = "" Then
-                mPDFDoc.UserPassword = frmPassword.UserPassword
-              End If
-              If Not frmPassword.UserPassword = "" Then
-                mPDFDoc.OwnerPassword = frmPassword.OwnerPassword
-              End If
-              GoTo LoadPDFFile
-            End If
+            GoTo FileIsEncrypted
           Catch ex As Exception
             If Not Nothing Is mPDFDoc Then
               mPDFDoc.Dispose()
@@ -359,7 +384,7 @@ OCRCurrentImage:
     Else 'Use Ghostscript
 GhostScriptFallBack:
       If ImageUtil.IsPDF(sFileName) Then 'convert one frame to a tiff for viewing
-        oPictureBox.Image = ConvertPDF.PDFConvert.GetPageFromPDF(sFileName, iFrameNumber + 1)
+        oPictureBox.Image = ConvertPDF.PDFConvert.GetPageFromPDF(sFileName, iFrameNumber + 1, , mPassword)
       ElseIf ImageUtil.IsTiff(sFileName) Then
         oPictureBox.Image = ImageUtil.GetFrameFromTiff(sFileName, iFrameNumber)
       End If
@@ -370,7 +395,7 @@ GhostScriptFallBack:
   End Function
 
   Private Sub InitPageRange()
-    mPDFPageCount = ImageUtil.GetImageFrameCount(mPDFFileName)
+    mPDFPageCount = ImageUtil.GetImageFrameCount(mPDFFileName, mPassword)
     mCurrentPageNumber = 1
   End Sub
 
@@ -383,7 +408,7 @@ GhostScriptFallBack:
         AddHandler TreeView1.BeforeExpand, AddressOf AFPDFLib_BeforeExpand
         AddHandler TreeView1.NodeMouseClick, AddressOf AFPDFLib_NodeMouseClick
       Else
-        HasBookmarks = iTextSharpUtil.BuildBookmarkTreeFromPDF(mOriginalFileName, TreeView1.Nodes)
+        HasBookmarks = iTextSharpUtil.BuildBookmarkTreeFromPDF(mOriginalFileName, TreeView1.Nodes, mPassword)
         AddHandler TreeView1.NodeMouseClick, AddressOf ItextSharp_NodeMouseClick
       End If
     Catch ex As Exception

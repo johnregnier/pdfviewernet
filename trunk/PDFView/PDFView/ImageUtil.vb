@@ -203,13 +203,13 @@ Public Class ImageUtil
     End If
   End Function
 
-    Public Shared Function GetImageFrameCount(ByVal sFileName As String) As Integer
-        If ImageUtil.IsPDF(sFileName) Then
-            GetImageFrameCount = iTextSharpUtil.GetPDFPageCount(sFileName)
-        ElseIf ImageUtil.IsTiff(sFileName) Then
-            GetImageFrameCount = GetTiffFrameCount(sFileName)
-        End If
-    End Function
+  Public Shared Function GetImageFrameCount(ByVal sFileName As String, Optional ByVal userPassword As String = "") As Integer
+    If ImageUtil.IsPDF(sFileName) Then
+      GetImageFrameCount = iTextSharpUtil.GetPDFPageCount(sFileName, userPassword)
+    ElseIf ImageUtil.IsTiff(sFileName) Then
+      GetImageFrameCount = GetTiffFrameCount(sFileName)
+    End If
+  End Function
 
     Public Shared Function GetTiffFrameCount(ByVal FileName As String) As Integer
         Dim bm As New System.Drawing.Bitmap(FileName)
