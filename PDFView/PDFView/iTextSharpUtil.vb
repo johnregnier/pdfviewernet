@@ -11,16 +11,30 @@ Public Class iTextSharpUtil
 
   Public Shared mBookmarkList As New ArrayList
 
-  Public Shared Function GetPDFPageCount(ByVal filepath As String) As Integer
-    Dim oPdfReader As PdfReader = New PdfReader(filepath)
+  Public Shared Function GetPDFPageCount(ByVal filepath As String, Optional ByVal userPassword As String = "") As Integer
+
+    Dim oPdfReader As PdfReader
+    If userPassword <> "" Then
+      Dim encoding As New System.Text.ASCIIEncoding()
+      oPdfReader = New PdfReader(filepath, encoding.GetBytes(userPassword))
+    Else
+      oPdfReader = New PdfReader(filepath)
+    End If
     Dim page_count As Integer = oPdfReader.NumberOfPages
     oPdfReader.Close()
     Return page_count
   End Function
 
-  Public Shared Function BuildBookmarkTreeFromPDF(ByVal FileName As String, ByVal TreeNodes As TreeNodeCollection) As Boolean
+  Public Shared Function BuildBookmarkTreeFromPDF(ByVal FileName As String, ByVal TreeNodes As TreeNodeCollection, Optional ByVal userPassword As String = "") As Boolean
     TreeNodes.Clear()
-    Dim oPdfReader As PdfReader = New PdfReader(FileName)
+    Dim oPdfReader As PdfReader
+    If userPassword <> "" Then
+      Dim encoding As New System.Text.ASCIIEncoding()
+      oPdfReader = New PdfReader(FileName, encoding.GetBytes(userPassword))
+    Else
+      oPdfReader = New PdfReader(FileName)
+    End If
+
     Dim arList As ArrayList = New ArrayList()
     arList = SimpleBookmark.GetBookmark(oPdfReader)
     oPdfReader.Close()
@@ -66,6 +80,8 @@ Public Class iTextSharpUtil
 
     Try
       Dim writer As PdfWriter = PdfWriter.GetInstance(document, New FileStream(outputFileName, FileMode.Create))
+      'TO DO: Add ability to encrypt the PDF file
+      'writer.SetEncryption(PdfWriter.STRENGTH128BITS, "userpass", "ownerpass", PdfWriter.AllowCopy Or PdfWriter.AllowPrinting)
       document.Open()
       Dim cb As PdfContentByte = writer.DirectContent
       For Each psFileName As String In psFilenames
@@ -146,9 +162,32 @@ Public Class iTextSharpUtil
       document.Close()
       GraphicListToPDF = outputFileName
     Catch de As Exception
-      Console.[Error].WriteLine(de.Message)
-      Console.[Error].WriteLine(de.StackTrace)
+      MsgBox(de.Message)
+      'Console.[Error].WriteLine(de.Message)
+      'Console.[Error].WriteLine(de.StackTrace)
       GraphicListToPDF = ""
+    End Try
+  End Function
+
+  Public Shared Function IsEncrypted(ByVal pdfFileName As String) As Boolean
+    IsEncrypted = False
+    Try
+      Dim oPDFReader As New PdfReader(pdfFileName)
+      oPDFReader.Close()
+    Catch ex As BadPasswordException
+      IsEncrypted = True
+    End Try
+  End Function
+
+  Public Shared Function IsPasswordValid(ByVal pdfFileName As String, ByVal Password As String) As Boolean
+    IsPasswordValid = False
+    Try
+      Dim encoding As New System.Text.ASCIIEncoding()
+      Dim oPDFReader As New PdfReader(pdfFileName, encoding.GetBytes(Password))
+      oPDFReader.Close()
+      IsPasswordValid = True
+    Catch ex As BadPasswordException
+      'Authentication Failed
     End Try
   End Function
 
