@@ -143,6 +143,7 @@ Public Class iTextSharpUtil
                 'Must invert Y coordinate so we go top -> bottom
                 Dim x As Integer = (item.X * ScalePercentage) + xPos
                 Dim y As Integer = (item.Y * ScalePercentage) + yPos
+                y = (document.PageSize.Height - y) - fontSize
                 'Keep adjusting the font size until the text is the same width as the word rectangle 
                 Dim desiredWidth As Integer = Math.Ceiling(item.Width * ScalePercentage)
                 Dim desiredHeight As Integer = Math.Ceiling(item.Height * ScalePercentage)
@@ -152,7 +153,7 @@ Public Class iTextSharpUtil
                   renderFontWidth = bf.GetWidthPoint(text, fontSize)
                 End While
                 cb.SetFontAndSize(bf, fontSize)
-                y = (document.PageSize.Height - y) - (fontSize / 2)
+                y = y - (fontSize - item.FontSize) / 2
                 cb.ShowTextAlignedKerned(Element.ALIGN_JUSTIFIED_ALL, text, x, y, 0)
               Next
               cb.EndText()
