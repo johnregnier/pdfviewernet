@@ -36,14 +36,20 @@ Partial Class ExportImageOptions
     Me.btOK = New System.Windows.Forms.Button
     Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog
     Me.GroupBox4 = New System.Windows.Forms.GroupBox
-    Me.cbOCR = New System.Windows.Forms.CheckBox
     Me.cbLanguage = New System.Windows.Forms.ComboBox
+    Me.cbOCR = New System.Windows.Forms.CheckBox
+    Me.GroupBox5 = New System.Windows.Forms.GroupBox
+    Me.tbUserPass = New System.Windows.Forms.TextBox
+    Me.tbOwnerPass = New System.Windows.Forms.TextBox
+    Me.Label4 = New System.Windows.Forms.Label
+    Me.Label5 = New System.Windows.Forms.Label
     Me.GroupBox1.SuspendLayout()
     Me.GroupBox3.SuspendLayout()
     Me.GroupBox2.SuspendLayout()
     CType(Me.nuDown, System.ComponentModel.ISupportInitialize).BeginInit()
     CType(Me.nuStart, System.ComponentModel.ISupportInitialize).BeginInit()
     Me.GroupBox4.SuspendLayout()
+    Me.GroupBox5.SuspendLayout()
     Me.SuspendLayout()
     '
     'GroupBox1
@@ -103,7 +109,7 @@ Partial Class ExportImageOptions
     Me.GroupBox2.Controls.Add(Me.Label2)
     Me.GroupBox2.Controls.Add(Me.nuStart)
     Me.GroupBox2.Controls.Add(Me.Label1)
-    Me.GroupBox2.Location = New System.Drawing.Point(13, 187)
+    Me.GroupBox2.Location = New System.Drawing.Point(13, 270)
     Me.GroupBox2.Name = "GroupBox2"
     Me.GroupBox2.Size = New System.Drawing.Size(260, 57)
     Me.GroupBox2.TabIndex = 5
@@ -148,7 +154,7 @@ Partial Class ExportImageOptions
     '
     'btCancel
     '
-    Me.btCancel.Location = New System.Drawing.Point(117, 250)
+    Me.btCancel.Location = New System.Drawing.Point(117, 333)
     Me.btCancel.Name = "btCancel"
     Me.btCancel.Size = New System.Drawing.Size(75, 23)
     Me.btCancel.TabIndex = 8
@@ -157,7 +163,7 @@ Partial Class ExportImageOptions
     '
     'btOK
     '
-    Me.btOK.Location = New System.Drawing.Point(198, 250)
+    Me.btOK.Location = New System.Drawing.Point(198, 333)
     Me.btOK.Name = "btOK"
     Me.btOK.Size = New System.Drawing.Size(75, 23)
     Me.btOK.TabIndex = 7
@@ -175,16 +181,6 @@ Partial Class ExportImageOptions
     Me.GroupBox4.TabStop = False
     Me.GroupBox4.Text = "OCR Options"
     '
-    'cbOCR
-    '
-    Me.cbOCR.AutoSize = True
-    Me.cbOCR.Location = New System.Drawing.Point(10, 19)
-    Me.cbOCR.Name = "cbOCR"
-    Me.cbOCR.Size = New System.Drawing.Size(110, 17)
-    Me.cbOCR.TabIndex = 2
-    Me.cbOCR.Text = "Make Searchable"
-    Me.cbOCR.UseVisualStyleBackColor = True
-    '
     'cbLanguage
     '
     Me.cbLanguage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
@@ -195,11 +191,67 @@ Partial Class ExportImageOptions
     Me.cbLanguage.Size = New System.Drawing.Size(121, 21)
     Me.cbLanguage.TabIndex = 3
     '
+    'cbOCR
+    '
+    Me.cbOCR.AutoSize = True
+    Me.cbOCR.Location = New System.Drawing.Point(10, 19)
+    Me.cbOCR.Name = "cbOCR"
+    Me.cbOCR.Size = New System.Drawing.Size(110, 17)
+    Me.cbOCR.TabIndex = 2
+    Me.cbOCR.Text = "Make Searchable"
+    Me.cbOCR.UseVisualStyleBackColor = True
+    '
+    'GroupBox5
+    '
+    Me.GroupBox5.Controls.Add(Me.Label5)
+    Me.GroupBox5.Controls.Add(Me.Label4)
+    Me.GroupBox5.Controls.Add(Me.tbOwnerPass)
+    Me.GroupBox5.Controls.Add(Me.tbUserPass)
+    Me.GroupBox5.Location = New System.Drawing.Point(13, 188)
+    Me.GroupBox5.Name = "GroupBox5"
+    Me.GroupBox5.Size = New System.Drawing.Size(259, 76)
+    Me.GroupBox5.TabIndex = 9
+    Me.GroupBox5.TabStop = False
+    Me.GroupBox5.Text = "Password Options"
+    '
+    'tbUserPass
+    '
+    Me.tbUserPass.Location = New System.Drawing.Point(64, 19)
+    Me.tbUserPass.Name = "tbUserPass"
+    Me.tbUserPass.Size = New System.Drawing.Size(182, 20)
+    Me.tbUserPass.TabIndex = 0
+    '
+    'tbOwnerPass
+    '
+    Me.tbOwnerPass.Location = New System.Drawing.Point(64, 46)
+    Me.tbOwnerPass.Name = "tbOwnerPass"
+    Me.tbOwnerPass.Size = New System.Drawing.Size(182, 20)
+    Me.tbOwnerPass.TabIndex = 1
+    '
+    'Label4
+    '
+    Me.Label4.AutoSize = True
+    Me.Label4.Location = New System.Drawing.Point(23, 22)
+    Me.Label4.Name = "Label4"
+    Me.Label4.Size = New System.Drawing.Size(29, 13)
+    Me.Label4.TabIndex = 2
+    Me.Label4.Text = "User"
+    '
+    'Label5
+    '
+    Me.Label5.AutoSize = True
+    Me.Label5.Location = New System.Drawing.Point(23, 49)
+    Me.Label5.Name = "Label5"
+    Me.Label5.Size = New System.Drawing.Size(38, 13)
+    Me.Label5.TabIndex = 3
+    Me.Label5.Text = "Owner"
+    '
     'ExportImageOptions
     '
     Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
     Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-    Me.ClientSize = New System.Drawing.Size(284, 285)
+    Me.ClientSize = New System.Drawing.Size(284, 363)
+    Me.Controls.Add(Me.GroupBox5)
     Me.Controls.Add(Me.GroupBox4)
     Me.Controls.Add(Me.btCancel)
     Me.Controls.Add(Me.btOK)
@@ -218,6 +270,8 @@ Partial Class ExportImageOptions
     CType(Me.nuStart, System.ComponentModel.ISupportInitialize).EndInit()
     Me.GroupBox4.ResumeLayout(False)
     Me.GroupBox4.PerformLayout()
+    Me.GroupBox5.ResumeLayout(False)
+    Me.GroupBox5.PerformLayout()
     Me.ResumeLayout(False)
 
   End Sub
@@ -237,4 +291,9 @@ Partial Class ExportImageOptions
   Friend WithEvents GroupBox4 As System.Windows.Forms.GroupBox
   Friend WithEvents cbLanguage As System.Windows.Forms.ComboBox
   Friend WithEvents cbOCR As System.Windows.Forms.CheckBox
+  Friend WithEvents GroupBox5 As System.Windows.Forms.GroupBox
+  Friend WithEvents Label5 As System.Windows.Forms.Label
+  Friend WithEvents Label4 As System.Windows.Forms.Label
+  Friend WithEvents tbOwnerPass As System.Windows.Forms.TextBox
+  Friend WithEvents tbUserPass As System.Windows.Forms.TextBox
 End Class

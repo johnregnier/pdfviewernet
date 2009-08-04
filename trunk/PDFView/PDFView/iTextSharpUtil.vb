@@ -73,15 +73,23 @@ Public Class iTextSharpUtil
     Return True
   End Function
 
-  Public Shared Function GraphicListToPDF(ByVal psFilenames As String(), ByVal outputFileName As String, ByVal psPageSize As iTextSharp.text.Rectangle, Optional ByVal language As String = "", Optional ByVal StartPage As Integer = 0, Optional ByVal EndPage As Integer = 0)
+  Public Shared Function GraphicListToPDF(ByVal psFilenames As String() _
+                                          , ByVal outputFileName As String _
+                                          , ByVal psPageSize As iTextSharp.text.Rectangle _
+                                          , Optional ByVal language As String = "" _
+                                          , Optional ByVal StartPage As Integer = 0 _
+                                          , Optional ByVal EndPage As Integer = 0 _
+                                          , Optional ByVal UserPassword As String = "" _
+                                          , Optional ByVal OwnerPassword As String = "")
 
     Dim document As iTextSharp.text.Document
     document = New Document(psPageSize, 0, 0, 0, 0)
 
     Try
       Dim writer As PdfWriter = PdfWriter.GetInstance(document, New FileStream(outputFileName, FileMode.Create))
-      'TO DO: Add ability to encrypt the PDF file
-      'writer.SetEncryption(PdfWriter.STRENGTH128BITS, "userpass", "ownerpass", PdfWriter.AllowCopy Or PdfWriter.AllowPrinting)
+      If UserPassword <> "" Or OwnerPassword <> "" Then
+        writer.SetEncryption(PdfWriter.STRENGTH128BITS, UserPassword, OwnerPassword, PdfWriter.AllowCopy Or PdfWriter.AllowPrinting)
+      End If
       document.Open()
       Dim cb As PdfContentByte = writer.DirectContent
       For Each psFileName As String In psFilenames
@@ -135,15 +143,16 @@ Public Class iTextSharpUtil
                 'Must invert Y coordinate so we go top -> bottom
                 Dim x As Integer = (item.X * ScalePercentage) + xPos
                 Dim y As Integer = (item.Y * ScalePercentage) + yPos
-                y = (document.PageSize.Height - y) - item.FontSize
                 'Keep adjusting the font size until the text is the same width as the word rectangle 
                 Dim desiredWidth As Integer = Math.Ceiling(item.Width * ScalePercentage)
+                Dim desiredHeight As Integer = Math.Ceiling(item.Height * ScalePercentage)
                 Dim renderFontWidth As Integer = bf.GetWidthPoint(text, fontSize)
                 While renderFontWidth < desiredWidth
                   fontSize += 0.5F
                   renderFontWidth = bf.GetWidthPoint(text, fontSize)
                 End While
                 cb.SetFontAndSize(bf, fontSize)
+                y = (document.PageSize.Height - y) - (fontSize / 2)
                 cb.ShowTextAlignedKerned(Element.ALIGN_JUSTIFIED_ALL, text, x, y, 0)
               Next
               cb.EndText()

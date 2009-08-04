@@ -93,7 +93,7 @@ Public Class ExportImageOptions
       Windows.Forms.Cursor.Current = Windows.Forms.Cursors.WaitCursor
       Dim filename As String = SaveFileDialog1.FileName
       If filename.EndsWith(".pdf") Then
-        iTextSharpUtil.GraphicListToPDF(mImgFileNames, SaveFileDialog1.FileName, cbPageSize.SelectedValue.Value, IIf(cbOCR.Checked, cbLanguage.SelectedValue.Value, ""), nuStart.Value, nuDown.Value)
+        iTextSharpUtil.GraphicListToPDF(mImgFileNames, SaveFileDialog1.FileName, cbPageSize.SelectedValue.Value, IIf(cbOCR.Checked, cbLanguage.SelectedValue.Value, ""), nuStart.Value, nuDown.Value, tbUserPass.Text, tbOwnerPass.Text)
         SavedFileName = SaveFileDialog1.FileName
       End If
       Windows.Forms.Cursor.Current = Windows.Forms.Cursors.Default
