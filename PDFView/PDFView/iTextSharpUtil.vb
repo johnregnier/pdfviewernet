@@ -82,6 +82,9 @@ Public Class iTextSharpUtil
                                           , Optional ByVal UserPassword As String = "" _
                                           , Optional ByVal OwnerPassword As String = "")
 
+    Dim StatusDialog As New ImportProgress
+    StatusDialog.TopMost = True
+    StatusDialog.Show()
     Dim document As iTextSharp.text.Document
     document = New Document(psPageSize, 0, 0, 0, 0)
 
@@ -92,9 +95,12 @@ Public Class iTextSharpUtil
       End If
       document.Open()
       Dim cb As PdfContentByte = writer.DirectContent
+      Dim fileNumber As Integer = 0
       For Each psFileName As String In psFilenames
-        ' creation of the different writers
-
+        Dim ProgressIncrement As Integer = 100 / psFilenames.Length
+        fileNumber += 1
+        StatusDialog.UpdateProgress("Processing file " & fileNumber & "/" & psFilenames.Length, 0)
+        Application.DoEvents()
         Dim bm As New System.Drawing.Bitmap(psFileName)
         Dim total As Integer = bm.GetFrameCount(FrameDimension.Page)
 
@@ -104,6 +110,8 @@ Public Class iTextSharpUtil
         End If
 
         For k As Integer = StartPage To EndPage
+          StatusDialog.UpdateProgress("Processing page " & k & "/" & EndPage & " for file " & fileNumber & "/" & psFilenames.Length, ProgressIncrement / EndPage)
+          Application.DoEvents()
           bm.SelectActiveFrame(FrameDimension.Page, k - 1)
           'Auto Rotate the page if needed
           If (psPageSize.Height > psPageSize.Width And bm.Width > bm.Height) _
@@ -129,11 +137,15 @@ Public Class iTextSharpUtil
           img.SetAbsolutePosition(xPos, yPos)
           Try
             If language <> "" Then
+              StatusDialog.UpdateProgress("OCR reading page " & k & "/" & EndPage & " for file " & fileNumber & "/" & psFilenames.Length, 0)
+              Application.DoEvents()
               Dim bf As BaseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED)
               cb.BeginText()
               Dim indexList As List(Of PDFWordIndex)
               indexList = TesseractOCR.GetPDFIndex(bm, language)
 
+              StatusDialog.UpdateProgress("Adding search text to page " & k & "/" & EndPage & " for file " & fileNumber & "/" & psFilenames.Length, 0)
+              Application.DoEvents()
               For Each item As PDFWordIndex In indexList
                 Dim fontSize As Single = item.FontSize
                 Dim text As String = item.Text
@@ -162,6 +174,8 @@ Public Class iTextSharpUtil
             MsgBox(ex.ToString)
           End Try
           Try
+            StatusDialog.UpdateProgress("Adding image to PDF of page " & k & "/" & EndPage & " for file " & fileNumber & "/" & psFilenames.Length, 0)
+            Application.DoEvents()
             cb.AddImage(img)
           Catch ex As Exception
             MsgBox(ex.ToString)
@@ -170,8 +184,10 @@ Public Class iTextSharpUtil
         bm.Dispose()
       Next
       document.Close()
+      StatusDialog.Close()
       GraphicListToPDF = outputFileName
     Catch de As Exception
+      StatusDialog.Close()
       MsgBox(de.Message)
       'Console.[Error].WriteLine(de.Message)
       'Console.[Error].WriteLine(de.StackTrace)
