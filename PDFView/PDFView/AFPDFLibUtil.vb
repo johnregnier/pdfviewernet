@@ -4,6 +4,11 @@ Imports System.Drawing.Printing
 
 Public Class AFPDFLibUtil
 
+  'This uses an XPDF wrapper written by Jose Antonio Sandoval Soria of Guadalajara, México
+  'The source is available at http://www.codeproject.com/KB/files/xpdf_csharp.aspx
+  '
+  'I have ported over to VB.NET select functionality from the C# PDF viewer in the above project
+
   Const RENDER_DPI As Integer = 200
   Const PRINT_DPI As Integer = 300
 
