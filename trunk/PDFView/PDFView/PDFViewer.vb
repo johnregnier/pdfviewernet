@@ -592,8 +592,8 @@ GhostScriptFallBack:
   End Function
 
   Private Function FindPictureBox(ByVal PageNumber As Integer) As PictureBox
-    For Each oControl In Panel1.Controls
-      For Each childControl In oControl.Controls
+    For Each oControl As Control In Panel1.Controls
+      For Each childControl As Control In oControl.Controls
         If TypeOf childControl Is PictureBox Then
           If mContinuousPages = True And childControl.Name = PageNumber.ToString Then
             Return childControl
@@ -611,10 +611,10 @@ GhostScriptFallBack:
     For i As Integer = StartingPageNumber To EndingPageNumber
       PagesToKeep.Add(i.ToString)
     Next
-    For Each oControl In Panel1.Controls
-      For Each childControl In oControl.Controls
+    For Each oControl As Control In Panel1.Controls
+      For Each childControl As Control In oControl.Controls
         If TypeOf childControl Is PictureBox And Not PagesToKeep.Contains(childControl.Name) Then
-          childControl.Image = Nothing
+          CType(childControl, PictureBox).Image = Nothing
         End If
       Next
     Next
@@ -756,7 +756,6 @@ GhostScriptFallBack:
 
         End If
       Else
-
 
         lFound = mPDFDoc.FindText(e.Text, mPDFDoc.CurrentPage, (If(e.WholeDoc, PDFLibNet.PDFSearchOrder.PDFSearchFromdBegin, PDFLibNet.PDFSearchOrder.PDFSearchFromCurrent)), e.Exact, e.Up, True, _
          e.WholeDoc)
