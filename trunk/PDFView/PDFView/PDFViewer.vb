@@ -775,15 +775,27 @@ GhostScriptFallBack:
   End Function
 
   Private Sub FocusSearchResult(ByVal res As PDFLibNet.PDFSearchResult)
-    Dim dr As Point = FindFlowLayoutPanel.AutoScrollPosition
-    If mPDFDoc.PageWidth > FindFlowLayoutPanel.Width Then
-      dr.X = res.Position.Left - FindFlowLayoutPanel.Width - FindFlowLayoutPanel.AutoScrollMargin.Width
+    Dim objFlowlayoutPanel As FlowLayoutPanel = FindFlowLayoutPanel()
+    Dim objPictureBox As PictureBox = FindPictureBox(0)
+    Dim dr As Point = objFlowlayoutPanel.AutoScrollPosition
+    Dim XPercentage As Single = objPictureBox.Width / mPDFDoc.PageWidth
+    Dim YPercentage As Single = objPictureBox.Height / mPDFDoc.PageHeight
+    Dim WidthOffset As Integer = (objFlowlayoutPanel.HorizontalScroll.Maximum - (mPDFDoc.PageWidth * YPercentage)) / 2
+    Dim HeightOffset As Integer = (objFlowlayoutPanel.VerticalScroll.Maximum - objPictureBox.Height) / 2
+    If (mPDFDoc.PageWidth * XPercentage) > objFlowlayoutPanel.Width Then
+      dr.X = (res.Position.Left * YPercentage)
+      If WidthOffset > 1 Then
+        dr.X += WidthOffset
+      End If
     End If
-    If mPDFDoc.PageHeight > FindFlowLayoutPanel.Height Then
-      dr.Y = res.Position.Top - FindFlowLayoutPanel.Height - FindFlowLayoutPanel.AutoScrollMargin.Height
+    If (mPDFDoc.PageHeight * YPercentage) > objFlowlayoutPanel.Height Then
+      dr.Y = res.Position.Top * YPercentage
+      If HeightOffset > 1 Then
+        dr.Y += HeightOffset
+      End If
     End If
 
-    FindFlowLayoutPanel.AutoScrollPosition = dr
+    objFlowlayoutPanel.AutoScrollPosition = dr
   End Sub
 
 
