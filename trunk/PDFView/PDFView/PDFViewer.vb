@@ -746,7 +746,7 @@ GhostScriptFallBack:
       mPDFDoc.SearchCaseSensitive = e.Exact
 
       If e.FromBegin Then
-        lFound = mPDFDoc.FindFirst(e.Text, If(e.WholeDoc, PDFLibNet.PDFSearchOrder.PDFSearchFromdBegin, PDFLibNet.PDFSearchOrder.PDFSearchFromCurrent), e.Up)
+        lFound = mPDFDoc.FindFirst(e.Text, If(e.WholeDoc, PDFLibNet.PDFSearchOrder.PDFSearchFromdBegin, PDFLibNet.PDFSearchOrder.PDFSearchFromCurrent), e.Up, False)
       ElseIf e.FindNext Then
 
         If e.Up Then

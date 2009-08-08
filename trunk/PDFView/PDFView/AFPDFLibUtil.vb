@@ -21,6 +21,7 @@ Public Class AFPDFLibUtil
         pdfDoc.RenderDPI = DPI
         pdfDoc.RenderPage(oPictureBox.Handle)
         oPictureBox.Image = Render(pdfDoc, oPictureBox)
+
         oPictureBox.Refresh()
       End If
     Catch ex As Exception
@@ -32,6 +33,7 @@ Public Class AFPDFLibUtil
     Try
       If pdfDoc IsNot Nothing Then
         Dim backbuffer As System.Drawing.Bitmap = New Bitmap(pdfDoc.PageWidth, pdfDoc.PageHeight)
+        pdfDoc.ClientBounds = New Rectangle(0, 0, pdfDoc.PageWidth, pdfDoc.PageHeight)
         Dim g As Graphics = Graphics.FromImage(backbuffer)
         Using g
           Dim hdc As IntPtr = g.GetHdc()
