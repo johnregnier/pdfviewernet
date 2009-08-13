@@ -864,7 +864,7 @@ Namespace ConvertPDF
       End If
     End Function
 
-    Public Shared Function GetPageFromPDF(ByVal filename As String, ByVal PageNumber As Integer, Optional ByVal DPI As Integer = VIEW_DPI, Optional ByVal Password As String = "") As System.Drawing.Image
+    Public Shared Function GetPageFromPDF(ByVal filename As String, ByVal PageNumber As Integer, Optional ByVal DPI As Integer = VIEW_DPI, Optional ByVal Password As String = "", Optional ByVal forPrinting As Boolean = False) As System.Drawing.Image
       Dim converter As New ConvertPDF.PDFConvert
       Dim Converted As Boolean = False
       converter.RenderingThreads = Environment.ProcessorCount
@@ -881,16 +881,19 @@ Namespace ConvertPDF
       converter.FitPage = False
       converter.JPEGQuality = 70
       converter.UserPassword = Password
-      If DPI <> VIEW_DPI Then 'Custom Settings for print quality
-        converter.TextAlphaBit = -1
-        converter.GraphicsAlphaBit = -1
+      If DPI <> VIEW_DPI Then 'Custom resolution
         converter.ResolutionX = DPI
         converter.ResolutionY = DPI
-      Else 'Settings for screen resolution
-        converter.TextAlphaBit = 4
-        converter.GraphicsAlphaBit = 4
+      Else ' Default resolution
         converter.ResolutionX = VIEW_DPI
         converter.ResolutionY = VIEW_DPI
+      End If
+      If forPrinting Then 'Turn off anti-aliasing (crisp edges)
+        converter.TextAlphaBit = -1
+        converter.GraphicsAlphaBit = -1
+      Else 'Turn on anti-aliasing (smooth edges)
+        converter.TextAlphaBit = 4
+        converter.GraphicsAlphaBit = 4
       End If
       converter.OutputFormat = COLOR_PNG_RGB
       Dim output As String = System.IO.Path.GetTempPath & Now.Ticks & ".png"

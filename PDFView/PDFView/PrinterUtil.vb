@@ -13,6 +13,7 @@ Public Class PrinterUtil
   Private mStartPage As Integer
   Private mEndPage As Integer
   Private mCurrentPage As Integer
+  Private mPassword As String
 
   Public Shared Function ListAllInstalledPrinters() As List(Of String)
     ListAllInstalledPrinters = New List(Of String)
@@ -40,7 +41,7 @@ Public Class PrinterUtil
     RP.SendFileToPrinter(PrinterName, FileName)
   End Sub
 
-  Public Shared Sub PrintImageToPrinter(ByRef myFileName As String, ByVal myPrinterSettings As PrinterSettings)
+  Public Shared Sub PrintImageToPrinter(ByRef myFileName As String, ByVal myPrinterSettings As PrinterSettings, Optional ByVal password As String = "")
     Dim PrintUtil As New PrinterUtil
     PrintUtil.mPrintDocument = New PrintDocument
     PrintUtil.mFileName = myFileName
@@ -51,6 +52,7 @@ Public Class PrinterUtil
     PrintUtil.mStartPage = myPrinterSettings.FromPage
     PrintUtil.mEndPage = myPrinterSettings.ToPage
     PrintUtil.mCurrentPage = PrintUtil.mStartPage
+    PrintUtil.mPassword = password
     Cursor.Current = Cursors.WaitCursor
     PrintUtil.mPrintDocument.Print()
     PrintUtil = Nothing
@@ -66,7 +68,7 @@ Public Class PrinterUtil
     End If
   End Sub
 
-  Public Shared Sub PrintImagesToPrinter(ByVal FileName As String)
+  Public Shared Sub PrintImagesToPrinter(ByVal FileName As String, Optional ByVal password As String = "")
     Dim PD As New PrintDialog
     Dim PageCount As Integer = PDFView.ImageUtil.GetImageFrameCount(FileName)
     PD.AllowPrintToFile = True
@@ -82,7 +84,7 @@ Public Class PrinterUtil
         BeginningPage = PD.PrinterSettings.FromPage
         EndingPage = PD.PrinterSettings.ToPage
       End If
-      PrintImageToPrinter(FileName, PD.PrinterSettings)
+      PrintImageToPrinter(FileName, PD.PrinterSettings, password)
     End If
   End Sub
 
@@ -90,7 +92,7 @@ Public Class PrinterUtil
      ByVal e As PrintPageEventArgs) Handles mPrintDocument.PrintPage
 
     Dim RenderDPI As Integer = 300 'Set to 600 if this resolution is too low (speed vs. time)
-    Dim image As System.Drawing.Image = ImageUtil.GetImagePageFromFileForPrint(mFileName, mCurrentPage, RenderDPI)
+    Dim image As System.Drawing.Image = ImageUtil.GetImagePageFromFileForPrint(mFileName, mCurrentPage, RenderDPI, mPassword)
 
     'Comment out if you do not want Auto-Rotate
     If (image.Height > image.Width And e.Graphics.VisibleClipBounds.Width > e.Graphics.VisibleClipBounds.Height) _
@@ -114,7 +116,7 @@ Public Class PrinterUtil
     End If
 
     If ScalePercentage < 0.75F Then 'Re-render the image to create a smaller print file and save printer processing time
-      image = ImageUtil.GetImagePageFromFileForPrint(mFileName, mCurrentPage, OptimalDPI)
+      image = ImageUtil.GetImagePageFromFileForPrint(mFileName, mCurrentPage, OptimalDPI, mPassword)
       If (image.Height > image.Width And e.Graphics.VisibleClipBounds.Width > e.Graphics.VisibleClipBounds.Height) _
       Or (image.Width > image.Height And e.Graphics.VisibleClipBounds.Height > e.Graphics.VisibleClipBounds.Width) Then
         image.RotateFlip(RotateFlipType.Rotate270FlipNone)
