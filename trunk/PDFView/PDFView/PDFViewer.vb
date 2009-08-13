@@ -4,6 +4,7 @@ Imports FreeImageAPI
 Imports System.Drawing
 Imports System.Windows.Forms
 Imports PDFLibNet
+Imports System.ComponentModel
 
 Public Class PDFViewer
   Private mOriginalFileName
@@ -25,6 +26,13 @@ Public Class PDFViewer
   Private mUserPassword As String = ""
   Private mOwnerPassword As String = ""
   Private mPassword As String = ""
+  'Optimal render
+  Private mLastPageNumber As Integer
+  Private mResizeStopped As Boolean = False
+  Private mResizeCheckTimer As New Timer
+  Private mPDFViewerHeight As Integer
+  Private mPDFViewerWidth As Integer
+
 
   Public Property FileName() As String
     Get
@@ -35,6 +43,9 @@ Public Class PDFViewer
         Exit Property
       End If
       mOriginalFileName = value
+      mUserPassword = ""
+      mOwnerPassword = ""
+      mPassword = ""
       Dim userPassword As String = Nothing
       If ImageUtil.IsTiff(value) Then
         'Tiff Specific behavior
@@ -106,9 +117,8 @@ GhostScriptFallBack:
       Else
         HideBookmarks()
       End If
-      FitToScreen()
       DisplayCurrentPage()
-      tscbZoom.SelectedIndex = 0
+      tscbZoom.SelectedIndex = 1
       Me.Enabled = True
       Cursor.Current = Cursors.Default
     End Set
@@ -186,7 +196,7 @@ GhostScriptFallBack:
     Exit Function
 OCRCurrentImage:
     Try
-      OCRCurrentPage = TesseractOCR.OCRImage(FindPictureBox(0).Image, TesseractOCR.Language.English)
+      OCRCurrentPage = TesseractOCR.OCRImage(FindPictureBox("SinglePicBox").Image, TesseractOCR.Language.English)
     Catch ex As Exception
       'OCR failed
     End Try
@@ -227,27 +237,55 @@ OCRCurrentImage:
     HideBookmarks()
   End Sub
 
+  Private Sub Timer1_Tick(ByVal sender As Object, ByVal e As System.EventArgs) Handles Timer1.Tick
+    If Me.Height = mPDFViewerHeight And Me.Width = mPDFViewerWidth Then
+      If mResizeStopped = False Then
+        DisplayCurrentPage()
+        mResizeStopped = True
+      End If
+      Timer1.Enabled = False
+    End If
+  End Sub
+
+  Private Sub PDFViewer_Resize(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Resize
+    If PageInitDone = True Then
+      CenterPicBoxInPanel(FindPictureBox("SinglePicBox"))
+    End If
+  End Sub
+
   Private Sub tsPrevious_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsPrevious.Click
+    mLastPageNumber = mCurrentPageNumber
+
     mCurrentPageNumber -= 1
     DisplayCurrentPage()
   End Sub
 
   Private Sub tsNext_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsNext.Click
+    mLastPageNumber = mCurrentPageNumber
+
     mCurrentPageNumber += 1
     DisplayCurrentPage()
   End Sub
 
   Private Sub tsZoomOut_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsZoomOut.Click
-    ImageUtil.PictureBoxZoomOut(FindPictureBox(mCurrentPageNumber))
+    Dim objPictureBox As PictureBox = FindPictureBox(mCurrentPageNumber)
+    ImageUtil.PictureBoxZoomOut(objPictureBox)
+    objPictureBox.Refresh()
     tscbZoom.Text = GetCurrentScalePercentage() & " %"
+
+    DisplayCurrentPage()
   End Sub
 
   Private Sub tsZoomIn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsZoomIn.Click
     If GetCurrentScalePercentage() > 500 Then
       Exit Sub
     End If
-    ImageUtil.PictureBoxZoomIn(FindPictureBox(mCurrentPageNumber))
+    Dim objPictureBox As PictureBox = FindPictureBox(mCurrentPageNumber)
+    ImageUtil.PictureBoxZoomIn(objPictureBox)
+    objPictureBox.Refresh()
     tscbZoom.Text = GetCurrentScalePercentage() & " %"
+
+    DisplayCurrentPage()
   End Sub
 
   Private Sub tsPageNum_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles tsPageNum.KeyPress
@@ -268,36 +306,29 @@ OCRCurrentImage:
     DisplayCurrentPage()
   End Sub
 
-  Private Sub PDFViewer_Resize(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Resize
-    If PageInitDone = True Then
-      FitToScreen()
-    End If
-  End Sub
-
   Private Sub tscbZoom_Change(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tscbZoom.SelectedIndexChanged
     Select Case tscbZoom.Text
       Case "Fit To Screen"
         If mContinuousPages Then
           InitializePageView(ViewMode.FIT_TO_SCREEN)
-          DisplayCurrentPage()
         Else
           ApplyZoom(ViewMode.FIT_TO_SCREEN)
         End If
       Case "Actual Size"
         If mContinuousPages Then
           InitializePageView(ViewMode.ACTUAL_SIZE)
-          DisplayCurrentPage()
         Else
           ApplyZoom(ViewMode.ACTUAL_SIZE)
         End If
       Case "Fit To Width"
         If mContinuousPages Then
           InitializePageView(ViewMode.FIT_WIDTH)
-          DisplayCurrentPage()
         Else
           ApplyZoom(ViewMode.FIT_WIDTH)
         End If
     End Select
+    CenterPicBoxInPanel(FindPictureBox("SinglePicBox"))
+    DisplayCurrentPage()
   End Sub
 
   Private Sub tsPrint_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsPrint.Click
@@ -316,7 +347,7 @@ OCRCurrentImage:
 
   Private Sub tsExport_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsExport.Click
     If ImageUtil.IsPDF(mOriginalFileName) Then
-      Dim exportOptionsDialog As New ExportOptions(mPDFFileName, mPDFDoc)
+      Dim exportOptionsDialog As New ExportOptions(mPDFFileName, mPDFDoc, mPassword)
       exportOptionsDialog.ShowDialog()
     ElseIf ImageUtil.IsTiff(mOriginalFileName) Then
       Dim FileArray(0) As String
@@ -367,16 +398,12 @@ OCRCurrentImage:
 
 #Region "Helper Functions"
 
-  Private Function ShowImageFromFile(ByVal sFileName As String, ByVal iFrameNumber As Integer, ByRef oPictureBox As PictureBox, Optional ByVal XPDFDPI As Integer = 0) As System.Drawing.Image
-    oPictureBox.Invalidate()
+  Private Function GetImageFromFile(ByVal sFileName As String, ByVal iFrameNumber As Integer, Optional ByVal DPI As Integer = 0) As System.Drawing.Image
     'Cursor.Current = Cursors.WaitCursor
+    GetImageFromFile = Nothing
     If mUseXPDF And ImageUtil.IsPDF(sFileName) Then 'Use AFPDFLib (XPDF)
       Try
-        If XPDFDPI > 0 Then
-          AFPDFLibUtil.DrawImageFromPDF(mPDFDoc, iFrameNumber + 1, oPictureBox, XPDFDPI)
-        Else
-          AFPDFLibUtil.DrawImageFromPDF(mPDFDoc, iFrameNumber + 1, oPictureBox)
-        End If
+        GetImageFromFile = AFPDFLibUtil.GetImageFromPDF(mPDFDoc, iFrameNumber + 1, DPI)
       Catch ex As Exception
         InitBottomToolbar("GS")
         GoTo GhostScriptFallBack
@@ -384,14 +411,11 @@ OCRCurrentImage:
     Else 'Use Ghostscript
 GhostScriptFallBack:
       If ImageUtil.IsPDF(sFileName) Then 'convert one frame to a tiff for viewing
-        oPictureBox.Image = ConvertPDF.PDFConvert.GetPageFromPDF(sFileName, iFrameNumber + 1, , mPassword)
+        GetImageFromFile = ConvertPDF.PDFConvert.GetPageFromPDF(sFileName, iFrameNumber + 1, DPI, mPassword)
       ElseIf ImageUtil.IsTiff(sFileName) Then
-        oPictureBox.Image = ImageUtil.GetFrameFromTiff(sFileName, iFrameNumber)
+        GetImageFromFile = ImageUtil.GetFrameFromTiff(sFileName, iFrameNumber)
       End If
     End If
-    oPictureBox.Update()
-    'Cursor.Current = Cursors.Default
-    Return oPictureBox.Image
   End Function
 
   Private Sub InitPageRange()
@@ -476,13 +500,13 @@ GhostScriptFallBack:
     Dim myFlowLayoutPanel As New FlowLayoutPanel
     Panel1.SuspendLayout()
     Panel1.Controls.Clear()
-    myFlowLayoutPanel.Dock = DockStyle.Fill
-    myFlowLayoutPanel.FlowDirection = FlowDirection.TopDown
-    myFlowLayoutPanel.AutoScroll = True
-    myFlowLayoutPanel.Width = Panel1.Width - 20
-    myFlowLayoutPanel.Height = Panel1.Height - 20
-    myFlowLayoutPanel.WrapContents = False
     If mContinuousPages Then
+      myFlowLayoutPanel.Dock = DockStyle.Fill
+      myFlowLayoutPanel.FlowDirection = FlowDirection.TopDown
+      myFlowLayoutPanel.AutoScroll = True
+      myFlowLayoutPanel.Width = Panel1.Width - 20
+      myFlowLayoutPanel.Height = Panel1.Height - 20
+      myFlowLayoutPanel.WrapContents = False
       AddHandler myFlowLayoutPanel.Scroll, AddressOf FlowPanel_Scroll
       For i As Integer = 1 To mPDFPageCount
         Dim ObjPictureBox As New PictureBox
@@ -504,39 +528,73 @@ GhostScriptFallBack:
       EndPictureBox.Width = 1
       EndPictureBox.Location = New Point(0, 0)
       myFlowLayoutPanel.Controls.Add(EndPictureBox)
+      ApplyToAllPictureBoxes(myFlowLayoutPanel, Mode)
+      Panel1.Controls.Add(myFlowLayoutPanel)
+      ScrollUnitsPerPage = FindFlowLayoutPanel().VerticalScroll.Maximum / mPDFPageCount
     Else
-      Dim ObjPictureBox As New PictureBox
-      ObjPictureBox.Name = "0"
-      ObjPictureBox.SizeMode = PictureBoxSizeMode.Zoom
-      ObjPictureBox.Height = myFlowLayoutPanel.Height - 14
-      ObjPictureBox.Width = myFlowLayoutPanel.Width - 14
-      ObjPictureBox.Location = New Point(0, 0)
-      AddHandler ObjPictureBox.MouseUp, AddressOf picImage_MouseUp
-      AddHandler ObjPictureBox.MouseDown, AddressOf picImage_MouseDown
-      AddHandler ObjPictureBox.MouseMove, AddressOf picImage_MouseMove
-      myFlowLayoutPanel.Controls.Add(ObjPictureBox)
+      Dim objPictureBox As New PictureBox
+      objPictureBox.Name = "SinglePicBox"
+      Panel1.Controls.Add(objPictureBox)
+      objPictureBox.SizeMode = PictureBoxSizeMode.Zoom
+      objPictureBox.Dock = DockStyle.None
+      objPictureBox.Height = Panel1.Height - 14
+      objPictureBox.Width = Panel1.Width - 14
+      objPictureBox.Location = New Point(0, 0)
+      AddHandler objPictureBox.MouseUp, AddressOf picImage_MouseUp
+      AddHandler objPictureBox.MouseDown, AddressOf picImage_MouseDown
+      AddHandler objPictureBox.MouseMove, AddressOf picImage_MouseMove
+      ApplyToAllPictureBoxes(Panel1, Mode)
     End If
-    ApplyToAllPictureBoxes(myFlowLayoutPanel, Mode)
-    Panel1.Controls.Add(myFlowLayoutPanel)
     Panel1.ResumeLayout()
-    ScrollUnitsPerPage = FindFlowLayoutPanel().VerticalScroll.Maximum / mPDFPageCount
     PageInitDone = True
   End Sub
 
   Private Sub ApplyZoom(ByVal Mode As ViewMode)
+    Dim oPictureBox As PictureBox = FindPictureBox("SinglePicBox")
     If Mode = ViewMode.FIT_TO_SCREEN Then
-      FindPictureBox(0).Height = FindPictureBox(0).Parent.ClientSize.Height - 14
-      FindPictureBox(0).Width = FindPictureBox(0).Parent.ClientSize.Width - 14
-    ElseIf Mode = ViewMode.FIT_WIDTH And Not Nothing Is FindPictureBox(0).Image Then
-      FindPictureBox(0).Width = FindPictureBox(0).Parent.ClientSize.Width - 18
-      Dim ScaleAmount As Double = (FindPictureBox(0).Width / FindPictureBox(0).Image.Width)
-      FindPictureBox(0).Height = CInt(FindPictureBox(0).Image.Height * ScaleAmount)
-    ElseIf Mode = ViewMode.ACTUAL_SIZE And Not Nothing Is FindPictureBox(0).Image Then
-      FindPictureBox(0).Width = FindPictureBox(0).Image.Width
-      FindPictureBox(0).Height = FindPictureBox(0).Image.Height
+      oPictureBox.Height = oPictureBox.Parent.ClientSize.Height - 14
+      oPictureBox.Width = oPictureBox.Parent.ClientSize.Width - 14
+    ElseIf Mode = ViewMode.FIT_WIDTH And Not Nothing Is oPictureBox.Image Then
+      oPictureBox.Width = oPictureBox.Parent.ClientSize.Width - 18
+      Dim ScaleAmount As Double = (oPictureBox.Width / oPictureBox.Image.Width)
+      oPictureBox.Height = CInt(oPictureBox.Image.Height * ScaleAmount)
+    ElseIf Mode = ViewMode.ACTUAL_SIZE And Not Nothing Is oPictureBox.Image Then
+      oPictureBox.Width = oPictureBox.Image.Width
+      oPictureBox.Height = oPictureBox.Image.Height
     End If
+    CenterPicBoxInPanel(FindPictureBox("SinglePicBox"))
     tscbZoom.Text = GetCurrentScalePercentage() & " %"
   End Sub
+
+  Private Sub MakePictureBox1To1WithImage(ByRef oPictureBox As PictureBox, Optional ByRef newImage As Drawing.Image = Nothing)
+    'If oPictureBox.Parent.ClientSize.Width >= oPictureBox.Width And oPictureBox.Parent.ClientSize.Height >= oPictureBox.Height Then
+    '  Exit Sub
+    'End If
+    If Not Nothing Is newImage Then
+      oPictureBox.Width = newImage.Width
+      oPictureBox.Height = newImage.Height
+    Else
+      oPictureBox.Width = oPictureBox.Image.Width
+      oPictureBox.Height = oPictureBox.Image.Height
+    End If
+
+  End Sub
+
+  'Private Sub CenterPicBoxInFlowLayoutPanel(ByRef oPictureBox As PictureBox)
+  '  Dim Hdiff As Integer = (oPictureBox.Parent.ClientSize.Width - 14) - oPictureBox.Width
+  '  Dim Vdiff As Integer = oPictureBox.Parent.ClientSize.Height - oPictureBox.Height
+  '  If Hdiff > 1 Then
+  '    FindFlowLayoutPanel.Padding = New Padding(Hdiff / 2, 0, Hdiff / 2, 0)
+  '  ElseIf FindFlowLayoutPanel.Padding <> New Padding(0, 0, 0, 0) Then
+  '    FindFlowLayoutPanel.Padding = New Padding(0, 0, 0, 0)
+  '  End If
+  'End Sub
+
+  Private Sub CenterPicBoxInPanel(ByRef oPictureBox As PictureBox)
+    ImageUtil.RecalcPageLocation(oPictureBox)
+  End Sub
+
+
 
   Private Delegate Sub ShowImage(ByVal sFileName As String, ByVal iFrameNumber As Integer, ByRef oPictureBox As PictureBox, ByVal XPDFDPI As Integer)
 
@@ -547,8 +605,9 @@ GhostScriptFallBack:
       Dim pageNumber As Integer = (System.Math.Floor(ScrollBarPosition / ScrollUnitsPerPage) + 1) + i
       If pageNumber >= 1 And pageNumber <= mPDFPageCount Then
         If Nothing Is FindPictureBox(pageNumber).Image Then
-          ShowImageFromFile(mPDFFileName, pageNumber - 1, FindPictureBox(pageNumber), 72)
+          FindPictureBox(pageNumber).Image = GetImageFromFile(mPDFFileName, pageNumber - 1, 72)
           ImagesWereLoaded = True
+          FindPictureBox(pageNumber).Refresh()
         End If
       End If
     Next
@@ -572,37 +631,77 @@ GhostScriptFallBack:
     tsPageNum.Text = mCurrentPageNumber
   End Sub
 
+  'Private Sub DisplayCurrentPage()
+  '  CheckPageBounds()
+  '  UpdatePageLabel()
+  '  ShowImageFromFile(mPDFFileName, mCurrentPageNumber - 1, FindPictureBox(mCurrentPageNumber))
+  '  If mContinuousPages Then
+  '    FindFlowLayoutPanel().ScrollControlIntoView(FindPictureBox(mCurrentPageNumber))
+  '    ClearAllPictureBoxes(mCurrentPageNumber, mCurrentPageNumber)
+  '  End If
+  'End Sub
+
   Private Sub DisplayCurrentPage()
-    CheckPageBounds()
-    UpdatePageLabel()
-    ShowImageFromFile(mPDFFileName, mCurrentPageNumber - 1, FindPictureBox(mCurrentPageNumber))
-    If mContinuousPages Then
-      FindFlowLayoutPanel().ScrollControlIntoView(FindPictureBox(mCurrentPageNumber))
-      ClearAllPictureBoxes(mCurrentPageNumber, mCurrentPageNumber)
+    Dim oPict As PictureBox = FindPictureBox(mCurrentPageNumber)
+    If mLastPageNumber <> mCurrentPageNumber Then
+      CheckPageBounds()
+      UpdatePageLabel()
+      Dim newImage As Drawing.Image
+      If mUseXPDF Then
+        newImage = GetImageFromFile(mPDFFileName, mCurrentPageNumber - 1, AFPDFLibUtil.GetOptimalDPI(mPDFDoc, oPict))
+      Else
+        Dim optimalDPI As Integer = iTextSharpUtil.GetOptimalDPI(mPDFFileName, mCurrentPageNumber, oPict, mPassword)
+        newImage = GetImageFromFile(mPDFFileName, mCurrentPageNumber - 1, optimalDPI)
+      End If
+      If Not Nothing Is newImage Then
+        If ImageUtil.IsPDF(mPDFFileName) Then
+          MakePictureBox1To1WithImage(oPict, newImage)
+        End If
+        CenterPicBoxInPanel(oPict)
+        oPict.Image = newImage
+      End If
+      oPict.Refresh()
+      If mContinuousPages Then
+        FindFlowLayoutPanel().ScrollControlIntoView(oPict)
+        ClearAllPictureBoxes(mCurrentPageNumber, mCurrentPageNumber)
+      End If
     End If
+    If ImageUtil.IsPDF(mPDFFileName) Then
+      MakePictureBox1To1WithImage(oPict, oPict.Image)
+    End If
+    CenterPicBoxInPanel(oPict)
   End Sub
 
   Private Function GetCurrentScalePercentage() As Integer
     GetCurrentScalePercentage = 0
-    If Not Nothing Is FindPictureBox(0).Image Then
-      Dim OriginalWidth As Integer = FindPictureBox(0).Image.Width
-      Dim CurrentWidth As Integer = FindPictureBox(0).Width
+    Dim objPictureBox As PictureBox = FindPictureBox("SinglePicBox")
+    If Not Nothing Is objPictureBox.Image Then
+      Dim OriginalWidth As Integer = objPictureBox.Image.Width
+      Dim CurrentWidth As Integer = objPictureBox.Width
       GetCurrentScalePercentage = CInt((CurrentWidth / OriginalWidth) * 100)
     End If
   End Function
 
-  Private Function FindPictureBox(ByVal PageNumber As Integer) As PictureBox
-    For Each oControl As Control In Panel1.Controls
-      For Each childControl As Control In oControl.Controls
-        If TypeOf childControl Is PictureBox Then
-          If mContinuousPages = True And childControl.Name = PageNumber.ToString Then
-            Return childControl
-          ElseIf mContinuousPages = False And childControl.Name = "0" Then
-            Return childControl
-          End If
-        End If
-      Next
+  Private Function FindPictureBox(ByVal controlName As String) As PictureBox
+    If mContinuousPages Then
+      FindPictureBox = FindControl(Panel1, controlName)
+    Else
+      FindPictureBox = FindControl(Panel1, "SinglePicBox")
+    End If
+  End Function
+
+  Public Function FindControl(ByVal container As Control, ByVal name As String) As Control
+    If container.Name = name Then
+      Return container
+    End If
+
+    For Each ctrl As Control In container.Controls
+      Dim foundCtrl As Control = FindControl(ctrl, name)
+      If foundCtrl IsNot Nothing Then
+        Return foundCtrl
+      End If
     Next
+    Return Nothing
   End Function
 
   Private Sub ClearAllPictureBoxes(ByVal StartingPageNumber As Integer, ByVal EndingPageNumber As Integer)
@@ -621,10 +720,10 @@ GhostScriptFallBack:
     GC.Collect()
   End Sub
 
-  Private Sub ApplyToAllPictureBoxes(ByRef oFlowLAyoutPanel As FlowLayoutPanel, ByVal Mode As ViewMode)
+  Private Sub ApplyToAllPictureBoxes(ByRef oControl As Control, ByVal Mode As ViewMode)
     Dim dummyPictureBox As New PictureBox
-    ShowImageFromFile(mPDFFileName, mCurrentPageNumber - 1, dummyPictureBox)
-    For Each childControl In oFlowLAyoutPanel.Controls
+    dummyPictureBox.Image = GetImageFromFile(mPDFFileName, mCurrentPageNumber - 1, AFPDFLibUtil.GetOptimalDPI(mPDFDoc, dummyPictureBox))
+    For Each childControl In oControl.Controls
       If TypeOf childControl Is PictureBox Then
         If Mode = ViewMode.FIT_TO_SCREEN Then
           childControl.Height = childControl.Parent.ClientSize.Height - 14
@@ -643,6 +742,7 @@ GhostScriptFallBack:
   End Sub
 
   Private Function FindFlowLayoutPanel() As FlowLayoutPanel
+    FindFlowLayoutPanel = Nothing
     For Each oControl In Panel1.Controls
       If TypeOf oControl Is FlowLayoutPanel Then
         Return oControl
@@ -650,13 +750,17 @@ GhostScriptFallBack:
     Next
   End Function
 
-  Private Sub FitToScreen()
+  Private Sub FitToScreen(Optional ByVal drawPage As Boolean = False)
     If mContinuousPages Then
       InitializePageView(ViewMode.FIT_TO_SCREEN)
       DisplayCurrentPage()
     Else
       ApplyZoom(ViewMode.FIT_TO_SCREEN)
+      If drawPage Then
+        DisplayCurrentPage()
+      End If
     End If
+
     UpdatePageLabel()
   End Sub
 
@@ -695,11 +799,11 @@ GhostScriptFallBack:
   End Sub
 
   Private Sub ScrolltoTop(ByVal y As Integer)
-    Dim dr As Point = FindFlowLayoutPanel().AutoScrollPosition
-    If mPDFDoc.PageHeight > FindFlowLayoutPanel().Height Then
+    Dim dr As Point = Panel1.AutoScrollPosition
+    If mPDFDoc.PageHeight > Panel1.Height Then
       dr.Y = y * (GetCurrentScalePercentage() / 100)
     End If
-    FindFlowLayoutPanel().AutoScrollPosition = dr
+    Panel1.AutoScrollPosition = dr
   End Sub
 
   Private Sub AFPDFLib_BeforeExpand(ByVal sender As Object, ByVal e As TreeViewCancelEventArgs)
@@ -775,27 +879,27 @@ GhostScriptFallBack:
   End Function
 
   Private Sub FocusSearchResult(ByVal res As PDFLibNet.PDFSearchResult)
-    Dim objFlowlayoutPanel As FlowLayoutPanel = FindFlowLayoutPanel()
-    Dim objPictureBox As PictureBox = FindPictureBox(0)
-    Dim dr As Point = objFlowlayoutPanel.AutoScrollPosition
+    Dim objPanel As Panel = Panel1
+    Dim objPictureBox As PictureBox = FindPictureBox("SinglePicBox")
+    Dim dr As Point = objPanel.AutoScrollPosition
     Dim XPercentage As Single = objPictureBox.Width / mPDFDoc.PageWidth
     Dim YPercentage As Single = objPictureBox.Height / mPDFDoc.PageHeight
-    Dim WidthOffset As Integer = (objFlowlayoutPanel.HorizontalScroll.Maximum - (mPDFDoc.PageWidth * YPercentage)) / 2
-    Dim HeightOffset As Integer = (objFlowlayoutPanel.VerticalScroll.Maximum - objPictureBox.Height) / 2
-    If (mPDFDoc.PageWidth * XPercentage) > objFlowlayoutPanel.Width Then
+    Dim WidthOffset As Integer = (objPanel.HorizontalScroll.Maximum - (mPDFDoc.PageWidth * YPercentage)) / 2
+    Dim HeightOffset As Integer = (objPanel.VerticalScroll.Maximum - objPictureBox.Height) / 2
+    If (mPDFDoc.PageWidth * XPercentage) > objPanel.Width Then
       dr.X = (res.Position.Left * YPercentage)
       If WidthOffset > 1 Then
         dr.X += WidthOffset
       End If
     End If
-    If (mPDFDoc.PageHeight * YPercentage) > objFlowlayoutPanel.Height Then
+    If (mPDFDoc.PageHeight * YPercentage) > objPanel.Height Then
       dr.Y = res.Position.Top * YPercentage
       If HeightOffset > 1 Then
         dr.Y += HeightOffset
       End If
     End If
 
-    objFlowlayoutPanel.AutoScrollPosition = dr
+    objPanel.AutoScrollPosition = dr
   End Sub
 
 

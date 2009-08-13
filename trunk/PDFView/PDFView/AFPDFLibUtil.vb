@@ -12,24 +12,42 @@ Public Class AFPDFLibUtil
   Const RENDER_DPI As Integer = 200
   Const PRINT_DPI As Integer = 300
 
-  Public Shared Sub DrawImageFromPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal PageNumber As Integer, ByRef oPictureBox As PictureBox, Optional ByVal DPI As Integer = RENDER_DPI)
+  Public Shared Function GetOptimalDPI(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByRef oPictureBox As PictureBox) As Integer
+    GetOptimalDPI = 0
+    If pdfDoc IsNot Nothing Then
+      If pdfDoc.PageWidth > 0 And pdfDoc.PageHeight > 0 Then
+        Dim DPIScalePercent As Single = 72 / pdfDoc.RenderDPI
+        Dim HScale As Single = oPictureBox.Width / (pdfDoc.PageWidth * DPIScalePercent)
+        Dim VScale As Single = oPictureBox.Height / (pdfDoc.PageHeight * DPIScalePercent)
+        If HScale < VScale Then
+          GetOptimalDPI = Math.Floor(72 * HScale)
+        Else
+          GetOptimalDPI = Math.Floor(72 * VScale)
+        End If
+      End If
+    End If
+  End Function
+
+  Public Shared Function GetImageFromPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal PageNumber As Integer, Optional ByVal DPI As Integer = RENDER_DPI) As System.Drawing.Image
+    GetImageFromPDF = Nothing
     Try
       If pdfDoc IsNot Nothing Then
         pdfDoc.CurrentPage = PageNumber
         pdfDoc.CurrentX = 0
         pdfDoc.CurrentY = 0
+        If DPI < 1 Then DPI = RENDER_DPI
         pdfDoc.RenderDPI = DPI
+        Dim oPictureBox As New PictureBox
         pdfDoc.RenderPage(oPictureBox.Handle)
-        oPictureBox.Image = Render(pdfDoc, oPictureBox)
-
-        oPictureBox.Refresh()
+        GetImageFromPDF = Render(pdfDoc)
+        oPictureBox.Dispose()
       End If
     Catch ex As Exception
       Throw ex
     End Try
-  End Sub
+  End Function
 
-  Public Shared Function Render(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByRef oPictureBox As PictureBox) As System.Drawing.Bitmap
+  Public Shared Function Render(ByRef pdfDoc As PDFLibNet.PDFWrapper) As System.Drawing.Bitmap
     Try
       If pdfDoc IsNot Nothing Then
         Dim backbuffer As System.Drawing.Bitmap = New Bitmap(pdfDoc.PageWidth, pdfDoc.PageHeight)

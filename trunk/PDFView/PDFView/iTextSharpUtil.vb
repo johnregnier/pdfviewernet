@@ -25,6 +25,37 @@ Public Class iTextSharpUtil
     Return page_count
   End Function
 
+  Public Shared Function GetPDFPageSize(ByVal filepath As String, ByVal pageNumber As Integer, Optional ByVal userPassword As String = "") As Drawing.Size
+    Dim oPdfReader As PdfReader
+    If userPassword <> "" Then
+      Dim encoding As New System.Text.ASCIIEncoding()
+      oPdfReader = New PdfReader(filepath, encoding.GetBytes(userPassword))
+    Else
+      oPdfReader = New PdfReader(filepath)
+    End If
+    Dim page_count As Integer = oPdfReader.NumberOfPages
+    If pageNumber >= 1 And pageNumber <= page_count Then
+      Dim rect As iTextSharp.text.Rectangle = oPdfReader.GetPageSize(pageNumber)
+      GetPDFPageSize.Height = rect.Height
+      GetPDFPageSize.Width = rect.Width
+    End If
+    oPdfReader.Close()
+  End Function
+
+  Public Shared Function GetOptimalDPI(ByVal filepath As String, ByVal pageNumber As Integer, ByRef oPictureBox As PictureBox, Optional ByVal userPassword As String = "") As Integer
+    GetOptimalDPI = 0
+    Dim pageSize As Drawing.Size = GetPDFPageSize(filepath, pageNumber, userPassword)
+    If pageSize.Width > 0 And pageSize.Height > 0 Then
+      Dim HScale As Single = oPictureBox.Width / (pageSize.Width)
+      Dim VScale As Single = oPictureBox.Height / (pageSize.Height)
+      If HScale < VScale Then
+        GetOptimalDPI = Math.Floor(72 * HScale)
+      Else
+        GetOptimalDPI = Math.Floor(72 * VScale)
+      End If
+    End If
+  End Function
+
   Public Shared Function BuildBookmarkTreeFromPDF(ByVal FileName As String, ByVal TreeNodes As TreeNodeCollection, Optional ByVal userPassword As String = "") As Boolean
     TreeNodes.Clear()
     Dim oPdfReader As PdfReader
@@ -71,6 +102,72 @@ Public Class iTextSharpUtil
       End Using
     End Using
     Return True
+  End Function
+
+  Public Shared Function BuildHTMLBookmarks(ByVal FileName As String, Optional ByVal userPassword As String = "") As String
+    Dim oPdfReader As PdfReader
+
+    If userPassword <> "" Then
+      Dim encoding As New System.Text.ASCIIEncoding()
+      oPdfReader = New PdfReader(FileName, encoding.GetBytes(userPassword))
+    Else
+      oPdfReader = New PdfReader(FileName)
+    End If
+
+    Dim arList As ArrayList = New ArrayList()
+    arList = SimpleBookmark.GetBookmark(oPdfReader)
+
+    If Nothing Is arList Then
+      BuildHTMLBookmarks = "<ul>"
+      For i As Integer = 1 To oPdfReader.NumberOfPages
+        BuildHTMLBookmarks &= "<li><a href=""images/page" & i & ".png"" target=""pageviewer"">" & "Page " & i & "</a></li>"
+      Next
+      BuildHTMLBookmarks &= "</ul>"
+      Return False
+    Else
+      oPdfReader.Close()
+    End If
+
+    Using ms As New MemoryStream()
+      SimpleBookmark.ExportToXML(arList, ms, "UTF-8", False)
+      ms.Position = 0
+      Dim sb As New StringBuilder()
+      Using xr As XmlReader = XmlReader.Create(ms)
+        xr.MoveToContent()
+        Dim page As String = Nothing
+        ' save page number for link
+        Dim text As String = Nothing
+        ' link text from PDF bookmark
+        ' see notes below for actual link format
+        Dim format As String = "<li><a href=""images/page{0}.png"" target=""pageviewer"">{1}</a></li>"
+        ' extract page number from 'Page' attribute
+        Dim re As New Regex("^\d+")
+        While xr.Read()
+          If xr.NodeType = XmlNodeType.Element AndAlso xr.Name = "Title" AndAlso xr.IsStartElement() Then
+            sb.Append("<ul>")
+            ' in production app separate steps:
+            ' if GetAttribute() returns null if attr not found,
+            ' which makes Regex.Match choke and die
+            page = re.Match(xr.GetAttribute("Page")).Captures(0).Value
+            xr.Read()
+            ' hyperlink text
+            If xr.NodeType = XmlNodeType.Text Then
+              text = xr.Value.Trim()
+              text = Web.HttpUtility.HtmlEncode(text)
+              ' in production app verify page & text
+              ' aren't empty before appending
+              sb.Append([String].Format(format, page, text))
+            End If
+          End If
+          ' close current (HTML) list
+          If xr.NodeType = XmlNodeType.EndElement AndAlso xr.Name = "Title" Then
+            sb.Append("</ul>")
+          End If
+        End While
+        Return sb.ToString()
+      End Using
+    End Using
+
   End Function
 
   Public Shared Function GraphicListToPDF(ByVal psFilenames As String() _
