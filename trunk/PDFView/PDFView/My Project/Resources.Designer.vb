@@ -59,5 +59,71 @@ Namespace My.Resources
                 resourceCulture = value
             End Set
         End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to &lt;HTML&gt;
+        '''&lt;HEAD&gt;
+        '''&lt;TITLE&gt;PageIndex&lt;/TITLE&gt;
+        '''&lt;SCRIPT LANGUAGE=&quot;JavaScript&quot;&gt;
+        '''function changeImage(filename)
+        '''{
+        '''  parent.pageviewer.document.images[&apos;mainimage&apos;].src = filename;
+        '''}
+        '''&lt;/script&gt;
+        '''&lt;/HEAD&gt;
+        '''&lt;BODY bgcolor=&quot;#DDDDDD&quot;&gt;{Body}&lt;/BODY&gt;
+        '''&lt;/HTML&gt;.
+        '''</summary>
+        Friend ReadOnly Property BookmarkHtml() As String
+            Get
+                Return ResourceManager.GetString("BookmarkHtml", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to &lt;HTML&gt;
+        '''&lt;HEAD&gt;
+        '''&lt;TITLE&gt;PDF to Image Html&lt;/TITLE&gt;
+        '''&lt;/HEAD&gt;
+        '''&lt;FRAMESET ROWS=&quot;60,*&quot; FRAMEBORDER=0 BORDER=0 &gt;
+        '''                        &lt;FRAME NAME=&quot;top&quot; SRC=&quot;top.html&quot; MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
+        '''            &lt;FRAMESET COLS=&quot;20%,80%&quot;&gt;
+        '''                        &lt;FRAME NAME=&quot;left&quot; SRC=&quot;bookmark.html&quot; MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
+        '''                        &lt;FRAME NAME=&quot;pageviewer&quot; SRC=&quot;page.html&quot; MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
+        '''            &lt;/FR [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property FrameHtml() As String
+            Get
+                Return ResourceManager.GetString("FrameHtml", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to &lt;HTML&gt;
+        '''&lt;HEAD&gt;
+        '''&lt;TITLE&gt;PageViewer&lt;/TITLE&gt;
+        '''&lt;/HEAD&gt;
+        '''&lt;BODY bgcolor=&quot;#999999&quot;&gt;&lt;img id=&quot;mainimage&quot; src=&quot;images/page1.png&quot; width=&quot;100%&quot;&gt;&lt;/BODY&gt;
+        '''&lt;/HTML&gt;.
+        '''</summary>
+        Friend ReadOnly Property PageHtml() As String
+            Get
+                Return ResourceManager.GetString("PageHtml", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to &lt;HTML&gt;
+        '''&lt;HEAD&gt;
+        '''&lt;TITLE&gt;DocumentName&lt;/TITLE&gt;
+        '''&lt;/HEAD&gt;
+        '''&lt;BODY bgcolor=&quot;#BBBBBB&quot;&gt;{DocumentName}&lt;/BODY&gt;
+        '''&lt;/HTML&gt;.
+        '''</summary>
+        Friend ReadOnly Property TopHtml() As String
+            Get
+                Return ResourceManager.GetString("TopHtml", resourceCulture)
+            End Get
+        End Property
     End Module
 End Namespace

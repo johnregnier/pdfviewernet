@@ -46,7 +46,7 @@
     
     mimetype: application/x-microsoft.net.object.binary.base64
     value   : The object must be serialized with 
-            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
     
     mimetype: application/x-microsoft.net.object.soap.base64
@@ -60,6 +60,7 @@
             : and then encoded with base64 encoding.
     -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
@@ -68,9 +69,10 @@
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="name" use="required" type="xsd:string" />
               <xsd:attribute name="type" type="xsd:string" />
               <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
@@ -85,9 +87,10 @@
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
                 <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
@@ -114,4 +117,48 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BookmarkHtml" xml:space="preserve">
+    <value>&lt;HTML&gt;
+&lt;HEAD&gt;
+&lt;TITLE&gt;PageIndex&lt;/TITLE&gt;
+&lt;SCRIPT LANGUAGE="JavaScript"&gt;
+function changeImage(filename)
+{
+  parent.pageviewer.document.images['mainimage'].src = filename;
+}
+&lt;/script&gt;
+&lt;/HEAD&gt;
+&lt;BODY bgcolor="#DDDDDD"&gt;{Body}&lt;/BODY&gt;
+&lt;/HTML&gt;</value>
+  </data>
+  <data name="FrameHtml" xml:space="preserve">
+    <value>&lt;HTML&gt;
+&lt;HEAD&gt;
+&lt;TITLE&gt;PDF to Image Html&lt;/TITLE&gt;
+&lt;/HEAD&gt;
+&lt;FRAMESET ROWS="60,*" FRAMEBORDER=0 BORDER=0 &gt;
+                        &lt;FRAME NAME="top" SRC="top.html" MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
+            &lt;FRAMESET COLS="20%,80%"&gt;
+                        &lt;FRAME NAME="left" SRC="bookmark.html" MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
+                        &lt;FRAME NAME="pageviewer" SRC="page.html" MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
+            &lt;/FRAMESET&gt;
+&lt;/FRAMESET&gt;
+&lt;/HTML&gt;</value>
+  </data>
+  <data name="PageHtml" xml:space="preserve">
+    <value>&lt;HTML&gt;
+&lt;HEAD&gt;
+&lt;TITLE&gt;PageViewer&lt;/TITLE&gt;
+&lt;/HEAD&gt;
+&lt;BODY bgcolor="#999999"&gt;&lt;img id="mainimage" src="images/page1.png" width="100%"&gt;&lt;/BODY&gt;
+&lt;/HTML&gt;</value>
+  </data>
+  <data name="TopHtml" xml:space="preserve">
+    <value>&lt;HTML&gt;
+&lt;HEAD&gt;
+&lt;TITLE&gt;DocumentName&lt;/TITLE&gt;
+&lt;/HEAD&gt;
+&lt;BODY bgcolor="#BBBBBB"&gt;{DocumentName}&lt;/BODY&gt;
+&lt;/HTML&gt;</value>
+  </data>
 </root>

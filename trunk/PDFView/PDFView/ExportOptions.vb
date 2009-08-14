@@ -1,4 +1,5 @@
-﻿Public Class ExportOptions
+﻿Imports System.Text.RegularExpressions
+Public Class ExportOptions
 
   Dim mpdfDoc As PDFLibNet.PDFWrapper
   Dim mPdfFileName As String
@@ -53,8 +54,10 @@
         ConvertPDF.PDFConvert.ConvertPdfToGraphic(mPdfFileName, SaveFileDialog1.FileName, COLOR_PNG_RGB, nuDPI.Value, nuStart.Value, nuDown.Value, False, mPassword)
       ElseIf filename.EndsWith(".txt") Then
         mpdfDoc.ExportText(filename, nuStart.Value, nuDown.Value, True, True)
-      ElseIf filename.EndsWith(".html") Then
+      ElseIf filename.EndsWith(".html") And rbHtml.Checked Then
         mpdfDoc.ExportHtml(filename, nuStart.Value, nuDown.Value, True, True, False)
+      ElseIf filename.EndsWith(".html") And rbHtmlImage.Checked Then
+        ExportHTMLImages(filename)
       End If
       Windows.Forms.Cursor.Current = Windows.Forms.Cursors.Default
     End If
@@ -73,10 +76,13 @@
     End If
   End Sub
 
-  Private Sub CheckedChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles rbHtml.CheckedChanged, rbJpeg.CheckedChanged, rbPostscript.CheckedChanged, rbText.CheckedChanged, rbPNG.CheckedChanged, rbTIFF.CheckedChanged
+  Private Sub CheckedChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles rbHtml.CheckedChanged, rbJpeg.CheckedChanged, rbPostscript.CheckedChanged, rbText.CheckedChanged, rbPNG.CheckedChanged, rbTIFF.CheckedChanged, rbHtmlImage.CheckedChanged
     If rbHtml.Checked Then
       SaveFileDialog1.Filter = rbHtml.Tag
       GroupBox3.Enabled = False
+    ElseIf rbHtmlImage.Checked Then
+      SaveFileDialog1.Filter = rbHtmlImage.Tag
+      GroupBox3.Enabled = True
     ElseIf rbJpeg.Checked Then
       SaveFileDialog1.Filter = rbJpeg.Tag
       GroupBox3.Enabled = True
@@ -97,6 +103,43 @@
 
   Private Sub btCancel_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btCancel.Click
     Me.Hide()
+  End Sub
+
+  Private Sub ExportHTMLImages(ByVal fileName As String)
+    Dim folderPath As String = System.Text.RegularExpressions.Regex.Replace(fileName, "(^.+\\).+$", "$1")
+
+    Dim topFrame As String = My.Resources.TopHtml
+    topFrame = Regex.Replace(topFrame, "\{DocumentName\}", "<center>" & Regex.Replace(mPdfFileName, "^.+\\", "") & "</center>")
+
+    Dim sideFrame As String = My.Resources.BookmarkHtml
+    sideFrame = Regex.Replace(sideFrame, "\{Body\}", iTextSharpUtil.BuildHTMLBookmarks(mPdfFileName, mPassword))
+
+    Dim pageFrame As String = My.Resources.PageHtml
+    Dim mainPage As String = My.Resources.FrameHtml
+
+    Dim sw As New IO.StreamWriter(fileName, False)
+    sw.Write(mainPage)
+    sw.Close()
+
+    Dim sw1 As New IO.StreamWriter(folderPath & "top.html", False)
+    sw1.Write(topFrame)
+    sw1.Close()
+
+    Dim sw2 As New IO.StreamWriter(folderPath & "bookmark.html", False)
+    sw2.Write(sideFrame)
+    sw2.Close()
+
+    Dim sw3 As New IO.StreamWriter(folderPath & "page.html", False)
+    sw3.Write(pageFrame)
+    sw3.Close()
+
+    Dim di As System.IO.DirectoryInfo
+    di = New System.IO.DirectoryInfo(folderPath & "images")
+
+    If (Not di.Exists) Then
+      di.Create()
+    End If
+    ConvertPDF.PDFConvert.ConvertPdfToGraphic(mPdfFileName, folderPath & "images\page.png", COLOR_PNG_RGB, nuDPI.Value, nuStart.Value, nuDown.Value, False, mPassword)
   End Sub
 
 End Class
