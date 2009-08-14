@@ -114,58 +114,64 @@ Public Class iTextSharpUtil
       oPdfReader = New PdfReader(FileName)
     End If
 
+    Dim PageCount As Integer = oPdfReader.NumberOfPages
+    oPdfReader.Close()
     Dim arList As ArrayList = New ArrayList()
     arList = SimpleBookmark.GetBookmark(oPdfReader)
 
     If Nothing Is arList Then
+BetterThanNothing:
       BuildHTMLBookmarks = "<ul>"
-      For i As Integer = 1 To oPdfReader.NumberOfPages
-        BuildHTMLBookmarks &= "<li><a href=""images/page" & i & ".png"" target=""pageviewer"">" & "Page " & i & "</a></li>"
+      For i As Integer = 1 To PageCount
+        BuildHTMLBookmarks &= "<li><a href=""javascript:changeImage('images/page" & i & ".png')"">Page " & i & "</a></li>"
       Next
       BuildHTMLBookmarks &= "</ul>"
-      Return False
-    Else
-      oPdfReader.Close()
+      Exit Function
     End If
 
     Using ms As New MemoryStream()
       SimpleBookmark.ExportToXML(arList, ms, "UTF-8", False)
       ms.Position = 0
       Dim sb As New StringBuilder()
-      Using xr As XmlReader = XmlReader.Create(ms)
-        xr.MoveToContent()
-        Dim page As String = Nothing
-        ' save page number for link
-        Dim text As String = Nothing
-        ' link text from PDF bookmark
-        ' see notes below for actual link format
-        Dim format As String = "<li><a href=""images/page{0}.png"" target=""pageviewer"">{1}</a></li>"
-        ' extract page number from 'Page' attribute
-        Dim re As New Regex("^\d+")
-        While xr.Read()
-          If xr.NodeType = XmlNodeType.Element AndAlso xr.Name = "Title" AndAlso xr.IsStartElement() Then
-            sb.Append("<ul>")
-            ' in production app separate steps:
-            ' if GetAttribute() returns null if attr not found,
-            ' which makes Regex.Match choke and die
-            page = re.Match(xr.GetAttribute("Page")).Captures(0).Value
-            xr.Read()
-            ' hyperlink text
-            If xr.NodeType = XmlNodeType.Text Then
-              text = xr.Value.Trim()
-              text = Web.HttpUtility.HtmlEncode(text)
-              ' in production app verify page & text
-              ' aren't empty before appending
-              sb.Append([String].Format(format, page, text))
+      Try
+        Using xr As XmlReader = XmlReader.Create(ms)
+          xr.MoveToContent()
+          Dim page As String = Nothing
+          ' save page number for link
+          Dim text As String = Nothing
+          ' link text from PDF bookmark
+          ' see notes below for actual link format
+          Dim format As String = "<li><a href=""javascript:changeImage('images/page{0}.png')"">{1}</a></li>"
+          ' extract page number from 'Page' attribute
+          Dim re As New Regex("^\d+")
+          While xr.Read()
+            If xr.NodeType = XmlNodeType.Element AndAlso xr.Name = "Title" AndAlso xr.IsStartElement() Then
+              sb.Append("<ul>")
+              ' in production app separate steps:
+              ' if GetAttribute() returns null if attr not found,
+              ' which makes Regex.Match choke and die
+              page = re.Match(xr.GetAttribute("Page")).Captures(0).Value
+              xr.Read()
+              ' hyperlink text
+              If xr.NodeType = XmlNodeType.Text Then
+                text = xr.Value.Trim()
+                text = Web.HttpUtility.HtmlEncode(text)
+                ' in production app verify page & text
+                ' aren't empty before appending
+                sb.Append([String].Format(format, page, text))
+              End If
             End If
-          End If
-          ' close current (HTML) list
-          If xr.NodeType = XmlNodeType.EndElement AndAlso xr.Name = "Title" Then
-            sb.Append("</ul>")
-          End If
-        End While
-        Return sb.ToString()
-      End Using
+            ' close current (HTML) list
+            If xr.NodeType = XmlNodeType.EndElement AndAlso xr.Name = "Title" Then
+              sb.Append("</ul>")
+            End If
+          End While
+          Return sb.ToString()
+        End Using
+      Catch ex As Exception
+        GoTo BetterThanNothing
+      End Try
+
     End Using
 
   End Function
