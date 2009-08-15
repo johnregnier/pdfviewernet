@@ -56,6 +56,22 @@ Public Class iTextSharpUtil
     End If
   End Function
 
+  Public Shared Sub FillTreeRecursive(ByVal arList As ArrayList, ByVal treeNodes As TreeNode)
+    For Each item As Object In arList
+      Dim tn As New TreeNode(item("Title"))
+      Dim ol As iTextOutline
+      ol.Title = item("Title")
+      ol.Action = item("Action")
+      ol.Named = item("Named")
+      ol.Page = item("Page")
+      tn.Tag = ol
+      treeNodes.Nodes.Add(tn)
+      If Not Nothing Is item("Kids") Then
+        FillTreeRecursive(item("Kids"), tn)
+      End If
+    Next
+  End Sub
+
   Public Shared Function BuildBookmarkTreeFromPDF(ByVal FileName As String, ByVal TreeNodes As TreeNodeCollection, Optional ByVal userPassword As String = "") As Boolean
     TreeNodes.Clear()
     Dim oPdfReader As PdfReader
@@ -66,43 +82,21 @@ Public Class iTextSharpUtil
       oPdfReader = New PdfReader(FileName)
     End If
 
+    Dim pageCount As Integer = oPdfReader.NumberOfPages
     Dim arList As ArrayList = New ArrayList()
     arList = SimpleBookmark.GetBookmark(oPdfReader)
+
     oPdfReader.Close()
     If Nothing Is arList Then
       Return False
     End If
-    Using ms As New MemoryStream()
-      SimpleBookmark.ExportToXML(arList, ms, "UTF-8", False)
-      ms.Position = 0
-      Using xr As XmlReader = XmlReader.Create(ms)
-        xr.MoveToContent()
-        Dim page As String = Nothing
-        Dim text As String = Nothing
-        Dim CurrentNode As New TreeNode
-        CurrentNode = TreeNodes.Add("Bookmarks")
-        Dim re As New Regex("^\d+")
-        While xr.Read()
-          If xr.NodeType = XmlNodeType.Element AndAlso xr.Name = "Title" AndAlso xr.IsStartElement() Then
-            If Not Nothing = xr.GetAttribute("Page") Then
-              page = re.Match(xr.GetAttribute("Page")).Captures(0).Value
-            End If
-            xr.Read()
-            If xr.NodeType = XmlNodeType.Text Then
-              text = xr.Value.Trim()
-              CurrentNode = CurrentNode.Nodes.Add(page, text, page)
-            End If
-          End If
-          If xr.NodeType = XmlNodeType.EndElement AndAlso xr.Name = "Title" Then
-            If Not Nothing Is CurrentNode.Parent Then
-              CurrentNode = CurrentNode.Parent
-            End If
-          End If
-        End While
-      End Using
-    End Using
+    Dim CurrentNode As New TreeNode
+    CurrentNode = TreeNodes.Add("Bookmarks")
+    FillTreeRecursive(arList, CurrentNode)
     Return True
   End Function
+
+  'Dim format As String = "<li><a href=""javascript:changeImage('images/page{0}.png')"">{1}</a></li>"
 
   Public Shared Function BuildHTMLBookmarks(ByVal FileName As String, Optional ByVal userPassword As String = "") As String
     Dim oPdfReader As PdfReader
@@ -114,67 +108,36 @@ Public Class iTextSharpUtil
       oPdfReader = New PdfReader(FileName)
     End If
 
-    Dim PageCount As Integer = oPdfReader.NumberOfPages
-    oPdfReader.Close()
+    Dim numberOfPages As Integer = oPdfReader.NumberOfPages
     Dim arList As ArrayList = New ArrayList()
     arList = SimpleBookmark.GetBookmark(oPdfReader)
+    oPdfReader.Close()
 
     If Nothing Is arList Then
-BetterThanNothing:
       BuildHTMLBookmarks = "<ul>"
-      For i As Integer = 1 To PageCount
+      For i As Integer = 1 To numberOfPages
         BuildHTMLBookmarks &= "<li><a href=""javascript:changeImage('images/page" & i & ".png')"">Page " & i & "</a></li>"
       Next
       BuildHTMLBookmarks &= "</ul>"
       Exit Function
+    Else
+      BuildHTMLBookmarks = ""
+      fillRecursiveHTMLTree(arList, BuildHTMLBookmarks)
+      Exit Function
     End If
-
-    Using ms As New MemoryStream()
-      SimpleBookmark.ExportToXML(arList, ms, "UTF-8", False)
-      ms.Position = 0
-      Dim sb As New StringBuilder()
-      Try
-        Using xr As XmlReader = XmlReader.Create(ms)
-          xr.MoveToContent()
-          Dim page As String = Nothing
-          ' save page number for link
-          Dim text As String = Nothing
-          ' link text from PDF bookmark
-          ' see notes below for actual link format
-          Dim format As String = "<li><a href=""javascript:changeImage('images/page{0}.png')"">{1}</a></li>"
-          ' extract page number from 'Page' attribute
-          Dim re As New Regex("^\d+")
-          While xr.Read()
-            If xr.NodeType = XmlNodeType.Element AndAlso xr.Name = "Title" AndAlso xr.IsStartElement() Then
-              sb.Append("<ul>")
-              ' in production app separate steps:
-              ' if GetAttribute() returns null if attr not found,
-              ' which makes Regex.Match choke and die
-              page = re.Match(xr.GetAttribute("Page")).Captures(0).Value
-              xr.Read()
-              ' hyperlink text
-              If xr.NodeType = XmlNodeType.Text Then
-                text = xr.Value.Trim()
-                text = Web.HttpUtility.HtmlEncode(text)
-                ' in production app verify page & text
-                ' aren't empty before appending
-                sb.Append([String].Format(format, page, text))
-              End If
-            End If
-            ' close current (HTML) list
-            If xr.NodeType = XmlNodeType.EndElement AndAlso xr.Name = "Title" Then
-              sb.Append("</ul>")
-            End If
-          End While
-          Return sb.ToString()
-        End Using
-      Catch ex As Exception
-        GoTo BetterThanNothing
-      End Try
-
-    End Using
-
   End Function
+
+  Public Shared Sub fillRecursiveHTMLTree(ByVal arList As ArrayList, ByRef strHtml As String)
+    strHtml &= "<ul>"
+    For Each item As Object In arList
+      Dim i As String = Regex.Replace(item("Page"), "(^\d+).+$", "$1")
+      strHtml &= "<li><a href=""javascript:changeImage('images/page" & i & ".png')"">" & Web.HttpUtility.HtmlEncode(item("Title")) & "</a></li>"
+      If Not Nothing Is item("Kids") Then
+        fillRecursiveHTMLTree(item("Kids"), strHtml)
+      End If
+    Next
+    strHtml &= "</ul>"
+  End Sub
 
   Public Shared Function GraphicListToPDF(ByVal psFilenames As String() _
                                           , ByVal outputFileName As String _
@@ -321,3 +284,11 @@ BetterThanNothing:
   End Function
 
 End Class
+
+Public Structure iTextOutline
+  Dim Title As String
+  Dim Action As String
+  Dim Page As String
+  Dim Named As String
+  Dim Position As Drawing.Point
+End Structure

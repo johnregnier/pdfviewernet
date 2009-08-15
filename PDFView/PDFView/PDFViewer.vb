@@ -431,9 +431,12 @@ GhostScriptFallBack:
         HasBookmarks = AFPDFLibUtil.FillTree(TreeView1, mPDFDoc)
         AddHandler TreeView1.BeforeExpand, AddressOf AFPDFLib_BeforeExpand
         AddHandler TreeView1.NodeMouseClick, AddressOf AFPDFLib_NodeMouseClick
+        RemoveHandler TreeView1.NodeMouseClick, AddressOf ItextSharp_NodeMouseClick
       Else
         HasBookmarks = iTextSharpUtil.BuildBookmarkTreeFromPDF(mOriginalFileName, TreeView1.Nodes, mPassword)
         AddHandler TreeView1.NodeMouseClick, AddressOf ItextSharp_NodeMouseClick
+        RemoveHandler TreeView1.BeforeExpand, AddressOf AFPDFLib_BeforeExpand
+        RemoveHandler TreeView1.NodeMouseClick, AddressOf AFPDFLib_NodeMouseClick
       End If
     Catch ex As Exception
       'Some bookmark structures do not parse from XML yet.
@@ -908,8 +911,9 @@ GhostScriptFallBack:
 #Region "ITextSharp specific events"
 
   Private Sub ItextSharp_NodeMouseClick(ByVal sender As Object, ByVal e As TreeNodeMouseClickEventArgs)
-    If e.Node.ImageKey <> "" Then
-      mCurrentPageNumber = e.Node.ImageKey
+    Dim item As iTextOutline = CType(e.Node.Tag, iTextOutline)
+    If item.Page <> "" Then
+      mCurrentPageNumber = Regex.Replace(item.Page, "(^\d+).+$", "$1")
       DisplayCurrentPage()
     End If
   End Sub

@@ -109,7 +109,7 @@ Public Class ExportOptions
     Dim folderPath As String = System.Text.RegularExpressions.Regex.Replace(fileName, "(^.+\\).+$", "$1")
 
     Dim topFrame As String = My.Resources.TopHtml
-    topFrame = Regex.Replace(topFrame, "\{DocumentName\}", "<center>" & Regex.Replace(mPdfFileName, "^.+\\", "") & "</center>")
+    topFrame = Regex.Replace(topFrame, "\{DocumentName\}", "<center><h2>" & Regex.Replace(mPdfFileName, "^.+\\", "") & "</h2></center>")
 
     Dim sideFrame As String = My.Resources.BookmarkHtml
     sideFrame = Regex.Replace(sideFrame, "\{Body\}", iTextSharpUtil.BuildHTMLBookmarks(mPdfFileName, mPassword))
