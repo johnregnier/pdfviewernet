@@ -107,6 +107,8 @@ Public Class ExportOptions
 
   Private Sub ExportHTMLImages(ByVal fileName As String)
     Dim folderPath As String = System.Text.RegularExpressions.Regex.Replace(fileName, "(^.+\\).+$", "$1")
+    Dim contentFolder As String = folderPath & "content"
+    Dim imagesFolder As String = contentFolder & "\images"
 
     Dim topFrame As String = My.Resources.TopHtml
     topFrame = Regex.Replace(topFrame, "\{DocumentName\}", "<center><h2>" & Regex.Replace(mPdfFileName, "^.+\\", "") & "</h2></center>")
@@ -116,30 +118,40 @@ Public Class ExportOptions
 
     Dim pageFrame As String = My.Resources.PageHtml
     Dim mainPage As String = My.Resources.FrameHtml
+    Dim pageSize As String = My.Resources.PagesizeHtml
+
+    Dim di As System.IO.DirectoryInfo
+    di = New System.IO.DirectoryInfo(contentFolder)
+    If (Not di.Exists) Then
+      di.Create()
+    End If
+
+    di = New System.IO.DirectoryInfo(imagesFolder)
+    If (Not di.Exists) Then
+      di.Create()
+    End If
 
     Dim sw As New IO.StreamWriter(fileName, False)
     sw.Write(mainPage)
     sw.Close()
 
-    Dim sw1 As New IO.StreamWriter(folderPath & "top.html", False)
+    Dim sw1 As New IO.StreamWriter(contentFolder & "\top.html", False)
     sw1.Write(topFrame)
     sw1.Close()
 
-    Dim sw2 As New IO.StreamWriter(folderPath & "bookmark.html", False)
+    Dim sw2 As New IO.StreamWriter(contentFolder & "\bookmark.html", False)
     sw2.Write(sideFrame)
     sw2.Close()
 
-    Dim sw3 As New IO.StreamWriter(folderPath & "page.html", False)
+    Dim sw3 As New IO.StreamWriter(contentFolder & "\page.html", False)
     sw3.Write(pageFrame)
     sw3.Close()
 
-    Dim di As System.IO.DirectoryInfo
-    di = New System.IO.DirectoryInfo(folderPath & "images")
+    Dim sw4 As New IO.StreamWriter(contentFolder & "\pagesize.html", False)
+    sw4.Write(pageSize)
+    sw4.Close()
 
-    If (Not di.Exists) Then
-      di.Create()
-    End If
-    ConvertPDF.PDFConvert.ConvertPdfToGraphic(mPdfFileName, folderPath & "images\page.png", COLOR_PNG_RGB, nuDPI.Value, nuStart.Value, nuDown.Value, False, mPassword)
+    ConvertPDF.PDFConvert.ConvertPdfToGraphic(mPdfFileName, imagesFolder & "\page.png", COLOR_PNG_RGB, nuDPI.Value, nuStart.Value, nuDown.Value, False, mPassword)
   End Sub
 
 End Class

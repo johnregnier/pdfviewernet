@@ -136,11 +136,13 @@ function changeImage(filename)
 &lt;HEAD&gt;
 &lt;TITLE&gt;PDF to Image Html&lt;/TITLE&gt;
 &lt;/HEAD&gt;
-&lt;FRAMESET ROWS="60,*" FRAMEBORDER=0 BORDER=0 &gt;
-                        &lt;FRAME NAME="top" SRC="top.html" MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
-            &lt;FRAMESET COLS="20%,80%"&gt;
-                        &lt;FRAME NAME="left" SRC="bookmark.html" MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
-                        &lt;FRAME NAME="pageviewer" SRC="page.html" MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
+&lt;FRAMESET ROWS="50,*" FRAMEBORDER=0 BORDER=0 &gt;
+                        &lt;FRAME NAME="top" SRC="content/top.html" MARGINHEIGHT=0 MARGINWIDTH=0 NORESIZE&gt;
+            &lt;FRAMESET COLS="20%,80%" FRAMEBORDER=0 BORDER=0&gt;
+                        &lt;FRAME NAME="left" SRC="content/bookmark.html" MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
+                        &lt;FRAMESET ROWS="*,25" FRAMEBORDER=0 BORDER=0 &gt;
+                        	&lt;FRAME NAME="pageviewer" SRC="content/page.html" MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
+                        	&lt;FRAME NAME="pagesize" SRC="content/pagesize.html" MARGINHEIGHT=0 MARGINWIDTH=0 NORESIZE&gt;
             &lt;/FRAMESET&gt;
 &lt;/FRAMESET&gt;
 &lt;/HTML&gt;</value>
@@ -150,7 +152,37 @@ function changeImage(filename)
 &lt;HEAD&gt;
 &lt;TITLE&gt;PageViewer&lt;/TITLE&gt;
 &lt;/HEAD&gt;
-&lt;BODY bgcolor="#999999"&gt;&lt;img id="mainimage" src="images/page1.png" width="100%"&gt;&lt;/BODY&gt;
+&lt;BODY bgcolor="#999999"&gt;&lt;center&gt;&lt;img id="mainimage" src="images/page1.png" width="100%"&gt;&lt;/center&gt;&lt;/BODY&gt;
+&lt;/HTML&gt;</value>
+  </data>
+  <data name="PagesizeHtml" xml:space="preserve">
+    <value>&lt;HTML&gt;
+&lt;HEAD&gt;
+&lt;TITLE&gt;PageSize&lt;/TITLE&gt;
+&lt;SCRIPT LANGUAGE="JavaScript"&gt;
+function fitScreen()
+{
+parent.pageviewer.document.images['mainimage'].style.height = '100%';
+parent.pageviewer.document.images['mainimage'].style.width = 'auto';
+}
+function fitWidth()
+{
+parent.pageviewer.document.images['mainimage'].style.height = 'auto';
+parent.pageviewer.document.images['mainimage'].style.width = '100%';
+}
+function fitActual()
+{
+parent.pageviewer.document.images['mainimage'].style.height = 'auto';
+parent.pageviewer.document.images['mainimage'].style.width = 'auto';
+}
+&lt;/script&gt;
+&lt;/HEAD&gt;
+&lt;BODY bgcolor="#BBBBBB"&gt;
+&lt;center&gt;
+&lt;a href="javascript:fitScreen()"&gt;Fit To Screen&lt;/a&gt;&amp;nbsp;&amp;nbsp;
+&lt;a href="javascript:fitWidth()"&gt;Fit To Width&lt;/a&gt;&amp;nbsp;&amp;nbsp;
+&lt;a href="javascript:fitActual()"&gt;Actual Size&lt;/a&gt;
+&lt;/center&gt;&lt;/BODY&gt;
 &lt;/HTML&gt;</value>
   </data>
   <data name="TopHtml" xml:space="preserve">

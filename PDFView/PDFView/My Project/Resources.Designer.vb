@@ -85,12 +85,12 @@ Namespace My.Resources
         '''&lt;HEAD&gt;
         '''&lt;TITLE&gt;PDF to Image Html&lt;/TITLE&gt;
         '''&lt;/HEAD&gt;
-        '''&lt;FRAMESET ROWS=&quot;60,*&quot; FRAMEBORDER=0 BORDER=0 &gt;
-        '''                        &lt;FRAME NAME=&quot;top&quot; SRC=&quot;top.html&quot; MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
-        '''            &lt;FRAMESET COLS=&quot;20%,80%&quot;&gt;
-        '''                        &lt;FRAME NAME=&quot;left&quot; SRC=&quot;bookmark.html&quot; MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
-        '''                        &lt;FRAME NAME=&quot;pageviewer&quot; SRC=&quot;page.html&quot; MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
-        '''            &lt;/FR [rest of string was truncated]&quot;;.
+        '''&lt;FRAMESET ROWS=&quot;50,*&quot; FRAMEBORDER=0 BORDER=0 &gt;
+        '''                        &lt;FRAME NAME=&quot;top&quot; SRC=&quot;content/top.html&quot; MARGINHEIGHT=0 MARGINWIDTH=0 NORESIZE&gt;
+        '''            &lt;FRAMESET COLS=&quot;20%,80%&quot; FRAMEBORDER=0 BORDER=0&gt;
+        '''                        &lt;FRAME NAME=&quot;left&quot; SRC=&quot;content/bookmark.html&quot; MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
+        '''                        &lt;FRAMESET ROWS=&quot;*,25&quot; FRAMEBORDER=0 BORDER=0 &gt;
+        '''                        	&lt;FRAME NAME=&quot;pa [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property FrameHtml() As String
             Get
@@ -103,12 +103,38 @@ Namespace My.Resources
         '''&lt;HEAD&gt;
         '''&lt;TITLE&gt;PageViewer&lt;/TITLE&gt;
         '''&lt;/HEAD&gt;
-        '''&lt;BODY bgcolor=&quot;#999999&quot;&gt;&lt;img id=&quot;mainimage&quot; src=&quot;images/page1.png&quot; width=&quot;100%&quot;&gt;&lt;/BODY&gt;
+        '''&lt;BODY bgcolor=&quot;#999999&quot;&gt;&lt;center&gt;&lt;img id=&quot;mainimage&quot; src=&quot;images/page1.png&quot; width=&quot;100%&quot;&gt;&lt;/center&gt;&lt;/BODY&gt;
         '''&lt;/HTML&gt;.
         '''</summary>
         Friend ReadOnly Property PageHtml() As String
             Get
                 Return ResourceManager.GetString("PageHtml", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to &lt;HTML&gt;
+        '''&lt;HEAD&gt;
+        '''&lt;TITLE&gt;PageSize&lt;/TITLE&gt;
+        '''&lt;SCRIPT LANGUAGE=&quot;JavaScript&quot;&gt;
+        '''function fitScreen()
+        '''{
+        '''parent.pageviewer.document.images[&apos;mainimage&apos;].style.height = &apos;100%&apos;;
+        '''parent.pageviewer.document.images[&apos;mainimage&apos;].style.width = &apos;auto&apos;;
+        '''}
+        '''function fitWidth()
+        '''{
+        '''parent.pageviewer.document.images[&apos;mainimage&apos;].style.height = &apos;auto&apos;;
+        '''parent.pageviewer.document.images[&apos;mainimage&apos;].style.width = &apos;100%&apos;;
+        '''}
+        '''function fitActual()
+        '''{
+        '''parent.pageviewer.document.images[&apos;mainimage&apos;].style.height = &apos;auto&apos;;
+        '''parent [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property PagesizeHtml() As String
+            Get
+                Return ResourceManager.GetString("PagesizeHtml", resourceCulture)
             End Get
         End Property
         
