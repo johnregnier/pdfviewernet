@@ -85,12 +85,42 @@ Public Class ImageUtil
 
   Public Shared Sub RotateImageClockwise(ByRef pPicBox As PictureBox)
     pPicBox.Image.RotateFlip(RotateFlipType.Rotate90FlipNone)
+    FlipDimensions(pPicBox)
+    RecalcPageLocation(pPicBox)
     pPicBox.Refresh()
   End Sub
 
   Public Shared Sub RotateImageCounterclockwise(ByRef pPicBox As PictureBox)
     pPicBox.Image.RotateFlip(RotateFlipType.Rotate270FlipNone)
+    FlipDimensions(pPicBox)
+    RecalcPageLocation(pPicBox)
     pPicBox.Refresh()
+  End Sub
+
+  Public Shared Sub FlipDimensions(ByRef pPicbox As PictureBox)
+    Dim height As Integer = pPicbox.Height
+    Dim width As Integer = pPicbox.Width
+    pPicbox.Height = width
+    pPicbox.Width = height
+  End Sub
+
+  Public Shared Sub ApplyRotation(ByRef oPict As PictureBox, ByRef img As Drawing.Image, ByVal numberOfRotations As Integer)
+    If numberOfRotations < 0 Then
+      For i As Integer = 1 To Math.Abs(numberOfRotations)
+        img.RotateFlip(RotateFlipType.Rotate270FlipNone)
+      Next
+      oPict.Width = img.Width
+      oPict.Height = img.Height
+    End If
+
+    If numberOfRotations > 0 Then
+      For i As Integer = 1 To numberOfRotations
+        img.RotateFlip(RotateFlipType.Rotate90FlipNone)
+      Next
+      oPict.Width = img.Width
+      oPict.Height = img.Height
+    End If
+
   End Sub
 
   Public Shared Sub PictureBoxZoomActual(ByRef pPicBox As PictureBox)

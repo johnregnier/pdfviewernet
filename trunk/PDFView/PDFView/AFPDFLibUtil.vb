@@ -92,15 +92,37 @@ Public Class AFPDFLibUtil
     FillTree = False
     tvwOutline.Nodes.Clear()
     For Each ol As PDFLibNet.OutlineItem In pdfDoc.Outline
+      FillTree = True
       Dim tn As New TreeNode(ol.Title)
       tn.Tag = ol
-      If ol.KidsCount > 0 Then
-        tn.Nodes.Add(New TreeNode("dummy"))
-      End If
       tvwOutline.Nodes.Add(tn)
-      FillTree = True
+      If ol.KidsCount > 0 Then
+        FillTreeRecursive(ol.Childrens, tn)
+      End If
     Next
   End Function
+
+  Public Shared Sub FillTreeRecursive(ByVal olParent As PDFLibNet.OutlineItemCollection(Of PDFLibNet.OutlineItem), ByVal treeNode As TreeNode)
+    For Each ol As PDFLibNet.OutlineItem In olParent
+      Dim tn As New TreeNode(ol.Title)
+      tn.Tag = ol
+      treeNode.Nodes.Add(tn)
+      If ol.KidsCount > 0 Then
+        FillTreeRecursive(ol.Childrens, tn)
+      End If
+    Next
+  End Sub
+
+  Public Shared Sub FillHTMLTreeRecursive(ByVal olParent As PDFLibNet.OutlineItemCollection(Of PDFLibNet.OutlineItem), ByVal htmlString As String)
+    htmlString &= "<ul>"
+    For Each ol As PDFLibNet.OutlineItem In olParent
+      htmlString &= "<li><a href=""javascript:changeImage('images/page" & ol.Destination.Page & ".png')"">" & Web.HttpUtility.HtmlEncode(ol.Title) & "</a></li>"
+      If ol.KidsCount > 0 Then
+        FillHTMLTreeRecursive(ol.Childrens, htmlString)
+      End If
+    Next
+    htmlString &= "</ul>"
+  End Sub
 
 End Class
 
