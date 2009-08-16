@@ -32,6 +32,7 @@ Public Class PDFViewer
   Private mResizeCheckTimer As New Timer
   Private mPDFViewerHeight As Integer
   Private mPDFViewerWidth As Integer
+  Private mRotation As List(Of Integer)
 
 
   Public Property FileName() As String
@@ -51,6 +52,7 @@ Public Class PDFViewer
         'Tiff Specific behavior
         InitBottomToolbar("TIFF")
       ElseIf ImageUtil.IsPDF(value) Then
+        Cursor.Current = Cursors.WaitCursor
         If iTextSharpUtil.IsEncrypted(value) Then
 FileIsEncrypted:
           Dim frmPassword As New Password
@@ -60,6 +62,7 @@ FileIsEncrypted:
               mOwnerPassword = frmPassword.OwnerPassword
               If iTextSharpUtil.IsPasswordValid(value, frmPassword.OwnerPassword) = False Then
                 MsgBox("Owner password is incorrect.", MsgBoxStyle.Critical, "Incorrect Password")
+                Cursor.Current = Cursors.Default
                 Exit Property
               Else
                 mOwnerPassword = frmPassword.OwnerPassword
@@ -69,6 +72,7 @@ FileIsEncrypted:
             If Not frmPassword.UserPassword = "" Then
               If iTextSharpUtil.IsPasswordValid(value, frmPassword.UserPassword) = False Then
                 MsgBox("User password is incorrect.", MsgBoxStyle.Critical, "Incorrect Password")
+                Cursor.Current = Cursors.Default
                 Exit Property
               Else
                 mUserPassword = frmPassword.UserPassword
@@ -109,8 +113,8 @@ GhostScriptFallBack:
         Me.Enabled = False
       End If
       mPDFFileName = value
-      Cursor.Current = Cursors.WaitCursor
       InitPageRange()
+      InitRotation()
       InitializePageView(ViewMode.FIT_WIDTH)
       If mAllowBookmarks And ImageUtil.IsPDF(mOriginalFileName) Then
         InitBookmarks()
@@ -255,15 +259,19 @@ OCRCurrentImage:
 
   Private Sub tsPrevious_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsPrevious.Click
     mLastPageNumber = mCurrentPageNumber
-
     mCurrentPageNumber -= 1
+    If (Math.Abs(mRotation(mLastPageNumber - 1)) Mod 2) = 1 Then
+      ImageUtil.FlipDimensions(FindPictureBox(mCurrentPageNumber))
+    End If
     DisplayCurrentPage()
   End Sub
 
   Private Sub tsNext_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsNext.Click
     mLastPageNumber = mCurrentPageNumber
-
     mCurrentPageNumber += 1
+    If (Math.Abs(mRotation(mLastPageNumber - 1)) Mod 2) = 1 Then
+      ImageUtil.FlipDimensions(FindPictureBox(mCurrentPageNumber))
+    End If
     DisplayCurrentPage()
   End Sub
 
@@ -272,7 +280,9 @@ OCRCurrentImage:
     ImageUtil.PictureBoxZoomOut(objPictureBox)
     objPictureBox.Refresh()
     tscbZoom.Text = GetCurrentScalePercentage() & " %"
-
+    If (Math.Abs(mRotation(mCurrentPageNumber - 1)) Mod 2) = 1 Then
+      ImageUtil.FlipDimensions(objPictureBox)
+    End If
     DisplayCurrentPage()
   End Sub
 
@@ -284,7 +294,9 @@ OCRCurrentImage:
     ImageUtil.PictureBoxZoomIn(objPictureBox)
     objPictureBox.Refresh()
     tscbZoom.Text = GetCurrentScalePercentage() & " %"
-
+    If (Math.Abs(mRotation(mCurrentPageNumber - 1)) Mod 2) = 1 Then
+      ImageUtil.FlipDimensions(objPictureBox)
+    End If
     DisplayCurrentPage()
   End Sub
 
@@ -338,10 +350,12 @@ OCRCurrentImage:
   End Sub
 
   Private Sub tsRotateCC_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsRotateCC.Click
+    mRotation(mCurrentPageNumber - 1) -= 1
     ImageUtil.RotateImageCounterclockwise(FindPictureBox(mCurrentPageNumber))
   End Sub
 
   Private Sub tsRotateC_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsRotateC.Click
+    mRotation(mCurrentPageNumber - 1) += 1
     ImageUtil.RotateImageClockwise(FindPictureBox(mCurrentPageNumber))
   End Sub
 
@@ -429,13 +443,11 @@ GhostScriptFallBack:
     Try
       If mUseXPDF Then
         HasBookmarks = AFPDFLibUtil.FillTree(TreeView1, mPDFDoc)
-        AddHandler TreeView1.BeforeExpand, AddressOf AFPDFLib_BeforeExpand
         AddHandler TreeView1.NodeMouseClick, AddressOf AFPDFLib_NodeMouseClick
         RemoveHandler TreeView1.NodeMouseClick, AddressOf ItextSharp_NodeMouseClick
       Else
         HasBookmarks = iTextSharpUtil.BuildBookmarkTreeFromPDF(mOriginalFileName, TreeView1.Nodes, mPassword)
         AddHandler TreeView1.NodeMouseClick, AddressOf ItextSharp_NodeMouseClick
-        RemoveHandler TreeView1.BeforeExpand, AddressOf AFPDFLib_BeforeExpand
         RemoveHandler TreeView1.NodeMouseClick, AddressOf AFPDFLib_NodeMouseClick
       End If
     Catch ex As Exception
@@ -497,7 +509,12 @@ GhostScriptFallBack:
     ACTUAL_SIZE
   End Enum
 
-
+  Private Sub InitRotation()
+    mRotation = New List(Of Integer)
+    For i As Integer = 1 To mPDFPageCount
+      mRotation.Add(0)
+    Next
+  End Sub
 
   Private Sub InitializePageView(Optional ByVal Mode As ViewMode = ViewMode.FIT_TO_SCREEN)
     Dim myFlowLayoutPanel As New FlowLayoutPanel
@@ -570,9 +587,7 @@ GhostScriptFallBack:
   End Sub
 
   Private Sub MakePictureBox1To1WithImage(ByRef oPictureBox As PictureBox, Optional ByRef newImage As Drawing.Image = Nothing)
-    'If oPictureBox.Parent.ClientSize.Width >= oPictureBox.Width And oPictureBox.Parent.ClientSize.Height >= oPictureBox.Height Then
-    '  Exit Sub
-    'End If
+
     If Not Nothing Is newImage Then
       oPictureBox.Width = newImage.Width
       oPictureBox.Height = newImage.Height
@@ -583,21 +598,9 @@ GhostScriptFallBack:
 
   End Sub
 
-  'Private Sub CenterPicBoxInFlowLayoutPanel(ByRef oPictureBox As PictureBox)
-  '  Dim Hdiff As Integer = (oPictureBox.Parent.ClientSize.Width - 14) - oPictureBox.Width
-  '  Dim Vdiff As Integer = oPictureBox.Parent.ClientSize.Height - oPictureBox.Height
-  '  If Hdiff > 1 Then
-  '    FindFlowLayoutPanel.Padding = New Padding(Hdiff / 2, 0, Hdiff / 2, 0)
-  '  ElseIf FindFlowLayoutPanel.Padding <> New Padding(0, 0, 0, 0) Then
-  '    FindFlowLayoutPanel.Padding = New Padding(0, 0, 0, 0)
-  '  End If
-  'End Sub
-
   Private Sub CenterPicBoxInPanel(ByRef oPictureBox As PictureBox)
     ImageUtil.RecalcPageLocation(oPictureBox)
   End Sub
-
-
 
   Private Delegate Sub ShowImage(ByVal sFileName As String, ByVal iFrameNumber As Integer, ByRef oPictureBox As PictureBox, ByVal XPDFDPI As Integer)
 
@@ -658,7 +661,8 @@ GhostScriptFallBack:
       End If
       If Not Nothing Is newImage Then
         If ImageUtil.IsPDF(mPDFFileName) Then
-          MakePictureBox1To1WithImage(oPict, newImage)
+          ImageUtil.ApplyRotation(oPict, newImage, mRotation(mCurrentPageNumber - 1))
+          'MakePictureBox1To1WithImage(oPict, newImage)
         End If
         CenterPicBoxInPanel(oPict)
         oPict.Image = newImage
@@ -807,25 +811,6 @@ GhostScriptFallBack:
       dr.Y = y * (GetCurrentScalePercentage() / 100)
     End If
     Panel1.AutoScrollPosition = dr
-  End Sub
-
-  Private Sub AFPDFLib_BeforeExpand(ByVal sender As Object, ByVal e As TreeViewCancelEventArgs)
-
-    Dim ol As OutlineItem = DirectCast(e.Node.Tag, OutlineItem)
-    If ol IsNot Nothing Then
-
-      If e.Node.Nodes.Count > 0 AndAlso e.Node.Nodes(0).Text = "dummy" Then
-        e.Node.Nodes.Clear()
-        For Each col As OutlineItem In ol.Childrens
-          Dim tn As New TreeNode(col.Title)
-          tn.Tag = col
-          If col.KidsCount > 0 Then
-            tn.Nodes.Add(New TreeNode("dummy"))
-          End If
-          e.Node.Nodes.Add(tn)
-        Next
-      End If
-    End If
   End Sub
 
   Private Sub btSearch_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btSearch.Click
