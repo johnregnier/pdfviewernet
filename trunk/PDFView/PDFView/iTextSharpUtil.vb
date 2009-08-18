@@ -46,8 +46,17 @@ Public Class iTextSharpUtil
     GetOptimalDPI = 0
     Dim pageSize As Drawing.Size = GetPDFPageSize(filepath, pageNumber, userPassword)
     If pageSize.Width > 0 And pageSize.Height > 0 Then
-      Dim HScale As Single = oPictureBox.Width / (pageSize.Width)
-      Dim VScale As Single = oPictureBox.Height / (pageSize.Height)
+      Dim picHeight As Integer = oPictureBox.Height
+      Dim picWidth As Integer = oPictureBox.Width
+      Dim dummyPicBox As New PictureBox
+      dummyPicBox.Size = oPictureBox.Size
+      If (picWidth > picHeight And pageSize.Width < pageSize.Height) Or (picWidth < picHeight And pageSize.Width > pageSize.Height) Then
+        dummyPicBox.Width = picHeight
+        dummyPicBox.Height = picWidth
+      End If
+      Dim HScale As Single = dummyPicBox.Width / pageSize.Width
+      Dim VScale As Single = dummyPicBox.Height / pageSize.Height
+      dummyPicBox.Dispose()
       If HScale < VScale Then
         GetOptimalDPI = Math.Floor(72 * HScale)
       Else
