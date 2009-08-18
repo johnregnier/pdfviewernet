@@ -83,6 +83,32 @@ Public Class ImageUtil
     Return bm
   End Function
 
+  Public Shared Sub ScaleImage(ByRef img As Drawing.Image, ByVal scale_factor As Single)
+    Dim bm_source As New Drawing.Bitmap(img)
+    Dim bm_dest As New Drawing.Bitmap( _
+        CInt(bm_source.Width * scale_factor), _
+        CInt(bm_source.Height * scale_factor))
+    Dim gr_dest As Graphics = Graphics.FromImage(bm_dest)
+    gr_dest.DrawImage(bm_source, 0, 0, _
+        bm_dest.Width + 1, _
+        bm_dest.Height + 1)
+    bm_source = Nothing
+    gr_dest.Dispose()
+    img = bm_dest
+  End Sub
+
+  Public Shared Sub ScaleImageToPicBox(ByRef oPict As PictureBox, ByRef img As Drawing.Image)
+    Dim xPercent As Single = oPict.Width / img.Width
+    Dim yPercent As Single = oPict.Height / img.Height
+    Dim scalePercent As Single = 0
+    If xPercent > yPercent Then
+      scalePercent = yPercent
+    Else
+      scalePercent = xPercent
+    End If
+    ScaleImage(img, scalePercent)
+  End Sub
+
   Public Shared Sub RotateImageClockwise(ByRef pPicBox As PictureBox)
     pPicBox.Image.RotateFlip(RotateFlipType.Rotate90FlipNone)
     FlipDimensions(pPicBox)
@@ -104,21 +130,17 @@ Public Class ImageUtil
     pPicbox.Width = height
   End Sub
 
-  Public Shared Sub ApplyRotation(ByRef oPict As PictureBox, ByRef img As Drawing.Image, ByVal numberOfRotations As Integer)
+  Public Shared Sub ApplyRotation(ByRef img As Drawing.Image, ByVal numberOfRotations As Integer)
     If numberOfRotations < 0 Then
       For i As Integer = 1 To Math.Abs(numberOfRotations)
         img.RotateFlip(RotateFlipType.Rotate270FlipNone)
       Next
-      oPict.Width = img.Width
-      oPict.Height = img.Height
     End If
 
     If numberOfRotations > 0 Then
       For i As Integer = 1 To numberOfRotations
         img.RotateFlip(RotateFlipType.Rotate90FlipNone)
       Next
-      oPict.Width = img.Width
-      oPict.Height = img.Height
     End If
 
   End Sub

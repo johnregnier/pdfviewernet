@@ -17,9 +17,20 @@ Public Class AFPDFLibUtil
     If pdfDoc IsNot Nothing Then
       If pdfDoc.PageWidth > 0 And pdfDoc.PageHeight > 0 Then
         Dim DPIScalePercent As Single = 72 / pdfDoc.RenderDPI
-        Dim HScale As Single = oPictureBox.Width / (pdfDoc.PageWidth * DPIScalePercent)
-        Dim VScale As Single = oPictureBox.Height / (pdfDoc.PageHeight * DPIScalePercent)
-        If HScale < VScale Then
+        Dim picHeight As Integer = oPictureBox.Height
+        Dim picWidth As Integer = oPictureBox.Width
+        Dim docHeight As Integer = pdfDoc.PageHeight
+        Dim docWidth As Integer = pdfDoc.PageWidth
+        Dim dummyPicBox As New PictureBox
+        dummyPicBox.Size = oPictureBox.Size
+        If (picWidth > picHeight And docWidth < docHeight) Or (picWidth < picHeight And docWidth > docHeight) Then
+          dummyPicBox.Width = picHeight
+          dummyPicBox.Height = picWidth
+        End If
+        Dim HScale As Single = dummyPicBox.Width / (pdfDoc.PageWidth * DPIScalePercent)
+        Dim VScale As Single = dummyPicBox.Height / (pdfDoc.PageHeight * DPIScalePercent)
+        dummyPicBox.Dispose()
+        If VScale > HScale Then
           GetOptimalDPI = Math.Floor(72 * HScale)
         Else
           GetOptimalDPI = Math.Floor(72 * VScale)

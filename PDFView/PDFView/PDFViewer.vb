@@ -260,18 +260,12 @@ OCRCurrentImage:
   Private Sub tsPrevious_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsPrevious.Click
     mLastPageNumber = mCurrentPageNumber
     mCurrentPageNumber -= 1
-    If (Math.Abs(mRotation(mLastPageNumber - 1)) Mod 2) = 1 Then
-      ImageUtil.FlipDimensions(FindPictureBox(mCurrentPageNumber))
-    End If
     DisplayCurrentPage()
   End Sub
 
   Private Sub tsNext_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsNext.Click
     mLastPageNumber = mCurrentPageNumber
     mCurrentPageNumber += 1
-    If (Math.Abs(mRotation(mLastPageNumber - 1)) Mod 2) = 1 Then
-      ImageUtil.FlipDimensions(FindPictureBox(mCurrentPageNumber))
-    End If
     DisplayCurrentPage()
   End Sub
 
@@ -280,9 +274,6 @@ OCRCurrentImage:
     ImageUtil.PictureBoxZoomOut(objPictureBox)
     objPictureBox.Refresh()
     tscbZoom.Text = GetCurrentScalePercentage() & " %"
-    If (Math.Abs(mRotation(mCurrentPageNumber - 1)) Mod 2) = 1 Then
-      ImageUtil.FlipDimensions(objPictureBox)
-    End If
     DisplayCurrentPage()
   End Sub
 
@@ -294,9 +285,6 @@ OCRCurrentImage:
     ImageUtil.PictureBoxZoomIn(objPictureBox)
     objPictureBox.Refresh()
     tscbZoom.Text = GetCurrentScalePercentage() & " %"
-    If (Math.Abs(mRotation(mCurrentPageNumber - 1)) Mod 2) = 1 Then
-      ImageUtil.FlipDimensions(objPictureBox)
-    End If
     DisplayCurrentPage()
   End Sub
 
@@ -430,6 +418,7 @@ GhostScriptFallBack:
         GetImageFromFile = ImageUtil.GetFrameFromTiff(sFileName, iFrameNumber)
       End If
     End If
+    ImageUtil.ApplyRotation(GetImageFromFile, mRotation(iFrameNumber))
   End Function
 
   Private Sub InitPageRange()
@@ -572,8 +561,19 @@ GhostScriptFallBack:
   Private Sub ApplyZoom(ByVal Mode As ViewMode)
     Dim oPictureBox As PictureBox = FindPictureBox("SinglePicBox")
     If Mode = ViewMode.FIT_TO_SCREEN Then
-      oPictureBox.Height = oPictureBox.Parent.ClientSize.Height - 14
-      oPictureBox.Width = oPictureBox.Parent.ClientSize.Width - 14
+      Dim picHeight As Integer = oPictureBox.Height
+      Dim picWidth As Integer = oPictureBox.Width
+      Dim docHeight As Integer = oPictureBox.Parent.ClientSize.Height - 14
+      Dim docWidth As Integer = oPictureBox.Parent.ClientSize.Width - 14
+      Dim HScale As Single = picWidth / (docWidth)
+      Dim VScale As Single = picHeight / docHeight
+      If VScale > HScale Then
+        oPictureBox.Height = docHeight * HScale
+        oPictureBox.Width = docWidth
+      Else
+        oPictureBox.Height = docHeight
+        oPictureBox.Width = docWidth * VScale
+      End If
     ElseIf Mode = ViewMode.FIT_WIDTH And Not Nothing Is oPictureBox.Image Then
       oPictureBox.Width = oPictureBox.Parent.ClientSize.Width - 18
       Dim ScaleAmount As Double = (oPictureBox.Width / oPictureBox.Image.Width)
@@ -596,6 +596,17 @@ GhostScriptFallBack:
       oPictureBox.Height = oPictureBox.Image.Height
     End If
 
+  End Sub
+
+  Private Sub AutoRotatePicBox(ByRef oPictureBox As PictureBox, ByRef newImage As Drawing.Image)
+    Dim picHeight As Integer = oPictureBox.Height
+    Dim picWidth As Integer = oPictureBox.Width
+    Dim imgHeight As Integer = newImage.Height
+    Dim imgWidth As Integer = newImage.Width
+    If (picWidth > picHeight And imgWidth < imgHeight) Or (picWidth < picHeight And imgWidth > imgHeight) Then
+      oPictureBox.Width = picHeight
+      oPictureBox.Height = picWidth
+    End If
   End Sub
 
   Private Sub CenterPicBoxInPanel(ByRef oPictureBox As PictureBox)
@@ -656,13 +667,16 @@ GhostScriptFallBack:
       If mUseXPDF Then
         newImage = GetImageFromFile(mPDFFileName, mCurrentPageNumber - 1, AFPDFLibUtil.GetOptimalDPI(mPDFDoc, oPict))
       Else
-        Dim optimalDPI As Integer = iTextSharpUtil.GetOptimalDPI(mPDFFileName, mCurrentPageNumber, oPict, mPassword)
+        Dim optimalDPI As Integer = 0
+        If ImageUtil.IsPDF(mPDFFileName) Then
+          optimalDPI = iTextSharpUtil.GetOptimalDPI(mPDFFileName, mCurrentPageNumber, oPict, mPassword)
+        End If
         newImage = GetImageFromFile(mPDFFileName, mCurrentPageNumber - 1, optimalDPI)
       End If
       If Not Nothing Is newImage Then
+        AutoRotatePicBox(oPict, newImage)
         If ImageUtil.IsPDF(mPDFFileName) Then
-          ImageUtil.ApplyRotation(oPict, newImage, mRotation(mCurrentPageNumber - 1))
-          'MakePictureBox1To1WithImage(oPict, newImage)
+          MakePictureBox1To1WithImage(oPict, newImage)
         End If
         CenterPicBoxInPanel(oPict)
         oPict.Image = newImage
@@ -672,7 +686,9 @@ GhostScriptFallBack:
         FindFlowLayoutPanel().ScrollControlIntoView(oPict)
         ClearAllPictureBoxes(mCurrentPageNumber, mCurrentPageNumber)
       End If
+      Exit Sub
     End If
+    AutoRotatePicBox(oPict, oPict.Image)
     If ImageUtil.IsPDF(mPDFFileName) Then
       MakePictureBox1To1WithImage(oPict, oPict.Image)
     End If
@@ -729,7 +745,13 @@ GhostScriptFallBack:
 
   Private Sub ApplyToAllPictureBoxes(ByRef oControl As Control, ByVal Mode As ViewMode)
     Dim dummyPictureBox As New PictureBox
-    dummyPictureBox.Image = GetImageFromFile(mPDFFileName, mCurrentPageNumber - 1, AFPDFLibUtil.GetOptimalDPI(mPDFDoc, dummyPictureBox))
+    Dim optimalDPI As Integer = 0
+    If ImageUtil.IsPDF(mPDFFileName) Then
+      If mUseXPDF Then
+        optimalDPI = AFPDFLibUtil.GetOptimalDPI(mPDFDoc, dummyPictureBox)
+      End If
+    End If
+    dummyPictureBox.Image = GetImageFromFile(mPDFFileName, mCurrentPageNumber - 1, optimalDPI)
     For Each childControl In oControl.Controls
       If TypeOf childControl Is PictureBox Then
         If Mode = ViewMode.FIT_TO_SCREEN Then
