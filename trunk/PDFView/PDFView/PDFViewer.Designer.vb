@@ -50,10 +50,10 @@ Partial Class PDFViewer
     Me.tsExport = New System.Windows.Forms.ToolStripButton
     Me.tsImport = New System.Windows.Forms.ToolStripButton
     Me.TreeView1 = New System.Windows.Forms.TreeView
+    Me.Panel1 = New System.Windows.Forms.Panel
     Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog
     Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog
     Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
-    Me.Panel1 = New System.Windows.Forms.Panel
     Me.ToolStrip1.SuspendLayout()
     Me.TableLayoutPanel1.SuspendLayout()
     Me.tsBottom.SuspendLayout()
@@ -181,7 +181,7 @@ Partial Class PDFViewer
     '
     'tscbZoom
     '
-    Me.tscbZoom.Items.AddRange(New Object() {"Fit To Screen", "Fit To Width", "Actual Size"})
+    Me.tscbZoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
     Me.tscbZoom.Name = "tscbZoom"
     Me.tscbZoom.Size = New System.Drawing.Size(100, 25)
     '
@@ -267,14 +267,6 @@ Partial Class PDFViewer
     Me.TreeView1.Size = New System.Drawing.Size(102, 370)
     Me.TreeView1.TabIndex = 2
     '
-    'OpenFileDialog1
-    '
-    Me.OpenFileDialog1.FileName = "OpenFileDialog1"
-    '
-    'Timer1
-    '
-    Me.Timer1.Interval = 250
-    '
     'Panel1
     '
     Me.Panel1.AutoScroll = True
@@ -283,6 +275,14 @@ Partial Class PDFViewer
     Me.Panel1.Name = "Panel1"
     Me.Panel1.Size = New System.Drawing.Size(429, 370)
     Me.Panel1.TabIndex = 8
+    '
+    'OpenFileDialog1
+    '
+    Me.OpenFileDialog1.FileName = "OpenFileDialog1"
+    '
+    'Timer1
+    '
+    Me.Timer1.Interval = 250
     '
     'PDFViewer
     '
