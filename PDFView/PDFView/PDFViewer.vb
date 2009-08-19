@@ -113,6 +113,7 @@ GhostScriptFallBack:
         Me.Enabled = False
       End If
       mPDFFileName = value
+      InitViewModes()
       InitPageRange()
       InitRotation()
       InitializePageView(ViewMode.FIT_WIDTH)
@@ -273,18 +274,18 @@ OCRCurrentImage:
     Dim objPictureBox As PictureBox = FindPictureBox(mCurrentPageNumber)
     ImageUtil.PictureBoxZoomOut(objPictureBox)
     objPictureBox.Refresh()
-    tscbZoom.Text = GetCurrentScalePercentage() & " %"
+    'tscbZoom.Text = GetCurrentScalePercentage() & " %"
     DisplayCurrentPage()
   End Sub
 
   Private Sub tsZoomIn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsZoomIn.Click
-    If GetCurrentScalePercentage() > 500 Then
-      Exit Sub
-    End If
+    'If GetCurrentScalePercentage() > 500 Then
+    '  Exit Sub
+    'End If
     Dim objPictureBox As PictureBox = FindPictureBox(mCurrentPageNumber)
     ImageUtil.PictureBoxZoomIn(objPictureBox)
     objPictureBox.Refresh()
-    tscbZoom.Text = GetCurrentScalePercentage() & " %"
+    'tscbZoom.Text = GetCurrentScalePercentage() & " %"
     DisplayCurrentPage()
   End Sub
 
@@ -505,6 +506,15 @@ GhostScriptFallBack:
     Next
   End Sub
 
+  Private Sub InitViewModes()
+    tscbZoom.Items.Clear()
+    tscbZoom.Items.Add("Fit To Screen")
+    tscbZoom.Items.Add("Fit To Width")
+    If ImageUtil.IsTiff(mPDFFileName) Then
+      tscbZoom.Items.Add("Actual Size")
+    End If
+  End Sub
+
   Private Sub InitializePageView(Optional ByVal Mode As ViewMode = ViewMode.FIT_TO_SCREEN)
     Dim myFlowLayoutPanel As New FlowLayoutPanel
     Panel1.SuspendLayout()
@@ -563,16 +573,16 @@ GhostScriptFallBack:
     If Mode = ViewMode.FIT_TO_SCREEN Then
       Dim picHeight As Integer = oPictureBox.Height
       Dim picWidth As Integer = oPictureBox.Width
-      Dim docHeight As Integer = oPictureBox.Parent.ClientSize.Height - 14
-      Dim docWidth As Integer = oPictureBox.Parent.ClientSize.Width - 14
-      Dim HScale As Single = picWidth / (docWidth)
-      Dim VScale As Single = picHeight / docHeight
+      Dim parentHeight As Integer = oPictureBox.Parent.ClientSize.Height - 14
+      Dim parentWidth As Integer = oPictureBox.Parent.ClientSize.Width - 14
+      Dim HScale As Single = parentWidth / picWidth
+      Dim VScale As Single = parentHeight / picHeight
       If VScale > HScale Then
-        oPictureBox.Height = docHeight * HScale
-        oPictureBox.Width = docWidth
+        oPictureBox.Height = picHeight * HScale
+        oPictureBox.Width = picWidth * HScale
       Else
-        oPictureBox.Height = docHeight
-        oPictureBox.Width = docWidth * VScale
+        oPictureBox.Height = picHeight * VScale
+        oPictureBox.Width = picWidth * VScale
       End If
     ElseIf Mode = ViewMode.FIT_WIDTH And Not Nothing Is oPictureBox.Image Then
       oPictureBox.Width = oPictureBox.Parent.ClientSize.Width - 18
@@ -583,7 +593,7 @@ GhostScriptFallBack:
       oPictureBox.Height = oPictureBox.Image.Height
     End If
     CenterPicBoxInPanel(FindPictureBox("SinglePicBox"))
-    tscbZoom.Text = GetCurrentScalePercentage() & " %"
+    'tscbZoom.Text = GetCurrentScalePercentage() & " %"
   End Sub
 
   Private Sub MakePictureBox1To1WithImage(ByRef oPictureBox As PictureBox, Optional ByRef newImage As Drawing.Image = Nothing)
@@ -695,15 +705,15 @@ GhostScriptFallBack:
     CenterPicBoxInPanel(oPict)
   End Sub
 
-  Private Function GetCurrentScalePercentage() As Integer
-    GetCurrentScalePercentage = 0
-    Dim objPictureBox As PictureBox = FindPictureBox("SinglePicBox")
-    If Not Nothing Is objPictureBox.Image Then
-      Dim OriginalWidth As Integer = objPictureBox.Image.Width
-      Dim CurrentWidth As Integer = objPictureBox.Width
-      GetCurrentScalePercentage = CInt((CurrentWidth / OriginalWidth) * 100)
-    End If
-  End Function
+  'Private Function GetCurrentScalePercentage() As Integer
+  '  GetCurrentScalePercentage = 0
+  '  Dim objPictureBox As PictureBox = FindPictureBox("SinglePicBox")
+  '  If Not Nothing Is objPictureBox.Image Then
+  '    Dim OriginalWidth As Integer = objPictureBox.Image.Width
+  '    Dim CurrentWidth As Integer = objPictureBox.Width
+  '    GetCurrentScalePercentage = CInt((CurrentWidth / OriginalWidth) * 100)
+  '  End If
+  'End Function
 
   Private Function FindPictureBox(ByVal controlName As String) As PictureBox
     If mContinuousPages Then
@@ -830,7 +840,7 @@ GhostScriptFallBack:
   Private Sub ScrolltoTop(ByVal y As Integer)
     Dim dr As Point = Panel1.AutoScrollPosition
     If mPDFDoc.PageHeight > Panel1.Height Then
-      dr.Y = y * (GetCurrentScalePercentage() / 100)
+      dr.Y = y '* (GetCurrentScalePercentage() / 100)
     End If
     Panel1.AutoScrollPosition = dr
   End Sub
