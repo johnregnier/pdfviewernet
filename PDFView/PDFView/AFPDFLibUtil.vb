@@ -124,12 +124,37 @@ Public Class AFPDFLibUtil
     Next
   End Sub
 
-  Public Shared Sub FillHTMLTreeRecursive(ByVal olParent As PDFLibNet.OutlineItemCollection(Of PDFLibNet.OutlineItem), ByVal htmlString As String)
+  Public Shared Function BuildHTMLBookmarks(ByRef pdfDoc As PDFLibNet.PDFWrapper) As String
+
+    Dim pageCount As Integer = pdfDoc.PageCount
+
+    If pdfDoc.Outline.Count <= 0 Then
+StartPageList:
+      BuildHTMLBookmarks = "<!--PageNumberOnly--><ul>"
+      For i As Integer = 1 To pageCount
+        BuildHTMLBookmarks &= "<li><a href=""javascript:changeImage('images/page" & i & ".png')"">Page " & i & "</a></li>"
+      Next
+      BuildHTMLBookmarks &= "</ul>"
+      Exit Function
+    Else
+      BuildHTMLBookmarks = ""
+      FillHTMLTreeRecursive(pdfDoc.Outline, BuildHTMLBookmarks, pdfDoc)
+      If System.Text.RegularExpressions.Regex.IsMatch(BuildHTMLBookmarks, "\d") = False Then
+        BuildHTMLBookmarks = ""
+        GoTo StartPageList
+      End If
+      Exit Function
+    End If
+
+  End Function
+
+  Public Shared Sub FillHTMLTreeRecursive(ByVal olParent As PDFLibNet.OutlineItemCollection(Of PDFLibNet.OutlineItem), ByRef htmlString As String, ByRef pdfDoc As PDFLibNet.PDFWrapper)
     htmlString &= "<ul>"
     For Each ol As PDFLibNet.OutlineItem In olParent
-      htmlString &= "<li><a href=""javascript:changeImage('images/page" & ol.Destination.Page & ".png')"">" & Web.HttpUtility.HtmlEncode(ol.Title) & "</a></li>"
+      ol.DoAction()
+      htmlString &= "<li><a href=""javascript:changeImage('images/page" & pdfDoc.CurrentPage & ".png')"">" & Web.HttpUtility.HtmlEncode(ol.Title) & "</a></li>"
       If ol.KidsCount > 0 Then
-        FillHTMLTreeRecursive(ol.Childrens, htmlString)
+        FillHTMLTreeRecursive(ol.Childrens, htmlString, pdfDoc)
       End If
     Next
     htmlString &= "</ul>"
