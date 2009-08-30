@@ -114,7 +114,8 @@ Public Class ExportOptions
     topFrame = Regex.Replace(topFrame, "\{DocumentName\}", "<center><h2>" & Regex.Replace(mPdfFileName, "^.+\\", "") & "</h2></center>")
 
     Dim sideFrame As String = My.Resources.BookmarkHtml
-    sideFrame = Regex.Replace(sideFrame, "\{Body\}", iTextSharpUtil.BuildHTMLBookmarks(mPdfFileName, mPassword))
+    'Possible to allow some export from GhostScript renderer
+    sideFrame = Regex.Replace(sideFrame, "\{Body\}", AFPDFLibUtil.BuildHTMLBookmarks(mpdfDoc))
 
     Dim pageFrame As String = My.Resources.PageHtml
     Dim mainPage As String = My.Resources.FrameHtml
