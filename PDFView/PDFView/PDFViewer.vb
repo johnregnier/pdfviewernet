@@ -1,6 +1,5 @@
 ﻿Imports System.Text.RegularExpressions
 Imports System.Drawing.Imaging
-Imports FreeImageAPI
 Imports System.Drawing
 Imports System.Windows.Forms
 Imports PDFLibNet

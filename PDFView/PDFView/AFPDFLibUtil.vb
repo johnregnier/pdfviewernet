@@ -124,6 +124,17 @@ Public Class AFPDFLibUtil
     Next
   End Sub
 
+  Public Shared Function BuildJavaScriptArray(ByRef pdfDoc As PDFLibNet.PDFWrapper) As String
+    Dim pageCount As Integer = pdfDoc.PageCount
+
+    BuildJavaScriptArray = "var myPages=new Array("
+    For i As Integer = 1 To pageCount
+      BuildJavaScriptArray &= """images/page" & i & ".png"",)"
+    Next
+    BuildJavaScriptArray = BuildJavaScriptArray.Substring(0, BuildJavaScriptArray.Length - 2)
+    BuildJavaScriptArray &= ");" & vbCrLf & "var myPageCount=" & pageCount & ";"
+  End Function
+
   Public Shared Function BuildHTMLBookmarks(ByRef pdfDoc As PDFLibNet.PDFWrapper) As String
 
     Dim pageCount As Integer = pdfDoc.PageCount
@@ -151,8 +162,7 @@ StartPageList:
   Public Shared Sub FillHTMLTreeRecursive(ByVal olParent As PDFLibNet.OutlineItemCollection(Of PDFLibNet.OutlineItem), ByRef htmlString As String, ByRef pdfDoc As PDFLibNet.PDFWrapper)
     htmlString &= "<ul>"
     For Each ol As PDFLibNet.OutlineItem In olParent
-      ol.DoAction()
-      htmlString &= "<li><a href=""javascript:changeImage('images/page" & pdfDoc.CurrentPage & ".png')"">" & Web.HttpUtility.HtmlEncode(ol.Title) & "</a></li>"
+      htmlString &= "<li><a href=""javascript:changeImage('images/page" & ol.Destination.Page & ".png')"">" & Web.HttpUtility.HtmlEncode(ol.Title) & "</a></li>"
       If ol.KidsCount > 0 Then
         FillHTMLTreeRecursive(ol.Childrens, htmlString, pdfDoc)
       End If

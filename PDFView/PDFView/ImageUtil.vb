@@ -4,7 +4,6 @@ Imports System.Drawing
 Imports System.Runtime.InteropServices
 Imports System.IO
 Imports System.Drawing.Drawing2D
-Imports FreeImageAPI
 Imports System.Text.RegularExpressions
 Imports System.Windows.Forms
 
@@ -260,15 +259,6 @@ Public Class ImageUtil
     fs.Close()
   End Function
 
-  Public Shared Function GetFrameFromTiff2(ByVal Filename As String, ByVal FrameNumber As Integer) As System.Drawing.Image
-    Dim dib As FIMULTIBITMAP = New FIMULTIBITMAP()
-    dib = FreeImage.OpenMultiBitmapEx(Filename)
-    Dim page As FIBITMAP = New FIBITMAP()
-    page = FreeImage.LockPage(dib, FrameNumber)
-    GetFrameFromTiff2 = FreeImage.GetBitmap(page)
-    page.SetNull()
-    FreeImage.CloseMultiBitmapEx(dib)
-  End Function
 
   Public Shared Function GetImagePageFromFileForPrint(ByVal sFileName As String, ByVal iPageNumber As Integer, Optional ByVal DPI As Integer = 300, Optional ByVal password As String = "") As System.Drawing.Image
     GetImagePageFromFileForPrint = Nothing
