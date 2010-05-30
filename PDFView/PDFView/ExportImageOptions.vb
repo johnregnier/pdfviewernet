@@ -51,6 +51,7 @@ Public Class ExportImageOptions
     hash.Add(New DictionaryEntry("A4", iTextSharp.text.PageSize.A4))
     hash.Add(New DictionaryEntry("B4", iTextSharp.text.PageSize.B4))
     hash.Add(New DictionaryEntry("A3", iTextSharp.text.PageSize.A3))
+    hash.Add(New DictionaryEntry("Image Size", New iTextSharp.text.Rectangle(0, 0)))
     cbPageSize.DataSource = hash
     cbPageSize.DisplayMember = "Key"
   End Sub

@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AFPDFLibUtil.vb" />
+    <Compile Include="CmdHelper.vb" />
     <Compile Include="ExportImageOptions.Designer.vb">
       <DependentUpon>ExportImageOptions.vb</DependentUpon>
     </Compile>
@@ -79,14 +80,23 @@
     <Compile Include="ExportOptions.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="ExternalGhostScriptLib.vb" />
     <Compile Include="GhostScriptLib.vb" />
+    <Compile Include="HTML2PDF.vb" />
     <Compile Include="ImageUtil.vb" />
+    <Compile Include="ImportOptions.Designer.vb">
+      <DependentUpon>ImportOptions.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ImportOptions.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ImportProgress.Designer.vb">
       <DependentUpon>ImportProgress.vb</DependentUpon>
     </Compile>
     <Compile Include="ImportProgress.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="InteropHelper.vb" />
     <Compile Include="iTextSharpUtil.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
@@ -115,6 +125,7 @@
     <Compile Include="PDFViewer.vb">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="PDFViewGlobals.vb" />
     <Compile Include="PrinterUtil.vb" />
     <Compile Include="TesseractOCR.vb" />
   </ItemGroup>
@@ -125,6 +136,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ExportOptions.resx">
       <DependentUpon>ExportOptions.vb</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ImportOptions.resx">
+      <DependentUpon>ImportOptions.vb</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="ImportProgress.resx">
@@ -147,6 +162,15 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="lib\Additional TessNet2 Languages\tessdata.zip" />
+    <None Include="lib\tessdata\eng.DangAmbigs" />
+    <None Include="lib\tessdata\eng.freq-dawg" />
+    <None Include="lib\tessdata\eng.inttemp" />
+    <None Include="lib\tessdata\eng.normproto" />
+    <None Include="lib\tessdata\eng.pffmtable" />
+    <None Include="lib\tessdata\eng.unicharset" />
+    <None Include="lib\tessdata\eng.user-words" />
+    <None Include="lib\tessdata\eng.word-dawg" />
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
@@ -156,6 +180,18 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="lib\Copy_All_With_PDFView_DLL.txt" />
+    <Content Include="lib\gsdll32.dll" />
+    <Content Include="lib\itextsharp.dll" />
+    <Content Include="lib\PDFLibNet.dll" />
+    <Content Include="lib\ReadMeAboutDLLsRequired.txt" />
+    <Content Include="lib\tessnet2_32.dll" />
+    <Content Include="lib\wkhtmltopdf.exe" />
+    <Content Include="lib\x64\gsdll32.dll" />
+    <Content Include="lib\x64\PDFLibNet.dll" />
+    <Content Include="lib\x64\tessnet2_64.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -170,6 +206,8 @@
 copy "$(ProjectDir)lib\itextsharp.dll" "$(TargetDir)"
 copy "$(ProjectDir)lib\PDFLibNET.dll" "$(TargetDir)"
 copy "$(ProjectDir)lib\tessnet2_32.dll" "$(TargetDir)"
+copy "$(ProjectDir)lib\wkhtmltopdf.exe" "$(TargetDir)"
+copy "$(ProjectDir)lib\GSCommandLine.exe" "$(TargetDir)"
 xcopy "$(ProjectDir)lib\tessdata" "$(TargetDir)tessdata" /s /e /i /h /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -177,6 +177,9 @@ Public Class iTextSharpUtil
         StatusDialog.UpdateProgress("Processing file " & fileNumber & "/" & psFilenames.Length, 0)
         Application.DoEvents()
         Dim bm As New System.Drawing.Bitmap(psFileName)
+        Dim bmPointWidth As Double = (bm.Width / bm.HorizontalResolution) * 72
+        Dim bmPointHeight As Double = (bm.Height / bm.VerticalResolution) * 72
+        Dim bmPageSize As New iTextSharp.text.Rectangle(CInt(bmPointWidth), CInt(bmPointHeight))
         Dim total As Integer = bm.GetFrameCount(FrameDimension.Page)
 
         If StartPage = 0 And EndPage = 0 Then
@@ -189,11 +192,15 @@ Public Class iTextSharpUtil
           Application.DoEvents()
           bm.SelectActiveFrame(FrameDimension.Page, k - 1)
           'Auto Rotate the page if needed
-          If (psPageSize.Height > psPageSize.Width And bm.Width > bm.Height) _
-          Or (psPageSize.Width > psPageSize.Height And bm.Height > bm.Width) Then
-            document.SetPageSize(psPageSize.Rotate)
+          If psPageSize.Width = 0 Or psPageSize.Height = 0 Then
+            document.SetPageSize(bmPageSize)
           Else
-            document.SetPageSize(psPageSize)
+            If (psPageSize.Height > psPageSize.Width And bm.Width > bm.Height) _
+            Or (psPageSize.Width > psPageSize.Height And bm.Height > bm.Width) Then
+              document.SetPageSize(psPageSize.Rotate)
+            Else
+              document.SetPageSize(psPageSize)
+            End If
           End If
           document.NewPage()
           Dim img As iTextSharp.text.Image

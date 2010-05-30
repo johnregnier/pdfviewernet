@@ -263,7 +263,8 @@ Public Class ImageUtil
   Public Shared Function GetImagePageFromFileForPrint(ByVal sFileName As String, ByVal iPageNumber As Integer, Optional ByVal DPI As Integer = 300, Optional ByVal password As String = "") As System.Drawing.Image
     GetImagePageFromFileForPrint = Nothing
     If ImageUtil.IsPDF(sFileName) Then 'get image of page from file for printing
-      GetImagePageFromFileForPrint = ConvertPDF.PDFConvert.GetPageFromPDF(sFileName, iPageNumber, DPI, password, True)
+      Dim GSConverter As ConvertPDF.PDFConvert = New ConvertPDF.PDFConvert
+      GetImagePageFromFileForPrint = GSConverter.GetPageFromPDF(sFileName, iPageNumber, DPI, password, True)
     ElseIf ImageUtil.IsTiff(sFileName) Then
       GetImagePageFromFileForPrint = ImageUtil.GetFrameFromTiff(sFileName, iPageNumber - 1)
     End If
