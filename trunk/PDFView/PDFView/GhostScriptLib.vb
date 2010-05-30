@@ -127,7 +127,8 @@ Namespace ConvertPDF
 #Region "Variables"
     Private _sDeviceFormat As String
     Private _sParametersUsed As String
-
+    Private _bBusy As Boolean
+    Private intGSInstanceHandle As IntPtr
     Private _iWidth As Integer
     Private _iHeight As Integer
     Private _iResolutionX As Integer
@@ -179,7 +180,14 @@ Namespace ConvertPDF
     'private List<byte> outputBytes;
     'public string error;
 #End Region
-#Region "Proprieties"
+#Region "Properties"
+
+    Public ReadOnly Property IsBusy() As Boolean
+      Get
+        Return _bBusy
+      End Get
+    End Property
+
     ''' <summary>
     ''' What format to use to convert
     ''' is suggested to use png256 instead of jpeg for document!
@@ -386,6 +394,12 @@ Namespace ConvertPDF
     Public Sub New()
       _objHandle = IntPtr.Zero
     End Sub
+
+    Public Sub KillGSInstance(ByVal objHandle As IntPtr)
+      gsapi_exit(objHandle)
+      gsapi_delete_instance(objHandle)
+      _bBusy = False
+    End Sub
 #End Region
 
 #Region "Convert"
@@ -448,8 +462,7 @@ Namespace ConvertPDF
       '#End Region
       '#Region "Variables"
       Dim intReturn As Integer, intCounter As Integer, intElementCount As Integer
-      'The pointer to the current istance of the dll
-      Dim intGSInstanceHandle As IntPtr
+      'The pointer to the current instance of the dll
       Dim aAnsiArgs As Object()
       Dim aPtrArgs As IntPtr()
       Dim aGCHandle As GCHandle()
@@ -477,13 +490,18 @@ Namespace ConvertPDF
       '#Region "Create a new istance of the library!"
       intReturn = -1
       Try
+        _bBusy = True
         intReturn = gsapi_new_instance(intGSInstanceHandle, _objHandle)
         'Be sure that we create an istance!
         If intReturn < 0 Then
           ClearParameters(aGCHandle, gchandleArgs)
           If throwException Then
-            Throw New ApplicationException("I can't create a new istance of Ghostscript please verify no other istance are running!")
+            Throw New ApplicationException("I can't create a new instance of Ghostscript please verify no other instances are running!")
           Else
+            'KillGSInstance(intGSInstanceHandle)
+            'intGSInstanceHandle = IntPtr.Zero
+            '_objHandle = IntPtr.Zero
+            'intReturn = gsapi_new_instance(intGSInstanceHandle, _objHandle)
             System.Windows.Forms.MessageBox.Show("I can't create a new istance of Ghostscript please verify no other istance are running!")
             Return False
           End If
@@ -535,10 +553,7 @@ Namespace ConvertPDF
         'No matter what happen i MUST close the istance!
         'free all the memory
         ClearParameters(aGCHandle, gchandleArgs)
-        gsapi_exit(intGSInstanceHandle)
-        'Close the istance
-        gsapi_delete_instance(intGSInstanceHandle)
-        'delete it
+        KillGSInstance(intGSInstanceHandle)
         'In case i was looking for output now stop
         If myProcess IsNot Nothing Then
           RemoveHandler myProcess.OutputDataReceived, AddressOf SaveOutputToImage
@@ -864,40 +879,40 @@ Namespace ConvertPDF
       End If
     End Function
 
-    Public Shared Function GetPageFromPDF(ByVal filename As String, ByVal PageNumber As Integer, Optional ByVal DPI As Integer = VIEW_DPI, Optional ByVal Password As String = "", Optional ByVal forPrinting As Boolean = False) As System.Drawing.Image
-      Dim converter As New ConvertPDF.PDFConvert
+    Public Function GetPageFromPDF(ByVal filename As String, ByVal PageNumber As Integer, Optional ByVal DPI As Integer = VIEW_DPI, Optional ByVal Password As String = "", Optional ByVal forPrinting As Boolean = False) As System.Drawing.Image
+      'Dim converter As New ConvertPDF.PDFConvert
       Dim Converted As Boolean = False
-      converter.RenderingThreads = Environment.ProcessorCount
-      converter.OutputToMultipleFile = False
-      converter.MaxBitmap = 100000000 '100 MB
-      converter.MaxBuffer = 200000000 '200 MB
+      Me.RenderingThreads = Environment.ProcessorCount
+      Me.OutputToMultipleFile = False
+      Me.MaxBitmap = 100000000 '100 MB
+      Me.MaxBuffer = 200000000 '200 MB
       If PageNumber > 0 Then
-        converter.FirstPageToConvert = PageNumber
-        converter.LastPageToConvert = PageNumber
+        Me.FirstPageToConvert = PageNumber
+        Me.LastPageToConvert = PageNumber
       Else
         GetPageFromPDF = Nothing
         Exit Function
       End If
-      converter.FitPage = False
-      converter.JPEGQuality = 70
-      converter.UserPassword = Password
+      Me.FitPage = False
+      Me.JPEGQuality = 70
+      Me.UserPassword = Password
       If DPI <> VIEW_DPI Then 'Custom resolution
-        converter.ResolutionX = DPI
-        converter.ResolutionY = DPI
+        Me.ResolutionX = DPI
+        Me.ResolutionY = DPI
       Else ' Default resolution
-        converter.ResolutionX = VIEW_DPI
-        converter.ResolutionY = VIEW_DPI
+        Me.ResolutionX = VIEW_DPI
+        Me.ResolutionY = VIEW_DPI
       End If
       If forPrinting Then 'Turn off anti-aliasing (crisp edges)
-        converter.TextAlphaBit = -1
-        converter.GraphicsAlphaBit = -1
+        Me.TextAlphaBit = -1
+        Me.GraphicsAlphaBit = -1
       Else 'Turn on anti-aliasing (smooth edges)
-        converter.TextAlphaBit = 4
-        converter.GraphicsAlphaBit = 4
+        Me.TextAlphaBit = 4
+        Me.GraphicsAlphaBit = 4
       End If
-      converter.OutputFormat = COLOR_PNG_RGB
+      Me.OutputFormat = COLOR_PNG_RGB
       Dim output As String = System.IO.Path.GetTempPath & Now.Ticks & ".png"
-      Converted = converter.Convert(filename, output)
+      Converted = Me.Convert(filename, output)
       If Converted Then
         GetPageFromPDF = New Bitmap(output)
         ImageUtil.DeleteFile(output)
@@ -905,7 +920,6 @@ Namespace ConvertPDF
         GetPageFromPDF = Nothing
       End If
     End Function
-
 #End Region
   End Class
 

@@ -40,7 +40,6 @@ Partial Class PDFViewer
     Me.tsRotateCC = New System.Windows.Forms.ToolStripButton
     Me.tsRotateC = New System.Windows.Forms.ToolStripButton
     Me.ToolStripLabel3 = New System.Windows.Forms.ToolStripLabel
-    Me.tscbZoom = New System.Windows.Forms.ToolStripComboBox
     Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel
     Me.tsBottom = New System.Windows.Forms.ToolStrip
     Me.tbSearchText = New System.Windows.Forms.ToolStripTextBox
@@ -54,6 +53,9 @@ Partial Class PDFViewer
     Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog
     Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog
     Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
+    Me.tsFitPage = New System.Windows.Forms.ToolStripButton
+    Me.tsFitWidth = New System.Windows.Forms.ToolStripButton
+    Me.tsActualSize = New System.Windows.Forms.ToolStripButton
     Me.ToolStrip1.SuspendLayout()
     Me.TableLayoutPanel1.SuspendLayout()
     Me.tsBottom.SuspendLayout()
@@ -61,7 +63,7 @@ Partial Class PDFViewer
     '
     'ToolStrip1
     '
-    Me.ToolStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.tsPrint, Me.ToolStripSeparator4, Me.tsPageLabel, Me.ToolStripSeparator1, Me.tsPrevious, Me.tsNext, Me.ToolStripSeparator2, Me.ToolStripLabel2, Me.tsPageNum, Me.ToolStripSeparator3, Me.tsZoomOut, Me.tsZoomIn, Me.tsRotateCC, Me.tsRotateC, Me.ToolStripLabel3, Me.tscbZoom})
+    Me.ToolStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.tsPrint, Me.ToolStripSeparator4, Me.tsPageLabel, Me.ToolStripSeparator1, Me.tsPrevious, Me.tsNext, Me.ToolStripSeparator2, Me.ToolStripLabel2, Me.tsPageNum, Me.ToolStripSeparator3, Me.tsZoomOut, Me.tsZoomIn, Me.tsRotateCC, Me.tsRotateC, Me.ToolStripLabel3, Me.tsFitPage, Me.tsFitWidth, Me.tsActualSize})
     Me.ToolStrip1.Location = New System.Drawing.Point(0, 0)
     Me.ToolStrip1.Name = "ToolStrip1"
     Me.ToolStrip1.Size = New System.Drawing.Size(543, 25)
@@ -179,12 +181,6 @@ Partial Class PDFViewer
     Me.ToolStripLabel3.Size = New System.Drawing.Size(10, 22)
     Me.ToolStripLabel3.Text = " "
     '
-    'tscbZoom
-    '
-    Me.tscbZoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-    Me.tscbZoom.Name = "tscbZoom"
-    Me.tscbZoom.Size = New System.Drawing.Size(100, 25)
-    '
     'TableLayoutPanel1
     '
     Me.TableLayoutPanel1.ColumnCount = 2
@@ -284,6 +280,35 @@ Partial Class PDFViewer
     '
     Me.Timer1.Interval = 250
     '
+    'tsFitPage
+    '
+    Me.tsFitPage.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+    Me.tsFitPage.Image = CType(resources.GetObject("tsFitPage.Image"), System.Drawing.Image)
+    Me.tsFitPage.ImageTransparentColor = System.Drawing.Color.Magenta
+    Me.tsFitPage.Name = "tsFitPage"
+    Me.tsFitPage.Size = New System.Drawing.Size(23, 22)
+    Me.tsFitPage.Text = "Fit the page to the window"
+    '
+    'tsFitWidth
+    '
+    Me.tsFitWidth.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+    Me.tsFitWidth.Image = CType(resources.GetObject("tsFitWidth.Image"), System.Drawing.Image)
+    Me.tsFitWidth.ImageTransparentColor = System.Drawing.Color.Magenta
+    Me.tsFitWidth.Name = "tsFitWidth"
+    Me.tsFitWidth.Size = New System.Drawing.Size(23, 22)
+    Me.tsFitWidth.Text = "Fit the page to the width of the window"
+    '
+    'tsActualSize
+    '
+    Me.tsActualSize.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+    Me.tsActualSize.Image = CType(resources.GetObject("tsActualSize.Image"), System.Drawing.Image)
+    Me.tsActualSize.ImageTransparentColor = System.Drawing.Color.Magenta
+    Me.tsActualSize.Name = "tsActualSize"
+    Me.tsActualSize.Size = New System.Drawing.Size(23, 22)
+    Me.tsActualSize.Text = "ToolStripButton1"
+    Me.tsActualSize.ToolTipText = "View the actual size of the image"
+    Me.tsActualSize.Visible = False
+    '
     'PDFViewer
     '
     Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -313,7 +338,6 @@ Partial Class PDFViewer
   Friend WithEvents ToolStripSeparator3 As System.Windows.Forms.ToolStripSeparator
   Friend WithEvents tsZoomOut As System.Windows.Forms.ToolStripButton
   Friend WithEvents tsZoomIn As System.Windows.Forms.ToolStripButton
-  Friend WithEvents tscbZoom As System.Windows.Forms.ToolStripComboBox
   Friend WithEvents ToolStripLabel3 As System.Windows.Forms.ToolStripLabel
   Friend WithEvents TableLayoutPanel1 As System.Windows.Forms.TableLayoutPanel
   Friend WithEvents TreeView1 As System.Windows.Forms.TreeView
@@ -332,5 +356,8 @@ Partial Class PDFViewer
   Friend WithEvents tsImport As System.Windows.Forms.ToolStripButton
   Friend WithEvents Timer1 As System.Windows.Forms.Timer
   Friend WithEvents Panel1 As System.Windows.Forms.Panel
+  Friend WithEvents tsFitPage As System.Windows.Forms.ToolStripButton
+  Friend WithEvents tsFitWidth As System.Windows.Forms.ToolStripButton
+  Friend WithEvents tsActualSize As System.Windows.Forms.ToolStripButton
 
 End Class

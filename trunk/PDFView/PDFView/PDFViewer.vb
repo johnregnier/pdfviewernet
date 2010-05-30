@@ -15,6 +15,7 @@ Public Class PDFViewer
   Private mAllowBookmarks As Boolean = True
   Private mUseXPDF As Boolean = True
   Private mPDFDoc As PDFLibNet.PDFWrapper
+  Private GSConverter As ConvertPDF.PDFConvert
   Private FromBeginning As Boolean = True
   Private XPDFPrintingPicBox As New PictureBox
   Private mContinuousPages As Boolean = False
@@ -32,6 +33,15 @@ Public Class PDFViewer
   Private mPDFViewerHeight As Integer
   Private mPDFViewerWidth As Integer
   Private mRotation As List(Of Integer)
+  'Adjacent page pre-rendering
+  Private mAllowGhostScriptPreRender As Boolean = True
+  Private mNextPage As System.Drawing.Image
+  Private mPreviousPage As System.Drawing.Image
+  Private mNextPageThread As Threading.Thread
+  Private mPreviousPageThread As Threading.Thread
+  Private mNextPageNum As Integer
+  Private mPreviousPageNum As Integer
+  Private mPreRenderPictBox As PictureBox
 
 
   Public Property FileName() As String
@@ -122,7 +132,7 @@ GhostScriptFallBack:
         HideBookmarks()
       End If
       DisplayCurrentPage()
-      tscbZoom.SelectedIndex = 1
+      tsFitWidth_Click(Nothing, Nothing)
       Me.Enabled = True
       Cursor.Current = Cursors.Default
     End Set
@@ -145,6 +155,16 @@ GhostScriptFallBack:
       mUseXPDF = value
     End Set
   End Property
+
+  Public Property AllowGhostScriptPreRendering() As Boolean
+    Get
+      Return mAllowGhostScriptPreRender
+    End Get
+    Set(ByVal value As Boolean)
+      mAllowGhostScriptPreRender = value
+    End Set
+  End Property
+
 
   Public Property AllowBookmarks() As Boolean
     Get
@@ -206,23 +226,6 @@ OCRCurrentImage:
     End Try
     Cursor.Current = Cursors.Default
   End Function
-
-  Private Sub ConvertGraphicsToPDF()
-    OpenFileDialog1.Filter = "Image Files(*.BMP;*.JPG;*.GIF;*.PNG;*.TIF)|*.BMP;*.JPG;*.GIF;*.PNG;*.TIF"
-    OpenFileDialog1.FileName = ""
-    OpenFileDialog1.Title = "Select multiple image files to convert to PDF"
-    OpenFileDialog1.Multiselect = True
-    If OpenFileDialog1.ShowDialog() = Windows.Forms.DialogResult.OK Then
-      Dim exportOptionsDialog As New ExportImageOptions(OpenFileDialog1.FileNames)
-      exportOptionsDialog.ShowDialog()
-      Try
-        FileName = exportOptionsDialog.SavedFileName
-      Catch ex As Exception
-        'do nothing
-      End Try
-    End If
-
-  End Sub
 
   Private Sub PDFViewer_ControlRemoved(ByVal sender As Object, ByVal e As System.Windows.Forms.ControlEventArgs) Handles Me.ControlRemoved
     If Not Nothing Is mPDFDoc Then
@@ -306,27 +309,22 @@ OCRCurrentImage:
     DisplayCurrentPage()
   End Sub
 
-  Private Sub tscbZoom_Change(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tscbZoom.SelectedIndexChanged
-    Select Case tscbZoom.Text
-      Case "Fit To Screen"
-        If mContinuousPages Then
-          InitializePageView(ViewMode.FIT_TO_SCREEN)
-        Else
-          ApplyZoom(ViewMode.FIT_TO_SCREEN)
-        End If
-      Case "Actual Size"
-        If mContinuousPages Then
-          InitializePageView(ViewMode.ACTUAL_SIZE)
-        Else
-          ApplyZoom(ViewMode.ACTUAL_SIZE)
-        End If
-      Case "Fit To Width"
-        If mContinuousPages Then
-          InitializePageView(ViewMode.FIT_WIDTH)
-        Else
-          ApplyZoom(ViewMode.FIT_WIDTH)
-        End If
-    End Select
+  Private Sub tsFitPage_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsFitPage.Click
+    If mContinuousPages Then
+      InitializePageView(ViewMode.FIT_TO_SCREEN)
+    Else
+      ApplyZoom(ViewMode.FIT_TO_SCREEN)
+    End If
+    CenterPicBoxInPanel(FindPictureBox("SinglePicBox"))
+    DisplayCurrentPage()
+  End Sub
+
+  Private Sub tsFitWidth_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsFitWidth.Click
+    If mContinuousPages Then
+      InitializePageView(ViewMode.FIT_WIDTH)
+    Else
+      ApplyZoom(ViewMode.FIT_WIDTH)
+    End If
     CenterPicBoxInPanel(FindPictureBox("SinglePicBox"))
     DisplayCurrentPage()
   End Sub
@@ -361,7 +359,11 @@ OCRCurrentImage:
   End Sub
 
   Private Sub tsImport_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsImport.Click
-    ConvertGraphicsToPDF()
+    Dim myImportForm As New ImportOptions
+    myImportForm.ShowDialog()
+    If myImportForm.FileName <> "" Then
+      FileName = myImportForm.FileName
+    End If
   End Sub
 
 #Region "Constraints"
@@ -403,6 +405,9 @@ OCRCurrentImage:
   Private Function GetImageFromFile(ByVal sFileName As String, ByVal iFrameNumber As Integer, Optional ByVal DPI As Integer = 0) As System.Drawing.Image
     'Cursor.Current = Cursors.WaitCursor
     GetImageFromFile = Nothing
+    If iFrameNumber < 0 Then
+      MsgBox("Bad index sent to GetImageFromFile")
+    End If
     If mUseXPDF And ImageUtil.IsPDF(sFileName) Then 'Use AFPDFLib (XPDF)
       Try
         GetImageFromFile = AFPDFLibUtil.GetImageFromPDF(mPDFDoc, iFrameNumber + 1, DPI)
@@ -413,7 +418,8 @@ OCRCurrentImage:
     Else 'Use Ghostscript
 GhostScriptFallBack:
       If ImageUtil.IsPDF(sFileName) Then 'convert one frame to a tiff for viewing
-        GetImageFromFile = ConvertPDF.PDFConvert.GetPageFromPDF(sFileName, iFrameNumber + 1, DPI, mPassword)
+        'GetImageFromFile = GSConverter.GetPageFromPDF(sFileName, iFrameNumber + 1, DPI, mPassword)
+        GetImageFromFile = ExternalGhostScriptLib.GetPageFromPDF(sFileName, iFrameNumber + 1, DPI, mPassword)
       ElseIf ImageUtil.IsTiff(sFileName) Then
         GetImageFromFile = ImageUtil.GetFrameFromTiff(sFileName, iFrameNumber)
       End If
@@ -506,11 +512,11 @@ GhostScriptFallBack:
   End Sub
 
   Private Sub InitViewModes()
-    tscbZoom.Items.Clear()
-    tscbZoom.Items.Add("Fit To Screen")
-    tscbZoom.Items.Add("Fit To Width")
+    tsFitPage.Visible = True
+    tsFitWidth.Visible = True
+    tsActualSize.Visible = False
     If ImageUtil.IsTiff(mPDFFileName) Then
-      tscbZoom.Items.Add("Actual Size")
+      tsActualSize.Visible = True
     End If
   End Sub
 
@@ -667,29 +673,66 @@ GhostScriptFallBack:
   '  End If
   'End Sub
 
+  'Private Sub EndPreRenderingThreads()
+  '  If mNextPageThread IsNot Nothing AndAlso mNextPageThread.IsAlive Then
+  '    mNextPageThread.Abort()
+  '    mNextPage = Nothing
+  '    mNextPageNum = 0
+  '  End If
+  '  If mPreviousPageThread IsNot Nothing AndAlso mPreviousPageThread.IsAlive Then
+  '    mPreviousPageThread.Abort()
+  '    mPreviousPage = Nothing
+  '    mPreviousPageNum = 0
+  '  End If
+  'End Sub
+
+  Private Function GetPageImageFromPDF(ByVal pageNum As Integer, ByRef oPict As PictureBox) As System.Drawing.Image
+
+    If mUseXPDF Then
+      GetPageImageFromPDF = GetImageFromFile(mPDFFileName, pageNum - 1, AFPDFLibUtil.GetOptimalDPI(mPDFDoc, oPict))
+    Else
+      If mCurrentPageNumber = mNextPageNum AndAlso mNextPage IsNot Nothing Then
+        GetPageImageFromPDF = mNextPage
+        Exit Function
+      End If
+      If mCurrentPageNumber = mPreviousPageNum AndAlso mPreviousPage IsNot Nothing Then
+        GetPageImageFromPDF = mPreviousPage
+        Exit Function
+      End If
+      Dim optimalDPI As Integer = 0
+      If ImageUtil.IsPDF(mPDFFileName) Then
+        optimalDPI = iTextSharpUtil.GetOptimalDPI(mPDFFileName, pageNum, oPict, mPassword)
+      End If
+      GetPageImageFromPDF = GetImageFromFile(mPDFFileName, pageNum - 1, optimalDPI)
+    End If
+  End Function
+
+  Private Sub FixImageForDisplay(ByRef newImage As System.Drawing.Image, ByRef oPict As PictureBox)
+    If Not Nothing Is newImage Then
+      AutoRotatePicBox(oPict, newImage)
+      If ImageUtil.IsPDF(mPDFFileName) Then
+        MakePictureBox1To1WithImage(oPict, newImage)
+      End If
+      CenterPicBoxInPanel(oPict)
+      oPict.Image = newImage
+    End If
+  End Sub
+
   Private Sub DisplayCurrentPage()
     Dim oPict As PictureBox = FindPictureBox(mCurrentPageNumber)
+    mPreRenderPictBox = oPict
     If mLastPageNumber <> mCurrentPageNumber Then
       CheckPageBounds()
       UpdatePageLabel()
       Dim newImage As Drawing.Image
-      If mUseXPDF Then
-        newImage = GetImageFromFile(mPDFFileName, mCurrentPageNumber - 1, AFPDFLibUtil.GetOptimalDPI(mPDFDoc, oPict))
-      Else
-        Dim optimalDPI As Integer = 0
-        If ImageUtil.IsPDF(mPDFFileName) Then
-          optimalDPI = iTextSharpUtil.GetOptimalDPI(mPDFFileName, mCurrentPageNumber, oPict, mPassword)
-        End If
-        newImage = GetImageFromFile(mPDFFileName, mCurrentPageNumber - 1, optimalDPI)
+      If ProcessList.Count > 0 Then
+        ExternalGhostScriptLib.KillAllGSProcesses()
       End If
-      If Not Nothing Is newImage Then
-        AutoRotatePicBox(oPict, newImage)
-        If ImageUtil.IsPDF(mPDFFileName) Then
-          MakePictureBox1To1WithImage(oPict, newImage)
-        End If
-        CenterPicBoxInPanel(oPict)
-        oPict.Image = newImage
+      newImage = GetPageImageFromPDF(mCurrentPageNumber, oPict)
+      If mUseXPDF = False And mAllowGhostScriptPreRender Then
+        PreRenderAdjacentPages()
       End If
+      FixImageForDisplay(newImage, oPict)
       oPict.Refresh()
       If mContinuousPages Then
         FindFlowLayoutPanel().ScrollControlIntoView(oPict)
@@ -697,11 +740,49 @@ GhostScriptFallBack:
       End If
       Exit Sub
     End If
-    AutoRotatePicBox(oPict, oPict.Image)
-    If ImageUtil.IsPDF(mPDFFileName) Then
-      MakePictureBox1To1WithImage(oPict, oPict.Image)
+    FixImageForDisplay(oPict.Image, oPict)
+  End Sub
+
+  Private Sub SetPageCounters()
+    mPreviousPage = Nothing
+    mNextPage = Nothing
+    mPreviousPageNum = mCurrentPageNumber - 1
+    mNextPageNum = mCurrentPageNumber + 1
+  End Sub
+
+  Private Sub InitImageCache()
+    mPreviousPageNum = 0
+    mPreviousPage = Nothing
+    mNextPageNum = 0
+    mNextPage = Nothing
+  End Sub
+
+  Private Sub PreRenderAdjacentPages()
+    SetPageCounters()
+    PreRenderPreviousPage()
+    PreRenderNextPage()
+  End Sub
+
+  Private Sub PreRenderNextPage()
+    If mNextPageNum <= mPDFPageCount Then
+      mNextPageThread = New Threading.Thread(AddressOf RenderNextPageThreaded)
+      mNextPageThread.Start()
     End If
-    CenterPicBoxInPanel(oPict)
+  End Sub
+
+  Private Sub PreRenderPreviousPage()
+    If mPreviousPageNum >= 1 Then
+      mPreviousPageThread = New Threading.Thread(AddressOf RenderPreviousPageThreaded)
+      mPreviousPageThread.Start()
+    End If
+  End Sub
+
+  Private Sub RenderNextPageThreaded()
+    mNextPage = GetPageImageFromPDF(mNextPageNum, mPreRenderPictBox)
+  End Sub
+
+  Private Sub RenderPreviousPageThreaded()
+    mPreviousPage = GetPageImageFromPDF(mPreviousPageNum, mPreRenderPictBox)
   End Sub
 
   'Private Function GetCurrentScalePercentage() As Integer

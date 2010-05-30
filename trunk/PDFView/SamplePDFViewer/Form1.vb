@@ -25,4 +25,8 @@
   Private Sub btOCR_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btOCR.Click
     MsgBox(PdfViewer1.OCRCurrentPage)
   End Sub
+
+  Private Sub cbPre_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cbPre.CheckedChanged
+    PdfViewer1.AllowGhostScriptPreRendering = cbPre.Checked
+  End Sub
 End Class

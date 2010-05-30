@@ -24,6 +24,7 @@ Partial Class Form1
     Private Sub InitializeComponent()
     Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog
     Me.Panel1 = New System.Windows.Forms.Panel
+    Me.btOCR = New System.Windows.Forms.Button
     Me.Panel3 = New System.Windows.Forms.Panel
     Me.rbGS = New System.Windows.Forms.RadioButton
     Me.rbXPDF = New System.Windows.Forms.RadioButton
@@ -31,7 +32,7 @@ Partial Class Form1
     Me.Button1 = New System.Windows.Forms.Button
     Me.Panel2 = New System.Windows.Forms.Panel
     Me.PdfViewer1 = New PDFView.PDFViewer
-    Me.btOCR = New System.Windows.Forms.Button
+    Me.cbPre = New System.Windows.Forms.CheckBox
     Me.Panel1.SuspendLayout()
     Me.Panel3.SuspendLayout()
     Me.Panel2.SuspendLayout()
@@ -50,16 +51,26 @@ Partial Class Form1
     Me.Panel1.Dock = System.Windows.Forms.DockStyle.Top
     Me.Panel1.Location = New System.Drawing.Point(0, 0)
     Me.Panel1.Name = "Panel1"
-    Me.Panel1.Size = New System.Drawing.Size(539, 30)
+    Me.Panel1.Size = New System.Drawing.Size(661, 30)
     Me.Panel1.TabIndex = 0
+    '
+    'btOCR
+    '
+    Me.btOCR.Location = New System.Drawing.Point(255, 3)
+    Me.btOCR.Name = "btOCR"
+    Me.btOCR.Size = New System.Drawing.Size(49, 23)
+    Me.btOCR.TabIndex = 3
+    Me.btOCR.Text = "OCR"
+    Me.btOCR.UseVisualStyleBackColor = True
     '
     'Panel3
     '
+    Me.Panel3.Controls.Add(Me.cbPre)
     Me.Panel3.Controls.Add(Me.rbGS)
     Me.Panel3.Controls.Add(Me.rbXPDF)
     Me.Panel3.Location = New System.Drawing.Point(307, 3)
     Me.Panel3.Name = "Panel3"
-    Me.Panel3.Size = New System.Drawing.Size(148, 23)
+    Me.Panel3.Size = New System.Drawing.Size(261, 23)
     Me.Panel3.TabIndex = 2
     '
     'rbGS
@@ -94,7 +105,7 @@ Partial Class Form1
     '
     'Button1
     '
-    Me.Button1.Location = New System.Drawing.Point(461, 3)
+    Me.Button1.Location = New System.Drawing.Point(574, 3)
     Me.Button1.Name = "Button1"
     Me.Button1.Size = New System.Drawing.Size(75, 23)
     Me.Button1.TabIndex = 0
@@ -107,7 +118,7 @@ Partial Class Form1
     Me.Panel2.Dock = System.Windows.Forms.DockStyle.Fill
     Me.Panel2.Location = New System.Drawing.Point(0, 30)
     Me.Panel2.Name = "Panel2"
-    Me.Panel2.Size = New System.Drawing.Size(539, 434)
+    Me.Panel2.Size = New System.Drawing.Size(661, 434)
     Me.Panel2.TabIndex = 1
     '
     'PdfViewer1
@@ -117,24 +128,27 @@ Partial Class Form1
     Me.PdfViewer1.FileName = Nothing
     Me.PdfViewer1.Location = New System.Drawing.Point(0, 0)
     Me.PdfViewer1.Name = "PdfViewer1"
-    Me.PdfViewer1.Size = New System.Drawing.Size(539, 434)
+    Me.PdfViewer1.Size = New System.Drawing.Size(661, 434)
     Me.PdfViewer1.TabIndex = 0
     Me.PdfViewer1.UseXPDF = True
     '
-    'btOCR
+    'cbPre
     '
-    Me.btOCR.Location = New System.Drawing.Point(255, 3)
-    Me.btOCR.Name = "btOCR"
-    Me.btOCR.Size = New System.Drawing.Size(49, 23)
-    Me.btOCR.TabIndex = 3
-    Me.btOCR.Text = "OCR"
-    Me.btOCR.UseVisualStyleBackColor = True
+    Me.cbPre.AutoSize = True
+    Me.cbPre.Checked = True
+    Me.cbPre.CheckState = System.Windows.Forms.CheckState.Checked
+    Me.cbPre.Location = New System.Drawing.Point(162, 4)
+    Me.cbPre.Name = "cbPre"
+    Me.cbPre.Size = New System.Drawing.Size(77, 17)
+    Me.cbPre.TabIndex = 2
+    Me.cbPre.Text = "PreRender"
+    Me.cbPre.UseVisualStyleBackColor = True
     '
     'Form1
     '
     Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
     Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-    Me.ClientSize = New System.Drawing.Size(539, 464)
+    Me.ClientSize = New System.Drawing.Size(661, 464)
     Me.Controls.Add(Me.Panel2)
     Me.Controls.Add(Me.Panel1)
     Me.MinimumSize = New System.Drawing.Size(555, 500)
@@ -158,5 +172,6 @@ Partial Class Form1
     Friend WithEvents rbXPDF As System.Windows.Forms.RadioButton
   Friend WithEvents PdfViewer1 As PDFView.PDFViewer
   Friend WithEvents btOCR As System.Windows.Forms.Button
+  Friend WithEvents cbPre As System.Windows.Forms.CheckBox
 
 End Class
