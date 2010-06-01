@@ -7,10 +7,14 @@
       myProcess.StartInfo.UseShellExecute = False
       myProcess.StartInfo.CreateNoWindow = True
       myProcess.Start()
-      ProcessList.Add(myProcess.Id)
+      SyncLock ProcessList
+        ProcessList.Add(myProcess.Id)
+      End SyncLock
       myProcess.PriorityClass = ProcessPriorityClass.Normal
       myProcess.WaitForExit()
-      ProcessList.Remove(myProcess.Id)
+      SyncLock ProcessList
+        ProcessList.Remove(myProcess.Id)
+      End SyncLock
     End Using
   End Sub
 

@@ -298,7 +298,7 @@ OCRCurrentImage:
       Else
         mCurrentPageNumber = tsPageNum.Text
       End If
-      DisplayCurrentPage()
+      Panel1.Focus() 'Force leave event to fire for tsPageNum
     Else
       e.Handled = TrapKey(Asc(e.KeyChar))
     End If
@@ -406,7 +406,8 @@ OCRCurrentImage:
     'Cursor.Current = Cursors.WaitCursor
     GetImageFromFile = Nothing
     If iFrameNumber < 0 Then
-      MsgBox("Bad index sent to GetImageFromFile")
+      'MsgBox("Bad index sent to GetImageFromFile")
+      Exit Function
     End If
     If mUseXPDF And ImageUtil.IsPDF(sFileName) Then 'Use AFPDFLib (XPDF)
       Try
@@ -729,7 +730,7 @@ GhostScriptFallBack:
         ExternalGhostScriptLib.KillAllGSProcesses()
       End If
       newImage = GetPageImageFromPDF(mCurrentPageNumber, oPict)
-      If mUseXPDF = False And mAllowGhostScriptPreRender Then
+      If mUseXPDF = False AndAlso ImageUtil.IsPDF(mPDFFileName) AndAlso mAllowGhostScriptPreRender Then
         PreRenderAdjacentPages()
       End If
       FixImageForDisplay(newImage, oPict)

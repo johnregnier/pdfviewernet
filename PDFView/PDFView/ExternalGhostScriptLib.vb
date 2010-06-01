@@ -15,15 +15,17 @@
   End Function
 
   Public Shared Sub KillAllGSProcesses()
-    For Each item As Integer In ProcessList
-      Try
-        Dim myProcess As Process = System.Diagnostics.Process.GetProcessById(item)
-        myProcess.Kill()
-      Catch ex As Exception
-        'Possible for process to exit before we try to kill it
-      End Try
-    Next
-    ProcessList.Clear()
+    SyncLock ProcessList
+      For Each item As Integer In ProcessList
+        Try
+          Dim myProcess As Process = System.Diagnostics.Process.GetProcessById(item)
+          myProcess.Kill()
+        Catch ex As Exception
+          'Possible for process to exit before we try to kill it
+        End Try
+      Next
+      ProcessList.Clear()
+    End SyncLock
   End Sub
 
 
