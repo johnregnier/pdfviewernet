@@ -1,4 +1,6 @@
-﻿Public Class ExternalGhostScriptLib
+Imports System.IO
+
+Public Class ExternalGhostScriptLib
 
   Public Shared Function GetPageFromPDF(ByVal inputFileName As String, ByVal PageNumber As Integer, Optional ByVal DPI As Integer = 150, Optional ByVal Password As String = "") As System.Drawing.Image
     GetPageFromPDF = Nothing
@@ -7,7 +9,9 @@
     CmdHelper.ExecuteCMD(appPath & "\GSCommandLine.exe", String.Format("""{0}"" ""{1}"" {2} {3} {4}", inputFileName, output, PageNumber, DPI, Password))
     If System.IO.File.Exists(output) Then
       Try
-        GetPageFromPDF = New System.Drawing.Bitmap(output)
+        Using lStream As New FileStream(output, FileMode.Open, FileAccess.Read)
+          GetPageFromPDF = System.Drawing.Image.FromStream(lStream)
+        End Using
       Catch ex As Exception
       End Try
       ImageUtil.DeleteFile(output)
