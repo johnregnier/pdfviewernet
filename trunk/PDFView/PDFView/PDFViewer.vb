@@ -4,9 +4,12 @@ Imports System.Drawing
 Imports System.Windows.Forms
 Imports PDFLibNet
 Imports System.ComponentModel
+Imports System.IO
 
 Public Class PDFViewer
   Private mOriginalFileName
+  Private mCurrentStreamTempFileName As String
+  Private mOldStreamTempFileName As String
   Private mPDFFileName As String
   Private mPDFPageCount As Integer
   Private mCurrentPageNumber As Integer
@@ -43,6 +46,30 @@ Public Class PDFViewer
   Private mPreviousPageNum As Integer
   Private mPreRenderPictBox As PictureBox
 
+  Public Sub LoadFromFileStream(ByVal value As IO.Stream, ByVal suffix As String)
+    Dim tempStreamFileName As String = IO.Path.GetTempFileName & "." & suffix
+    Dim buffer(value.Length - 1) As Byte
+    value.Seek(0, SeekOrigin.Begin)
+    value.Read(buffer, 0, value.Length - 1)
+    Using fs As New FileStream(tempStreamFileName, FileMode.Create, FileAccess.ReadWrite)
+      Using bw As New BinaryWriter(fs)
+        bw.Write(buffer)
+      End Using
+    End Using
+    mCurrentStreamTempFileName = tempStreamFileName
+    If mPDFDoc IsNot Nothing Then
+      Try
+        mPDFDoc.Dispose()
+      Catch ex As Exception
+      End Try
+    End If
+    If mCurrentStreamTempFileName <> mOldStreamTempFileName Then
+      CleanUpOldTempStreamFile()
+    End If
+    mOldStreamTempFileName = mCurrentStreamTempFileName
+    value.Seek(0, SeekOrigin.Begin)
+    FileName = mCurrentStreamTempFileName
+  End Sub
 
   Public Property FileName() As String
     Get
@@ -91,8 +118,11 @@ FileIsEncrypted:
           End If
         End If
         If mUseXPDF Then
-          If Not Nothing Is mPDFDoc Then
-            mPDFDoc.Dispose()
+          If mPDFDoc IsNot Nothing Then
+            Try
+              mPDFDoc.Dispose()
+            Catch ex As Exception
+            End Try
           End If
           Try
             mPDFDoc = New PDFLibNet.PDFWrapper("")
@@ -227,16 +257,39 @@ OCRCurrentImage:
     Cursor.Current = Cursors.Default
   End Function
 
+  Private Sub CleanUpOldTempStreamFile()
+    If String.IsNullOrEmpty(mOldStreamTempFileName) = False Then
+      Try
+        File.Delete(mOldStreamTempFileName)
+      Catch ex As Exception
+
+      End Try
+    End If
+  End Sub
+
+  Private Sub CleanUpAllTempStreamFiles()
+    CleanUpOldTempStreamFile()
+    If String.IsNullOrEmpty(mCurrentStreamTempFileName) = False Then
+      Try
+        File.Delete(mCurrentStreamTempFileName)
+      Catch ex As Exception
+
+      End Try
+    End If
+  End Sub
+
   Private Sub PDFViewer_ControlRemoved(ByVal sender As Object, ByVal e As System.Windows.Forms.ControlEventArgs) Handles Me.ControlRemoved
     If Not Nothing Is mPDFDoc Then
       mPDFDoc.Dispose()
     End If
+    CleanUpAllTempStreamFiles()
   End Sub
 
   Private Sub PDFViewer_Disposed(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Disposed
     If Not Nothing Is mPDFDoc Then
       mPDFDoc.Dispose()
     End If
+    CleanUpAllTempStreamFiles()
   End Sub
 
   Private Sub PDFViewer_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
