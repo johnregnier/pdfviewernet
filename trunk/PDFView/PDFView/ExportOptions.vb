@@ -1,4 +1,6 @@
 ﻿Imports System.Text.RegularExpressions
+Imports System.Drawing
+
 Public Class ExportOptions
 
   Dim mpdfDoc As PDFLibNet.PDFWrapper
@@ -110,16 +112,20 @@ Public Class ExportOptions
     Dim contentFolder As String = folderPath & "content"
     Dim imagesFolder As String = contentFolder & "\images"
 
-    Dim topFrame As String = My.Resources.TopHtml
-    topFrame = Regex.Replace(topFrame, "\{DocumentName\}", "<center><h2>" & Regex.Replace(mPdfFileName, "^.+\\", "") & "</h2></center>")
-
     Dim sideFrame As String = My.Resources.BookmarkHtml
     'Possible to allow some export from GhostScript renderer
-    sideFrame = Regex.Replace(sideFrame, "\{Body\}", AFPDFLibUtil.BuildHTMLBookmarks(mpdfDoc))
+    sideFrame = sideFrame.Replace("{Body}", AFPDFLibUtil.BuildHTMLBookmarks(mpdfDoc))
+    sideFrame = sideFrame.Replace("{PageCount}", mpdfDoc.PageCount.ToString)
 
     Dim pageFrame As String = My.Resources.PageHtml
     Dim mainPage As String = My.Resources.FrameHtml
+
     Dim pageSize As String = My.Resources.PagesizeHtml
+    Dim myDict As DictionaryEntry = AFPDFLibUtil.GetPages(mpdfDoc)
+    pageSize = pageSize.Replace("{PageCount-1}", myDict.Key.ToString)
+    pageSize = pageSize.Replace("{PageCount}", mpdfDoc.PageCount.ToString)
+    pageSize = pageSize.Replace("{PageContent}", myDict.Value)
+    pageSize = pageSize.Replace("{DocumentName}", Regex.Replace(mPdfFileName, "^.+\\", ""))
 
     Dim di As System.IO.DirectoryInfo
     di = New System.IO.DirectoryInfo(contentFolder)
@@ -132,13 +138,35 @@ Public Class ExportOptions
       di.Create()
     End If
 
+    Dim myPic As Bitmap = My.Resources._Next
+    myPic.Save(imagesFolder & "\Next.png", Imaging.ImageFormat.Png)
+
+    myPic = My.Resources.Previous
+    myPic.Save(imagesFolder & "\Previous.png", Imaging.ImageFormat.Png)
+
+    myPic = My.Resources.ActualSize
+    myPic.Save(imagesFolder & "\ActualSize.png", Imaging.ImageFormat.Png)
+
+    myPic = My.Resources.FitToScreen
+    myPic.Save(imagesFolder & "\FitToScreen.png", Imaging.ImageFormat.Png)
+
+    myPic = My.Resources.FitToWidth
+    myPic.Save(imagesFolder & "\FitToWidth.png", Imaging.ImageFormat.Png)
+
+    myPic = My.Resources.Search
+    myPic.Save(imagesFolder & "\Search.png", Imaging.ImageFormat.Png)
+
+    myPic = My.Resources.SearchNext
+    myPic.Save(imagesFolder & "\SearchNext.png", Imaging.ImageFormat.Png)
+
+    myPic = My.Resources.SearchPrevious
+    myPic.Save(imagesFolder & "\SearchPrevious.png", Imaging.ImageFormat.Png)
+
+    FileCopy(mPdfFileName, imagesFolder & "\" & Regex.Replace(mPdfFileName, "^.+\\", ""))
+
     Dim sw As New IO.StreamWriter(fileName, False)
     sw.Write(mainPage)
     sw.Close()
-
-    Dim sw1 As New IO.StreamWriter(contentFolder & "\top.html", False)
-    sw1.Write(topFrame)
-    sw1.Close()
 
     Dim sw2 As New IO.StreamWriter(contentFolder & "\bookmark.html", False)
     sw2.Write(sideFrame)

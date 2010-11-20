@@ -1,6 +1,7 @@
 ﻿Imports System.Drawing
 Imports System.Windows.Forms
 Imports System.Drawing.Printing
+Imports System.Text
 
 Public Class AFPDFLibUtil
 
@@ -142,9 +143,9 @@ Public Class AFPDFLibUtil
     If pdfDoc.Outline.Count <= 0 Then
 StartPageList:
       BuildHTMLBookmarks = "<!--PageNumberOnly--><ul>"
-      For i As Integer = 1 To pageCount
-        BuildHTMLBookmarks &= "<li><a href=""javascript:changeImage('images/page" & i & ".png')"">Page " & i & "</a></li>"
-      Next
+      'For i As Integer = 1 To pageCount
+      '  BuildHTMLBookmarks &= "<li><a href=""javascript:changeImage('" & i & "')"">Page " & i & "</a></li>"
+      'Next
       BuildHTMLBookmarks &= "</ul>"
       Exit Function
     Else
@@ -162,13 +163,37 @@ StartPageList:
   Public Shared Sub FillHTMLTreeRecursive(ByVal olParent As PDFLibNet.OutlineItemCollection(Of PDFLibNet.OutlineItem), ByRef htmlString As String, ByRef pdfDoc As PDFLibNet.PDFWrapper)
     htmlString &= "<ul>"
     For Each ol As PDFLibNet.OutlineItem In olParent
-      htmlString &= "<li><a href=""javascript:changeImage('images/page" & ol.Destination.Page & ".png')"">" & Web.HttpUtility.HtmlEncode(ol.Title) & "</a></li>"
+      htmlString &= "<li><a href=""javascript:changeImage('" & ol.Destination.Page & "')"">" & Web.HttpUtility.HtmlEncode(ol.Title) & "</a></li>"
       If ol.KidsCount > 0 Then
         FillHTMLTreeRecursive(ol.Childrens, htmlString, pdfDoc)
       End If
     Next
     htmlString &= "</ul>"
   End Sub
+
+  Public Shared Function GetWords(ByRef pdfDoc As PDFLibNet.PDFWrapper) As DictionaryEntry
+    Dim count As Long = 0
+    Dim content As New StringBuilder()
+    Dim contentPattern As String = "content[{0}]=[{1},'{2}',{3},{4},{5},{6}];"
+    For Each item In pdfDoc.Pages
+      For Each word In item.Value.WordList
+        count += 1
+        content.Append(String.Format(contentPattern, count - 1, item.Key, Replace(Replace(word.Word, "'", "\'"), "\", "\\"), word.Bounds.X, word.Bounds.Y, word.Bounds.Width, word.Bounds.Height) & vbCrLf)
+      Next
+    Next
+    Return New DictionaryEntry(count - 1, content.ToString)
+  End Function
+
+  Public Shared Function GetPages(ByRef pdfDoc As PDFLibNet.PDFWrapper) As DictionaryEntry
+    Dim content As New StringBuilder()
+    Dim contentPattern As String = "pageContent[{0}]=[{1},'{2}'];"
+    For Each item In pdfDoc.Pages
+      content.Append(String.Format(contentPattern, item.Key - 1, item.Key, _
+                                   Replace(Replace(Replace(Replace(Replace(Replace(item.Value.Text, ControlChars.Cr, " "), ControlChars.Lf, " "), ControlChars.NewLine, " "), ControlChars.FormFeed, " "), "\", "\\"), "'", "\'") _
+                                   ) & vbCrLf)
+    Next
+    Return New DictionaryEntry(pdfDoc.PageCount - 1, content.ToString)
+  End Function
 
 End Class
 
