@@ -193,6 +193,14 @@
     <Content Include="lib\x64\gsdll32.dll" />
     <Content Include="lib\x64\PDFLibNet.dll" />
     <Content Include="lib\x64\tessnet2_64.dll" />
+    <None Include="Resources\SearchPrevious.png" />
+    <None Include="Resources\SearchNext.png" />
+    <None Include="Resources\Search.png" />
+    <None Include="Resources\Previous.png" />
+    <None Include="Resources\Next.png" />
+    <None Include="Resources\FitToWidth.png" />
+    <None Include="Resources\FitToScreen.png" />
+    <None Include="Resources\ActualSize.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

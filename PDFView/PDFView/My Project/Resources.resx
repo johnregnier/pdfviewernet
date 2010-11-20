@@ -117,32 +117,52 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="ActualSize" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ActualSize.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="BookmarkHtml" xml:space="preserve">
     <value>&lt;HTML&gt;
 &lt;HEAD&gt;
 &lt;TITLE&gt;PageIndex&lt;/TITLE&gt;
 &lt;SCRIPT LANGUAGE="JavaScript"&gt;
-function changeImage(filename)
+function changeImage(pagenumber)
 {
-  parent.pageviewer.document.images['mainimage'].src = filename;
+	pageCount = {PageCount};
+	filename = 'images/page' + pagenumber + '.png';
+	if (pagenumber &lt;= pageCount &amp;&amp; pagenumber &gt;= 1) {
+		parent.pageviewer.document.getElementById('currentPage').value = pagenumber;
+		parent.pagesize.document.getElementById('pageNumberTextBox').value = pagenumber;
+		if (pagenumber == 1) {
+			parent.pagesize.document.getElementById('searchPage').value = 0;
+		} else {
+			parent.pagesize.document.getElementById('searchPage').value = pagenumber;
+		}	
+		parent.pageviewer.document.images['mainimage'].src = filename;
+	}
 }
 &lt;/script&gt;
 &lt;/HEAD&gt;
 &lt;BODY bgcolor="#DDDDDD"&gt;{Body}&lt;/BODY&gt;
 &lt;/HTML&gt;</value>
   </data>
+  <data name="FitToScreen" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\FitToScreen.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FitToWidth" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\FitToWidth.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="FrameHtml" xml:space="preserve">
     <value>&lt;HTML&gt;
 &lt;HEAD&gt;
 &lt;TITLE&gt;PDF to Image Html&lt;/TITLE&gt;
 &lt;/HEAD&gt;
-&lt;FRAMESET ROWS="50,*" FRAMEBORDER=0 BORDER=0 &gt;
-                        &lt;FRAME NAME="top" SRC="content/top.html" MARGINHEIGHT=0 MARGINWIDTH=0 NORESIZE&gt;
+&lt;FRAMESET ROWS="50,*" FRAMEBORDER=0 BORDER=0 &gt;                
+			&lt;FRAME NAME="pagesize" SRC="content/pagesize.html" MARGINHEIGHT=0 MARGINWIDTH=0 NORESIZE&gt;
             &lt;FRAMESET COLS="20%,80%" FRAMEBORDER=0 BORDER=0&gt;
                         &lt;FRAME NAME="left" SRC="content/bookmark.html" MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
-                        &lt;FRAMESET ROWS="*,25" FRAMEBORDER=0 BORDER=0 &gt;
+                        &lt;FRAMESET ROWS="*,30" FRAMEBORDER=0 BORDER=0 &gt;
                         	&lt;FRAME NAME="pageviewer" SRC="content/page.html" MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
-                        	&lt;FRAME NAME="pagesize" SRC="content/pagesize.html" MARGINHEIGHT=0 MARGINWIDTH=0 NORESIZE&gt;
             &lt;/FRAMESET&gt;
 &lt;/FRAMESET&gt;
 &lt;/HTML&gt;</value>
@@ -152,7 +172,7 @@ function changeImage(filename)
 &lt;HEAD&gt;
 &lt;TITLE&gt;PageViewer&lt;/TITLE&gt;
 &lt;/HEAD&gt;
-&lt;BODY bgcolor="#999999"&gt;&lt;center&gt;&lt;img id="mainimage" src="images/page1.png" width="100%"&gt;&lt;/center&gt;&lt;/BODY&gt;
+&lt;BODY bgcolor="#999999"&gt;&lt;center&gt;&lt;img id="mainimage" src="images/page1.png" width="100%"&gt;&lt;/center&gt;&lt;input type="hidden" id="currentPage" value="1" /&gt;&lt;/BODY&gt;
 &lt;/HTML&gt;</value>
   </data>
   <data name="PagesizeHtml" xml:space="preserve">
@@ -160,37 +180,143 @@ function changeImage(filename)
 &lt;HEAD&gt;
 &lt;TITLE&gt;PageSize&lt;/TITLE&gt;
 &lt;SCRIPT LANGUAGE="JavaScript"&gt;
+
+pageContent = new Array({PageCount-1});
+{PageContent}
+
+pageCount = {PageCount};
+
 function fitScreen()
 {
-parent.pageviewer.document.images['mainimage'].style.height = '100%';
-parent.pageviewer.document.images['mainimage'].style.width = 'auto';
+	parent.pageviewer.document.images['mainimage'].style.height = '100%';
+	parent.pageviewer.document.images['mainimage'].style.width = 'auto';
 }
 function fitWidth()
 {
-parent.pageviewer.document.images['mainimage'].style.height = 'auto';
-parent.pageviewer.document.images['mainimage'].style.width = '100%';
+	parent.pageviewer.document.images['mainimage'].style.height = 'auto';
+	parent.pageviewer.document.images['mainimage'].style.width = '100%';
 }
 function fitActual()
 {
-parent.pageviewer.document.images['mainimage'].style.height = 'auto';
-parent.pageviewer.document.images['mainimage'].style.width = 'auto';
+	parent.pageviewer.document.images['mainimage'].style.height = 'auto';
+	parent.pageviewer.document.images['mainimage'].style.width = 'auto';
 }
+function changeImage(pagenumber)
+{
+	if (pagenumber &gt; pageCount) {pagenumber = pageCount;}
+	if (pagenumber &lt; 1) {pagenumber = 1;}
+	filename = 'images/page' + pagenumber + '.png';
+	if (pagenumber &lt;= pageCount &amp;&amp; pagenumber &gt;= 1) {
+		parent.pageviewer.document.getElementById('currentPage').value = pagenumber;
+		if (pagenumber == 1) {
+			document.getElementById('searchPage').value = 0;
+		} else {
+			document.getElementById('searchPage').value = pagenumber;
+		}
+		parent.pageviewer.document.images['mainimage'].src = filename;
+	}
+	updatePageStatus(pagenumber);
+}
+function updatePageStatus(pagenumber) {
+	document.getElementById('pageNumberTextBox').value = pagenumber;
+}
+function nextPage()
+{
+	newPageNumber = parseInt(parent.pageviewer.document.getElementById('currentPage').value) + 1;
+	if (newPageNumber &lt;= pageCount) {
+		changeImage(newPageNumber);
+	} else {
+		changeImage(pageCount);
+	}
+}
+function previousPage()
+{
+	newPageNumber = parseInt(parent.pageviewer.document.getElementById('currentPage').value) - 1;
+	if (newPageNumber &gt;= 1) {
+		changeImage(newPageNumber);
+	} else {
+		changeImage(1);
+	}
+}
+function gotoPage() {
+	changeImage(document.getElementById('pageNumberTextBox').value)
+}
+function searchNext() {
+	searchtext = document.getElementById('searchTextBox').value;
+	var x=0;
+	for (x=0; x&lt;pageCount; x++)
+	{
+		if (pageContent[x][1].toUpperCase().indexOf(searchtext.toUpperCase()) &gt;= 0 &amp;&amp; pageContent[x][0] &gt; document.getElementById('searchPage').value) {
+			updatePageStatus(pageContent[x][0]);
+			gotoPage()
+			break;
+		}
+	} 
+}
+function searchFirst() {
+	searchtext = document.getElementById('searchTextBox').value;
+	document.getElementById('searchPage').value = 0;
+	var x=0;
+	for (x=0; x&lt;pageCount; x++)
+	{
+		if (pageContent[x][1].toUpperCase().indexOf(searchtext.toUpperCase()) &gt;= 0 &amp;&amp; pageContent[x][0] &gt; document.getElementById('searchPage').value) {
+			updatePageStatus(pageContent[x][0]);
+			gotoPage()
+			break;
+		}
+	} 
+}
+function searchPrevious() {
+	pageContent.reverse();	
+	searchtext = document.getElementById('searchTextBox').value;
+	var x=0;
+	for (x=0; x&lt;pageCount; x++)
+	{
+		if (pageContent[x][1].toUpperCase().indexOf(searchtext.toUpperCase()) &gt;= 0 &amp;&amp; pageContent[x][0] &lt; document.getElementById('searchPage').value) {
+			updatePageStatus(pageContent[x][0]);
+			gotoPage()
+			break;
+		}
+	}
+	pageContent.reverse(); 
+}
+
 &lt;/script&gt;
 &lt;/HEAD&gt;
-&lt;BODY bgcolor="#BBBBBB"&gt;
-&lt;center&gt;
-&lt;a href="javascript:fitScreen()"&gt;Fit To Screen&lt;/a&gt;&amp;nbsp;&amp;nbsp;
-&lt;a href="javascript:fitWidth()"&gt;Fit To Width&lt;/a&gt;&amp;nbsp;&amp;nbsp;
-&lt;a href="javascript:fitActual()"&gt;Actual Size&lt;/a&gt;
-&lt;/center&gt;&lt;/BODY&gt;
+&lt;BODY bgcolor="#FFFFFF"&gt;
+&lt;table bgcolor="#FFFFFF"&gt;
+&lt;tr&gt;
+&lt;td valign=center&gt;Go to page:&lt;/td&gt;
+&lt;td valign=center&gt;&lt;input id="pageNumberTextBox" onkeydown="if (event.keyCode == 13) gotoPage()" type=text size=5 value="1"&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;img src="images/Previous.png" alt="Previous Page" onclick="previousPage()"/&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;img src="images/Next.png" alt="Next Page" onclick="nextPage()"/&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;img src="images/FitToScreen.png" alt="Fit To Screen" onclick="fitScreen()"/&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;img src="images/FitToWidth.png" alt="Fit To Width" onclick="fitWidth()"/&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;img src="images/ActualSize.png" alt="Actual Size" onclick="fitActual()"/&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;input id="searchTextBox" type=text size=30&gt;&lt;input type="hidden" id="searchPage" value="0" /&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;img src="images/Search.png" alt="Search From Beginning" onclick="searchFirst()"/&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;img src="images/SearchPrevious.png" alt="Search Previous" onclick="searchPrevious()"/&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;img src="images/SearchNext.png" alt="Search Next" onclick="searchNext()"/&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&amp;nbsp;&amp;nbsp;&lt;a href="images/{DocumentName}" TARGET = "_blank"&gt;{DocumentName}&lt;/a&gt;&lt;/td&gt;
+&lt;tr/&gt;
+&lt;table/&gt;
+&lt;hr/&gt;
+&lt;/BODY&gt;
 &lt;/HTML&gt;</value>
   </data>
-  <data name="TopHtml" xml:space="preserve">
-    <value>&lt;HTML&gt;
-&lt;HEAD&gt;
-&lt;TITLE&gt;DocumentName&lt;/TITLE&gt;
-&lt;/HEAD&gt;
-&lt;BODY bgcolor="#BBBBBB"&gt;{DocumentName}&lt;/BODY&gt;
-&lt;/HTML&gt;</value>
+  <data name="Previous" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Previous.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Search" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Search.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SearchNext" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SearchNext.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SearchPrevious" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SearchPrevious.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="_Next" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Next.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>
