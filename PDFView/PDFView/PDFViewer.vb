@@ -17,6 +17,7 @@ Public Class PDFViewer
   Private mBookmarks As ArrayList
   Private mAllowBookmarks As Boolean = True
   Private mUseXPDF As Boolean = True
+  Private mUseMuPDF As Boolean = False
   Private mPDFDoc As PDFLibNet.PDFWrapper
   Private GSConverter As ConvertPDF.PDFConvert
   Private FromBeginning As Boolean = True
@@ -126,6 +127,7 @@ FileIsEncrypted:
           End If
           Try
             mPDFDoc = New PDFLibNet.PDFWrapper("")
+            mPDFDoc.UseMuPDF = mUseMuPDF
             If mOwnerPassword <> "" Then
               mPDFDoc.OwnerPassword = mOwnerPassword
               mPassword = mOwnerPassword
@@ -183,6 +185,23 @@ GhostScriptFallBack:
     End Get
     Set(ByVal value As Boolean)
       mUseXPDF = value
+    End Set
+  End Property
+
+  Public Property UseMuPDF() As Boolean
+    Get
+      Return mUseMuPDF
+    End Get
+    Set(ByVal value As Boolean)
+      If value = True Then
+        mUseXPDF = True
+        mUseMuPDF = True
+      Else
+        mUseMuPDF = False
+      End If
+      If mPDFDoc IsNot Nothing AndAlso mPDFDoc.UseMuPDF <> mUseMuPDF Then
+        mPDFDoc.UseMuPDF = mUseMuPDF
+      End If
     End Set
   End Property
 
