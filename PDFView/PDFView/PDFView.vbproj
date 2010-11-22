@@ -193,6 +193,8 @@
     <Content Include="lib\x64\gsdll32.dll" />
     <Content Include="lib\x64\PDFLibNet.dll" />
     <Content Include="lib\x64\tessnet2_64.dll" />
+    <None Include="Resources\ZoomOut.png" />
+    <None Include="Resources\ZoomIn.png" />
     <None Include="Resources\SearchPrevious.png" />
     <None Include="Resources\SearchNext.png" />
     <None Include="Resources\Search.png" />

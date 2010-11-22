@@ -153,18 +153,18 @@ Namespace My.Resources
         '''{PageContent}
         '''
         '''pageCount = {PageCount};
+        '''zoomSize = 100;
         '''
         '''function fitScreen()
         '''{
         '''	parent.pageviewer.document.images[&apos;mainimage&apos;].style.height = &apos;100%&apos;;
         '''	parent.pageviewer.document.images[&apos;mainimage&apos;].style.width = &apos;auto&apos;;
+        '''	zoomSize = 100;
         '''}
         '''function fitWidth()
         '''{
         '''	parent.pageviewer.document.images[&apos;mainimage&apos;].style.height = &apos;auto&apos;;
-        '''	parent.pageviewer.document.images[&apos;mainimage&apos;].style.width = &apos;100%&apos;;
-        '''}
-        '''function f [rest of string was truncated]&quot;;.
+        '''	parent.pageviewer.document.images[&apos;mainimage&apos;].s [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property PagesizeHtml() As String
             Get
@@ -196,6 +196,20 @@ Namespace My.Resources
         Friend ReadOnly Property SearchPrevious() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("SearchPrevious", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        Friend ReadOnly Property ZoomIn() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("ZoomIn", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        Friend ReadOnly Property ZoomOut() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("ZoomOut", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
