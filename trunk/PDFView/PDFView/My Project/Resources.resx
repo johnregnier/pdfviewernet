@@ -185,21 +185,39 @@ pageContent = new Array({PageCount-1});
 {PageContent}
 
 pageCount = {PageCount};
+zoomSize = 100;
 
 function fitScreen()
 {
 	parent.pageviewer.document.images['mainimage'].style.height = '100%';
 	parent.pageviewer.document.images['mainimage'].style.width = 'auto';
+	zoomSize = 100;
 }
 function fitWidth()
 {
 	parent.pageviewer.document.images['mainimage'].style.height = 'auto';
 	parent.pageviewer.document.images['mainimage'].style.width = '100%';
+	zoomSize = 100;
 }
 function fitActual()
 {
 	parent.pageviewer.document.images['mainimage'].style.height = 'auto';
 	parent.pageviewer.document.images['mainimage'].style.width = 'auto';
+	zoomSize = 100;
+}
+function decreaseZoom()
+{
+	zoomSize = zoomSize -5;	
+	adjustZoom(zoomSize);
+}
+function increaseZoom()
+{
+	zoomSize = zoomSize +5;
+	adjustZoom(zoomSize);	
+}
+function adjustZoom(zoom) {
+	parent.pageviewer.document.images['mainimage'].style.width = zoom + '%';
+	parent.pageviewer.document.images['mainimage'].style.height = 'auto';
 }
 function changeImage(pagenumber)
 {
@@ -293,6 +311,8 @@ function searchPrevious() {
 &lt;td valign=center&gt;&lt;img src="images/FitToScreen.png" alt="Fit To Screen" onclick="fitScreen()"/&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/FitToWidth.png" alt="Fit To Width" onclick="fitWidth()"/&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/ActualSize.png" alt="Actual Size" onclick="fitActual()"/&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;img src="images/ZoomIn.png" alt="Search Next" onclick="increaseZoom()"/&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;img src="images/ZoomOut.png" alt="Search Next" onclick="decreaseZoom()"/&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;input id="searchTextBox" type=text size=30&gt;&lt;input type="hidden" id="searchPage" value="0" /&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/Search.png" alt="Search From Beginning" onclick="searchFirst()"/&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/SearchPrevious.png" alt="Search Previous" onclick="searchPrevious()"/&gt;&lt;/td&gt;
@@ -315,6 +335,12 @@ function searchPrevious() {
   </data>
   <data name="SearchPrevious" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\SearchPrevious.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ZoomIn" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ZoomIn.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ZoomOut" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ZoomOut.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="_Next" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Next.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

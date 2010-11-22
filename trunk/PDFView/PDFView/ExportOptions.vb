@@ -153,6 +153,12 @@ Public Class ExportOptions
     myPic = My.Resources.FitToWidth
     myPic.Save(imagesFolder & "\FitToWidth.png", Imaging.ImageFormat.Png)
 
+    myPic = My.Resources.ZoomIn
+    myPic.Save(imagesFolder & "\ZoomIn.png", Imaging.ImageFormat.Png)
+
+    myPic = My.Resources.ZoomOut
+    myPic.Save(imagesFolder & "\ZoomOut.png", Imaging.ImageFormat.Png)
+
     myPic = My.Resources.Search
     myPic.Save(imagesFolder & "\Search.png", Imaging.ImageFormat.Png)
 
