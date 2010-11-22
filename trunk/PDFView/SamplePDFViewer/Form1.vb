@@ -13,14 +13,18 @@
         TextBox1.Text = PdfViewer1.FileName
     End Sub
 
-    Private Sub rbXPDF_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rbXPDF.CheckedChanged
-        If rbXPDF.Checked Then
-            PdfViewer1.UseXPDF = True
-        Else
-            PdfViewer1.UseXPDF = False
-        End If
-        PdfViewer1.FileName = PdfViewer1.FileName
-    End Sub
+  Private Sub rbXPDF_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rbXPDF.CheckedChanged, rbMuPDF.CheckedChanged
+    If rbXPDF.Checked Then
+      PdfViewer1.UseXPDF = True
+      PdfViewer1.UseMuPDF = False
+    ElseIf rbMuPDF.Checked = True Then
+      PdfViewer1.UseMuPDF = True
+    Else
+      PdfViewer1.UseXPDF = False
+      PdfViewer1.UseMuPDF = False
+    End If
+    PdfViewer1.FileName = PdfViewer1.FileName
+  End Sub
 
   Private Sub btOCR_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btOCR.Click
     MsgBox(PdfViewer1.OCRCurrentPage)

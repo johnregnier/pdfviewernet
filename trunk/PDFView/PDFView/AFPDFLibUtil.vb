@@ -40,7 +40,7 @@ Public Class AFPDFLibUtil
     End If
   End Function
 
-  Public Shared Function GetImageFromPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal PageNumber As Integer, Optional ByVal DPI As Integer = RENDER_DPI) As System.Drawing.Image
+  Public Shared Function GetImageFromPDF(ByRef pdfDoc As PDFLibNet.PDFWrapper, ByVal PageNumber As Integer, ByVal DPI As Integer) As System.Drawing.Image
     GetImageFromPDF = Nothing
     Try
       If pdfDoc IsNot Nothing Then
