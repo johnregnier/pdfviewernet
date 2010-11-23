@@ -145,9 +145,9 @@ Namespace My.Resources
         '''pageCount = {PageCount};
         '''
         '''function getClickPosition(event){
-        '''	pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById(&quot;mainimage&quot;).offsetLeft;
-        '''	pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById(&quot;mainimage&quot;).offsetTop;
-        '''	myimg = document.getElementByI [rest of string was truncated]&quot;;.
+        '''                pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById(&quot;mainimage&quot;).offsetLeft;
+        '''                pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById(&quot;mainimage&quot;).offsetTop;
+        '''  [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property PageHtml() As String
             Get
@@ -165,18 +165,17 @@ Namespace My.Resources
         '''{PageContent}
         '''
         '''pageCount = {PageCount};
-        '''zoomSize = 100;
         '''
         '''function fitScreen()
         '''{
-        '''	parent.pageviewer.document.images[&apos;mainimage&apos;].style.height = &apos;100%&apos;;
-        '''	parent.pageviewer.document.images[&apos;mainimage&apos;].style.width = &apos;auto&apos;;
-        '''	zoomSize = 100;
+        '''                parent.pageviewer.document.images[&apos;mainimage&apos;].style.height = &apos;100%&apos;;
+        '''                parent.pageviewer.document.images[&apos;mainimage&apos;].style.width = &apos;auto&apos;;
         '''}
+        '''
         '''function fitWidth()
         '''{
-        '''	parent.pageviewer.document.images[&apos;mainimage&apos;].style.height = &apos;auto&apos;;
-        '''	parent.pageviewer.document.images[&apos;mainimage&apos;].s [rest of string was truncated]&quot;;.
+        '''                parent.pageviewer.document.images[&apos;mainimage&apos;].style.height = &apos;auto&apos;;
+        '''                parent.pageviewer.doc [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property PagesizeHtml() As String
             Get
