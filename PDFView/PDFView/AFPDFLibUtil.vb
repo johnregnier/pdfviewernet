@@ -195,6 +195,54 @@ StartPageList:
     Return New DictionaryEntry(pdfDoc.PageCount - 1, content.ToString)
   End Function
 
+  Public Shared Function GetHtmlLinks(ByRef pdfDoc As PDFLibNet.PDFWrapper) As DictionaryEntry
+    Dim htmlLinkContent As New StringBuilder()
+    Dim htmlPattern As String = "htmlLink[{0}]=[{1},'{2}',{3},{4},{5},{6}];{7}"
+    Dim htmlCount As Integer = 0
+    For Each item In pdfDoc.Pages
+      If pdfDoc.GetLinks(item.Key).Count > 0 Then
+        For Each link In pdfDoc.GetLinks(item.Key)
+          Dim myRect As Rectangle = link.Bounds
+          Dim myAction As PDFLibNet.PageLinkAction = link.Action
+          If myAction.Kind = PDFLibNet.LinkActionKind.actionURI Then
+            htmlCount += 1
+            Dim myUrl As String = Replace(Replace(CType(myAction, PDFLibNet.PageLinkURI).URL(), "\", "\\"), "'", "\'")
+            htmlLinkContent.Append(String.Format(htmlPattern, _
+                                   htmlCount - 1, item.Key, _
+                                   myUrl, _
+                                   myRect.Left, myRect.Top, myRect.Right, myRect.Bottom, _
+                                   vbCrLf))
+          End If
+        Next
+      End If
+    Next
+    Return New DictionaryEntry(htmlCount - 1, htmlLinkContent.ToString)
+  End Function
+
+  Public Shared Function GetPageLinks(ByRef pdfDoc As PDFLibNet.PDFWrapper) As DictionaryEntry
+    Dim pageLinkContent As New StringBuilder()
+    Dim pagePattern As String = "pageLink[{0}]=[{1},{2},{3},{4},{5},{6}];{7}"
+    Dim pageLinkCount As Integer = 0
+    For Each item In pdfDoc.Pages
+      If pdfDoc.GetLinks(item.Key).Count > 0 Then
+        For Each link In pdfDoc.GetLinks(item.Key)
+          Dim myRect As Rectangle = link.Bounds
+          Dim myAction As PDFLibNet.PageLinkAction = link.Action
+          If myAction.Kind = PDFLibNet.LinkActionKind.actionGoTo Then
+            pageLinkCount += 1
+            Dim myDest As PDFLibNet.LinkDest = CType(myAction, PDFLibNet.PageLinkGoTo).Destination
+            pageLinkContent.Append(String.Format(pagePattern, _
+                                   pageLinkCount - 1, item.Key, _
+                                   myDest.Page(), _
+                                   myRect.Left, myRect.Top, myRect.Right, myRect.Bottom, _
+                                   vbCrLf))
+          End If
+        Next
+      End If
+    Next
+    Return New DictionaryEntry(pageLinkCount - 1, pageLinkContent.ToString)
+  End Function
+
 End Class
 
 Public Class PDFOutline
