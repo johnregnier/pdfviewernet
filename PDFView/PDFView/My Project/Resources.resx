@@ -183,19 +183,26 @@ dpi = {DPI};
 pageCount = {PageCount};
 
 function getClickPosition(event){
-	pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById("mainimage").offsetLeft;
-	pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById("mainimage").offsetTop;
-	myimg = document.getElementById("mainimage");
-	imgScaleFactor = myimg.width / myimg.naturalWidth;
-	actualDPI = (imgScaleFactor * dpi);
-	positionScaleFactor = 72 / actualDPI;
-	clickX = parseInt(pos_x * positionScaleFactor);
-	clickY = parseInt(pos_y * positionScaleFactor);
-	//Flip the y coordinate since postscript uses lower left corner as 0,0
-	psHeight = parseInt(myimg.height * positionScaleFactor);
-	clickY = psHeight - clickY;
-	goToPageLink(clickX,clickY);
-	goToHtmlLink(clickX,clickY);
+                pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById("mainimage").offsetLeft;
+                pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById("mainimage").offsetTop;
+                myimg = document.getElementById("mainimage");
+                natWidth = getNaturalWidth();
+                imgScaleFactor = myimg.width / natWidth;
+                actualDPI = (imgScaleFactor * dpi);
+                positionScaleFactor = 72 / actualDPI;
+                clickX = parseInt(pos_x * positionScaleFactor);
+                clickY = parseInt(pos_y * positionScaleFactor);
+                //Flip the y coordinate since postscript uses lower left corner as 0,0
+                psHeight = parseInt(myimg.height * positionScaleFactor);
+                clickY = psHeight - clickY;
+                goToPageLink(clickX,clickY);
+                goToHtmlLink(clickX,clickY);
+}
+
+function getNaturalWidth() {
+                var io = new Image();
+                io.src = document.getElementById("mainimage").src;
+                return io.width;
 }
 
 function goToPageLink(xPos,yPos) {
@@ -254,39 +261,51 @@ pageContent = new Array({PageCount-1});
 {PageContent}
 
 pageCount = {PageCount};
-zoomSize = 100;
 
 function fitScreen()
 {
-	parent.pageviewer.document.images['mainimage'].style.height = '100%';
-	parent.pageviewer.document.images['mainimage'].style.width = 'auto';
-	zoomSize = 100;
+                parent.pageviewer.document.images['mainimage'].style.height = '100%';
+                parent.pageviewer.document.images['mainimage'].style.width = 'auto';
 }
+
 function fitWidth()
 {
-	parent.pageviewer.document.images['mainimage'].style.height = 'auto';
-	parent.pageviewer.document.images['mainimage'].style.width = '100%';
-	zoomSize = 100;
+                parent.pageviewer.document.images['mainimage'].style.height = 'auto';
+                parent.pageviewer.document.images['mainimage'].style.width = '100%';
 }
+
 function fitActual()
 {
-	parent.pageviewer.document.images['mainimage'].style.height = 'auto';
-	parent.pageviewer.document.images['mainimage'].style.width = 'auto';
-	zoomSize = 100;
+                parent.pageviewer.document.images['mainimage'].style.height = 'auto';
+                parent.pageviewer.document.images['mainimage'].style.width = 'auto';
 }
+
 function decreaseZoom()
 {
-	zoomSize = zoomSize -5;	
-	adjustZoom(zoomSize);
+                zoomSize = getZoomPixels(-5);
+                adjustZoom(zoomSize);
 }
+
 function increaseZoom()
 {
-	zoomSize = zoomSize +5;
-	adjustZoom(zoomSize);	
+                zoomSize = getZoomPixels(5);  
+                adjustZoom(zoomSize);               
 }
+
 function adjustZoom(zoom) {
-	parent.pageviewer.document.images['mainimage'].style.width = zoom + '%';
-	parent.pageviewer.document.images['mainimage'].style.height = 'auto';
+                parent.pageviewer.document.images['mainimage'].style.width = zoom + 'px';
+                parent.pageviewer.document.images['mainimage'].style.height = 'auto';
+}
+function getZoomPixels(adjust) 
+{
+                renderWidth = parent.pageviewer.document.getElementById("mainimage").width;
+                var io = new Image();
+                io.src = parent.pageviewer.document.getElementById("mainimage").src;
+                naturalWidth = io.width;
+                pixelsPerPercentagePoint = naturalWidth / 100;
+                adjustPixels = parseInt(adjust * pixelsPerPercentagePoint);
+                scaleFactor = (renderWidth / naturalWidth);
+                return (renderWidth + adjustPixels);
 }
 function changeImage(pagenumber)
 {
