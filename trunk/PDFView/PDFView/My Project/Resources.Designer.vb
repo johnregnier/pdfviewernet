@@ -133,9 +133,21 @@ Namespace My.Resources
         '''  Looks up a localized string similar to &lt;HTML&gt;
         '''&lt;HEAD&gt;
         '''&lt;TITLE&gt;PageViewer&lt;/TITLE&gt;
-        '''&lt;/HEAD&gt;
-        '''&lt;BODY bgcolor=&quot;#999999&quot;&gt;&lt;center&gt;&lt;img id=&quot;mainimage&quot; src=&quot;images/page1.png&quot; width=&quot;100%&quot;&gt;&lt;/center&gt;&lt;input type=&quot;hidden&quot; id=&quot;currentPage&quot; value=&quot;1&quot; /&gt;&lt;/BODY&gt;
-        '''&lt;/HTML&gt;.
+        '''&lt;SCRIPT LANGUAGE=&quot;JavaScript&quot;&gt;
+        '''
+        '''htmlLink = new Array({HtmlLinkCount-1});
+        '''{HtmlLinkContent}
+        '''
+        '''pageLink = new Array({PageLinkCount-1});
+        '''{PageLinkContent}
+        '''
+        '''dpi = {DPI};
+        '''pageCount = {PageCount};
+        '''
+        '''function getClickPosition(event){
+        '''	pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById(&quot;mainimage&quot;).offsetLeft;
+        '''	pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById(&quot;mainimage&quot;).offsetTop;
+        '''	myimg = document.getElementByI [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property PageHtml() As String
             Get

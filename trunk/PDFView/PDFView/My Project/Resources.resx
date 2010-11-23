@@ -171,8 +171,77 @@ function changeImage(pagenumber)
     <value>&lt;HTML&gt;
 &lt;HEAD&gt;
 &lt;TITLE&gt;PageViewer&lt;/TITLE&gt;
+&lt;SCRIPT LANGUAGE="JavaScript"&gt;
+
+htmlLink = new Array({HtmlLinkCount-1});
+{HtmlLinkContent}
+
+pageLink = new Array({PageLinkCount-1});
+{PageLinkContent}
+
+dpi = {DPI};
+pageCount = {PageCount};
+
+function getClickPosition(event){
+	pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById("mainimage").offsetLeft;
+	pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById("mainimage").offsetTop;
+	myimg = document.getElementById("mainimage");
+	imgScaleFactor = myimg.width / myimg.naturalWidth;
+	actualDPI = (imgScaleFactor * dpi);
+	positionScaleFactor = 72 / actualDPI;
+	clickX = parseInt(pos_x * positionScaleFactor);
+	clickY = parseInt(pos_y * positionScaleFactor);
+	//Flip the y coordinate since postscript uses lower left corner as 0,0
+	psHeight = parseInt(myimg.height * positionScaleFactor);
+	clickY = psHeight - clickY;
+	goToPageLink(clickX,clickY);
+	goToHtmlLink(clickX,clickY);
+}
+
+function goToPageLink(xPos,yPos) {
+	var x=0;
+	for (x=0; x&lt;pageLink.length; x++)
+	{		
+	if (pageLink[x][0] == parseInt(document.getElementById("currentPage").value)) {
+			if (xPos &gt;= pageLink[x][2] &amp;&amp; xPos &lt;= pageLink[x][4] &amp;&amp; yPos &gt;= pageLink[x][3] &amp;&amp; yPos &lt;= pageLink[x][5]) {
+				changeImage(pageLink[x][1]);
+			}
+		}
+	}
+}
+
+function goToHtmlLink(xPos,yPos) {
+	var x=0;
+	for (x=0; x&lt;htmlLink.length; x++)
+	{		
+	if (htmlLink[x][0] == parseInt(document.getElementById("currentPage").value)) {
+			if (xPos &gt;= htmlLink[x][2] &amp;&amp; xPos &lt;= htmlLink[x][4] &amp;&amp; yPos &gt;= htmlLink[x][3] &amp;&amp; yPos &lt;= htmlLink[x][5]) {
+				window.open(htmlLink[x][1], "_blank");
+			}
+		}
+	}
+}
+
+function changeImage(pagenumber)
+{
+	if (pagenumber &gt; pageCount) {pagenumber = pageCount;}
+	if (pagenumber &lt; 1) {pagenumber = 1;}
+	filename = 'images/page' + pagenumber + '.png';
+	if (pagenumber &lt;= pageCount &amp;&amp; pagenumber &gt;= 1) {
+		document.getElementById('currentPage').value = pagenumber;
+		if (pagenumber == 1) {
+			parent.pagesize.document.getElementById('searchPage').value = 0;
+		} else {
+			parent.pagesize.document.getElementById('searchPage').value = pagenumber;
+		}
+		document.images['mainimage'].src = filename;
+	}
+	parent.pagesize.document.getElementById('pageNumberTextBox').value = pagenumber;
+}
+ 
+&lt;/script&gt;
 &lt;/HEAD&gt;
-&lt;BODY bgcolor="#999999"&gt;&lt;center&gt;&lt;img id="mainimage" src="images/page1.png" width="100%"&gt;&lt;/center&gt;&lt;input type="hidden" id="currentPage" value="1" /&gt;&lt;/BODY&gt;
+&lt;BODY bgcolor="#999999"&gt;&lt;center&gt;&lt;img id="mainimage" src="images/page1.png" width="100%" onclick="getClickPosition(event)"&gt;&lt;/center&gt;&lt;input type="hidden" id="currentPage" value="1" /&gt;&lt;/BODY&gt;
 &lt;/HTML&gt;</value>
   </data>
   <data name="PagesizeHtml" xml:space="preserve">

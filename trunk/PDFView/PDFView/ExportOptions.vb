@@ -118,6 +118,16 @@ Public Class ExportOptions
     sideFrame = sideFrame.Replace("{PageCount}", mpdfDoc.PageCount.ToString)
 
     Dim pageFrame As String = My.Resources.PageHtml
+    pageFrame = pageFrame.Replace("{PageCount}", mpdfDoc.PageCount.ToString)
+    pageFrame = pageFrame.Replace("{DPI}", nuDPI.Value.ToString)
+    Dim myDict1 As DictionaryEntry = AFPDFLibUtil.GetHtmlLinks(mpdfDoc)
+    pageFrame = pageFrame.Replace("{HtmlLinkCount-1}", myDict1.Key.ToString)
+    pageFrame = pageFrame.Replace("{HtmlLinkContent}", myDict1.Value)
+
+    Dim myDict2 As DictionaryEntry = AFPDFLibUtil.GetPageLinks(mpdfDoc)
+    pageFrame = pageFrame.Replace("{PageLinkCount-1}", myDict2.Key.ToString)
+    pageFrame = pageFrame.Replace("{PageLinkContent}", myDict2.Value)
+
     Dim mainPage As String = My.Resources.FrameHtml
 
     Dim pageSize As String = My.Resources.PagesizeHtml
