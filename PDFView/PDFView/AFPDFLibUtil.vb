@@ -125,17 +125,6 @@ Public Class AFPDFLibUtil
     Next
   End Sub
 
-  Public Shared Function BuildJavaScriptArray(ByRef pdfDoc As PDFLibNet.PDFWrapper) As String
-    Dim pageCount As Integer = pdfDoc.PageCount
-
-    BuildJavaScriptArray = "var myPages=new Array("
-    For i As Integer = 1 To pageCount
-      BuildJavaScriptArray &= """images/page" & i & ".png"",)"
-    Next
-    BuildJavaScriptArray = BuildJavaScriptArray.Substring(0, BuildJavaScriptArray.Length - 2)
-    BuildJavaScriptArray &= ");" & vbCrLf & "var myPageCount=" & pageCount & ";"
-  End Function
-
   Public Shared Function BuildHTMLBookmarks(ByRef pdfDoc As PDFLibNet.PDFWrapper) As String
 
     Dim pageCount As Integer = pdfDoc.PageCount
@@ -178,7 +167,7 @@ StartPageList:
     For Each item In pdfDoc.Pages
       For Each word In item.Value.WordList
         count += 1
-        content.Append(String.Format(contentPattern, count - 1, item.Key, Replace(Replace(word.Word, "'", "\'"), "\", "\\"), word.Bounds.X, word.Bounds.Y, word.Bounds.Width, word.Bounds.Height) & vbCrLf)
+        content.Append(String.Format(contentPattern, count - 1, item.Key, Replace(Replace(word.Word, "\", "\\"), "'", "\'"), word.Bounds.X, word.Bounds.Y, word.Bounds.Width, word.Bounds.Height) & vbCrLf)
       Next
     Next
     Return New DictionaryEntry(count - 1, content.ToString)

@@ -59,7 +59,7 @@ Public Class ExportOptions
       ElseIf filename.EndsWith(".html") And rbHtml.Checked Then
         mpdfDoc.ExportHtml(filename, nuStart.Value, nuDown.Value, True, True, False)
       ElseIf filename.EndsWith(".html") And rbHtmlImage.Checked Then
-        ExportHTMLImages(filename)
+        ExportHTMLImages(nuDPI.Value, filename, "png")
       End If
       Windows.Forms.Cursor.Current = Windows.Forms.Cursors.Default
     End If
@@ -107,36 +107,56 @@ Public Class ExportOptions
     Me.Hide()
   End Sub
 
-  Private Sub ExportHTMLImages(ByVal fileName As String)
+  Public Sub ExportHTMLImages(ByVal DPI As Integer, ByVal fileName As String, ByVal format As String)
     Dim folderPath As String = System.Text.RegularExpressions.Regex.Replace(fileName, "(^.+\\).+$", "$1")
     Dim contentFolder As String = folderPath & "content"
     Dim imagesFolder As String = contentFolder & "\images"
 
+    Console.WriteLine("Extracting bookmarks ...")
+    Dim bookMarkHtml As String = AFPDFLibUtil.BuildHTMLBookmarks(mpdfDoc)
+
     Dim sideFrame As String = My.Resources.BookmarkHtml
-    'Possible to allow some export from GhostScript renderer
-    sideFrame = sideFrame.Replace("{Body}", AFPDFLibUtil.BuildHTMLBookmarks(mpdfDoc))
+    sideFrame = sideFrame.Replace("{Body}", bookMarkHtml)
     sideFrame = sideFrame.Replace("{PageCount}", mpdfDoc.PageCount.ToString)
+    sideFrame = sideFrame.Replace("{Extension}", format)
 
     Dim pageFrame As String = My.Resources.PageHtml
     pageFrame = pageFrame.Replace("{PageCount}", mpdfDoc.PageCount.ToString)
-    pageFrame = pageFrame.Replace("{DPI}", nuDPI.Value.ToString)
+    pageFrame = pageFrame.Replace("{DPI}", DPI.ToString)
+    pageFrame = pageFrame.Replace("{Extension}", format)
+
+    Console.WriteLine("Extracting html links ...")
     Dim myDict1 As DictionaryEntry = AFPDFLibUtil.GetHtmlLinks(mpdfDoc)
-    pageFrame = pageFrame.Replace("{HtmlLinkCount-1}", myDict1.Key.ToString)
+    Dim htmlLinkCount As Integer = myDict1.Key
+    If htmlLinkCount < 0 Then htmlLinkCount = 0
+    pageFrame = pageFrame.Replace("{HtmlLinkCount-1}", htmlLinkCount.ToString)
     pageFrame = pageFrame.Replace("{HtmlLinkContent}", myDict1.Value)
 
+    Console.WriteLine("Extracting page links ...")
     Dim myDict2 As DictionaryEntry = AFPDFLibUtil.GetPageLinks(mpdfDoc)
-    pageFrame = pageFrame.Replace("{PageLinkCount-1}", myDict2.Key.ToString)
+    Dim pageLinkCount As Integer = myDict2.Key
+    If pageLinkCount < 0 Then pageLinkCount = 0
+    pageFrame = pageFrame.Replace("{PageLinkCount-1}", pageLinkCount.ToString)
     pageFrame = pageFrame.Replace("{PageLinkContent}", myDict2.Value)
 
-    Dim mainPage As String = My.Resources.FrameHtml
+    Dim mainPage As String = ""
+    If bookMarkHtml = "" Then
+      mainPage = My.Resources.FrameNoBook
+    Else
+      mainPage = My.Resources.FrameHtml
+    End If
+    mainPage = mainPage.Replace("{DocumentName}", Regex.Replace(mPdfFileName, "^.+\\", ""))
 
+    Console.WriteLine("Extracting page content ...")
     Dim pageSize As String = My.Resources.PagesizeHtml
     Dim myDict As DictionaryEntry = AFPDFLibUtil.GetPages(mpdfDoc)
     pageSize = pageSize.Replace("{PageCount-1}", myDict.Key.ToString)
     pageSize = pageSize.Replace("{PageCount}", mpdfDoc.PageCount.ToString)
     pageSize = pageSize.Replace("{PageContent}", myDict.Value)
     pageSize = pageSize.Replace("{DocumentName}", Regex.Replace(mPdfFileName, "^.+\\", ""))
+    pageSize = pageSize.Replace("{Extension}", format)
 
+    Console.WriteLine("Creating website directories ...")
     Dim di As System.IO.DirectoryInfo
     di = New System.IO.DirectoryInfo(contentFolder)
     If (Not di.Exists) Then
@@ -148,6 +168,7 @@ Public Class ExportOptions
       di.Create()
     End If
 
+    Console.WriteLine("Copying navigation graphics ...")
     Dim myPic As Bitmap = My.Resources._Next
     myPic.Save(imagesFolder & "\Next.png", Imaging.ImageFormat.Png)
 
@@ -178,15 +199,19 @@ Public Class ExportOptions
     myPic = My.Resources.SearchPrevious
     myPic.Save(imagesFolder & "\SearchPrevious.png", Imaging.ImageFormat.Png)
 
+    Console.WriteLine("Copying pdf file ...")
     FileCopy(mPdfFileName, imagesFolder & "\" & Regex.Replace(mPdfFileName, "^.+\\", ""))
 
     Dim sw As New IO.StreamWriter(fileName, False)
     sw.Write(mainPage)
     sw.Close()
 
-    Dim sw2 As New IO.StreamWriter(contentFolder & "\bookmark.html", False)
-    sw2.Write(sideFrame)
-    sw2.Close()
+    Console.WriteLine("Writing html files ...")
+    If bookMarkHtml <> "" Then
+      Dim sw2 As New IO.StreamWriter(contentFolder & "\bookmark.html", False)
+      sw2.Write(sideFrame)
+      sw2.Close()
+    End If
 
     Dim sw3 As New IO.StreamWriter(contentFolder & "\page.html", False)
     sw3.Write(pageFrame)
@@ -196,7 +221,114 @@ Public Class ExportOptions
     sw4.Write(pageSize)
     sw4.Close()
 
-    ConvertPDF.PDFConvert.ConvertPdfToGraphic(mPdfFileName, imagesFolder & "\page.png", COLOR_PNG_RGB, nuDPI.Value, nuStart.Value, nuDown.Value, False, mPassword)
+    Dim pageCount As Integer = mpdfDoc.PageCount
+
+    Console.WriteLine("Rendering page graphics ...")
+    If Regex.IsMatch(format, "jpg", RegexOptions.IgnoreCase) Then
+      mpdfDoc.ExportJpg(imagesFolder & "\page%d.jpg", 1, pageCount, DPI, 90, -1)
+      mpdfDoc.Dispose()
+      Console.WriteLine("Conversion completed")
+    ElseIf Regex.IsMatch(format, "png", RegexOptions.IgnoreCase) Then
+      For i As Integer = 1 To pageCount
+        Dim bm As Bitmap = AFPDFLibUtil.GetImageFromPDF(mpdfDoc, i, DPI)
+        bm.Save(imagesFolder & "\page" & i & ".png", Imaging.ImageFormat.Png)
+        bm.Dispose()
+      Next
+      mpdfDoc.Dispose()
+      Console.WriteLine("Conversion completed")
+    End If
   End Sub
+
+  'Private Sub ExportHTMLImages(ByVal fileName As String)
+  '  Dim folderPath As String = System.Text.RegularExpressions.Regex.Replace(fileName, "(^.+\\).+$", "$1")
+  '  Dim contentFolder As String = folderPath & "content"
+  '  Dim imagesFolder As String = contentFolder & "\images"
+
+  '  Dim sideFrame As String = My.Resources.BookmarkHtml
+  '  'Possible to allow some export from GhostScript renderer
+  '  sideFrame = sideFrame.Replace("{Body}", AFPDFLibUtil.BuildHTMLBookmarks(mpdfDoc))
+  '  sideFrame = sideFrame.Replace("{PageCount}", mpdfDoc.PageCount.ToString)
+
+  '  Dim pageFrame As String = My.Resources.PageHtml
+  '  pageFrame = pageFrame.Replace("{PageCount}", mpdfDoc.PageCount.ToString)
+  '  pageFrame = pageFrame.Replace("{DPI}", nuDPI.Value.ToString)
+  '  Dim myDict1 As DictionaryEntry = AFPDFLibUtil.GetHtmlLinks(mpdfDoc)
+  '  pageFrame = pageFrame.Replace("{HtmlLinkCount-1}", myDict1.Key.ToString)
+  '  pageFrame = pageFrame.Replace("{HtmlLinkContent}", myDict1.Value)
+
+  '  Dim myDict2 As DictionaryEntry = AFPDFLibUtil.GetPageLinks(mpdfDoc)
+  '  pageFrame = pageFrame.Replace("{PageLinkCount-1}", myDict2.Key.ToString)
+  '  pageFrame = pageFrame.Replace("{PageLinkContent}", myDict2.Value)
+
+  '  Dim mainPage As String = My.Resources.FrameHtml
+
+  '  Dim pageSize As String = My.Resources.PagesizeHtml
+  '  Dim myDict As DictionaryEntry = AFPDFLibUtil.GetPages(mpdfDoc)
+  '  pageSize = pageSize.Replace("{PageCount-1}", myDict.Key.ToString)
+  '  pageSize = pageSize.Replace("{PageCount}", mpdfDoc.PageCount.ToString)
+  '  pageSize = pageSize.Replace("{PageContent}", myDict.Value)
+  '  pageSize = pageSize.Replace("{DocumentName}", Regex.Replace(mPdfFileName, "^.+\\", ""))
+
+  '  Dim di As System.IO.DirectoryInfo
+  '  di = New System.IO.DirectoryInfo(contentFolder)
+  '  If (Not di.Exists) Then
+  '    di.Create()
+  '  End If
+
+  '  di = New System.IO.DirectoryInfo(imagesFolder)
+  '  If (Not di.Exists) Then
+  '    di.Create()
+  '  End If
+
+  '  Dim myPic As Bitmap = My.Resources._Next
+  '  myPic.Save(imagesFolder & "\Next.png", Imaging.ImageFormat.Png)
+
+  '  myPic = My.Resources.Previous
+  '  myPic.Save(imagesFolder & "\Previous.png", Imaging.ImageFormat.Png)
+
+  '  myPic = My.Resources.ActualSize
+  '  myPic.Save(imagesFolder & "\ActualSize.png", Imaging.ImageFormat.Png)
+
+  '  myPic = My.Resources.FitToScreen
+  '  myPic.Save(imagesFolder & "\FitToScreen.png", Imaging.ImageFormat.Png)
+
+  '  myPic = My.Resources.FitToWidth
+  '  myPic.Save(imagesFolder & "\FitToWidth.png", Imaging.ImageFormat.Png)
+
+  '  myPic = My.Resources.ZoomIn
+  '  myPic.Save(imagesFolder & "\ZoomIn.png", Imaging.ImageFormat.Png)
+
+  '  myPic = My.Resources.ZoomOut
+  '  myPic.Save(imagesFolder & "\ZoomOut.png", Imaging.ImageFormat.Png)
+
+  '  myPic = My.Resources.Search
+  '  myPic.Save(imagesFolder & "\Search.png", Imaging.ImageFormat.Png)
+
+  '  myPic = My.Resources.SearchNext
+  '  myPic.Save(imagesFolder & "\SearchNext.png", Imaging.ImageFormat.Png)
+
+  '  myPic = My.Resources.SearchPrevious
+  '  myPic.Save(imagesFolder & "\SearchPrevious.png", Imaging.ImageFormat.Png)
+
+  '  FileCopy(mPdfFileName, imagesFolder & "\" & Regex.Replace(mPdfFileName, "^.+\\", ""))
+
+  '  Dim sw As New IO.StreamWriter(fileName, False)
+  '  sw.Write(mainPage)
+  '  sw.Close()
+
+  '  Dim sw2 As New IO.StreamWriter(contentFolder & "\bookmark.html", False)
+  '  sw2.Write(sideFrame)
+  '  sw2.Close()
+
+  '  Dim sw3 As New IO.StreamWriter(contentFolder & "\page.html", False)
+  '  sw3.Write(pageFrame)
+  '  sw3.Close()
+
+  '  Dim sw4 As New IO.StreamWriter(contentFolder & "\pagesize.html", False)
+  '  sw4.Write(pageSize)
+  '  sw4.Close()
+
+  '  ConvertPDF.PDFConvert.ConvertPdfToGraphic(mPdfFileName, imagesFolder & "\page.png", COLOR_PNG_RGB, nuDPI.Value, nuStart.Value, nuDown.Value, False, mPassword)
+  'End Sub
 
 End Class
