@@ -226,7 +226,6 @@ Public Class ExportOptions
     Console.WriteLine("Rendering page graphics ...")
     If Regex.IsMatch(format, "jpg", RegexOptions.IgnoreCase) Then
       mpdfDoc.ExportJpg(imagesFolder & "\page%d.jpg", 1, pageCount, DPI, 90, -1)
-      mpdfDoc.Dispose()
       Console.WriteLine("Conversion completed")
     ElseIf Regex.IsMatch(format, "png", RegexOptions.IgnoreCase) Then
       For i As Integer = 1 To pageCount
@@ -234,7 +233,6 @@ Public Class ExportOptions
         bm.Save(imagesFolder & "\page" & i & ".png", Imaging.ImageFormat.Png)
         bm.Dispose()
       Next
-      mpdfDoc.Dispose()
       Console.WriteLine("Conversion completed")
     End If
   End Sub
