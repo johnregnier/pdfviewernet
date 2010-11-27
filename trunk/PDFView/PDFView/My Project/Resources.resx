@@ -129,7 +129,7 @@
 function changeImage(pagenumber)
 {
 	pageCount = {PageCount};
-	filename = 'images/page' + pagenumber + '.png';
+	filename = 'images/page' + pagenumber + '.{Extension}';
 	if (pagenumber &lt;= pageCount &amp;&amp; pagenumber &gt;= 1) {
 		parent.pageviewer.document.getElementById('currentPage').value = pagenumber;
 		parent.pagesize.document.getElementById('pageNumberTextBox').value = pagenumber;
@@ -155,14 +155,27 @@ function changeImage(pagenumber)
   <data name="FrameHtml" xml:space="preserve">
     <value>&lt;HTML&gt;
 &lt;HEAD&gt;
-&lt;TITLE&gt;PDF to Image Html&lt;/TITLE&gt;
+&lt;TITLE&gt;{DocumentName}&lt;/TITLE&gt;
 &lt;/HEAD&gt;
-&lt;FRAMESET ROWS="50,*" FRAMEBORDER=0 BORDER=0 &gt;                
+&lt;FRAMESET ROWS="32,*" FRAMEBORDER=0 BORDER=0 &gt;                
 			&lt;FRAME NAME="pagesize" SRC="content/pagesize.html" MARGINHEIGHT=0 MARGINWIDTH=0 NORESIZE&gt;
             &lt;FRAMESET COLS="20%,80%" FRAMEBORDER=0 BORDER=0&gt;
                         &lt;FRAME NAME="left" SRC="content/bookmark.html" MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
-                        &lt;FRAMESET ROWS="*,30" FRAMEBORDER=0 BORDER=0 &gt;
+                        &lt;FRAMESET ROWS="*" FRAMEBORDER=0 BORDER=0 &gt;
                         	&lt;FRAME NAME="pageviewer" SRC="content/page.html" MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
+            &lt;/FRAMESET&gt;
+&lt;/FRAMESET&gt;
+&lt;/HTML&gt;</value>
+  </data>
+  <data name="FrameNoBook" xml:space="preserve">
+    <value>&lt;HTML&gt;
+&lt;HEAD&gt;
+&lt;TITLE&gt;{DocumentName}&lt;/TITLE&gt;
+&lt;/HEAD&gt;
+&lt;FRAMESET ROWS="32,*" FRAMEBORDER=0 BORDER=0 &gt;                
+			&lt;FRAME NAME="pagesize" SRC="content/pagesize.html" MARGINHEIGHT=0 MARGINWIDTH=0 NORESIZE&gt;
+            &lt;FRAMESET COLS="100%" FRAMEBORDER=0 BORDER=0&gt;
+                  	&lt;FRAME NAME="pageviewer" SRC="content/page.html" MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
             &lt;/FRAMESET&gt;
 &lt;/FRAMESET&gt;
 &lt;/HTML&gt;</value>
@@ -233,7 +246,7 @@ function changeImage(pagenumber)
 {
 	if (pagenumber &gt; pageCount) {pagenumber = pageCount;}
 	if (pagenumber &lt; 1) {pagenumber = 1;}
-	filename = 'images/page' + pagenumber + '.png';
+	filename = 'images/page' + pagenumber + '.{Extension}';
 	if (pagenumber &lt;= pageCount &amp;&amp; pagenumber &gt;= 1) {
 		document.getElementById('currentPage').value = pagenumber;
 		if (pagenumber == 1) {
@@ -248,7 +261,7 @@ function changeImage(pagenumber)
  
 &lt;/script&gt;
 &lt;/HEAD&gt;
-&lt;BODY bgcolor="#999999"&gt;&lt;center&gt;&lt;img id="mainimage" src="images/page1.png" width="100%" onclick="getClickPosition(event)"&gt;&lt;/center&gt;&lt;input type="hidden" id="currentPage" value="1" /&gt;&lt;/BODY&gt;
+&lt;BODY bgcolor="#999999"&gt;&lt;center&gt;&lt;img id="mainimage" src="images/page1.{Extension}" width="100%" onclick="getClickPosition(event)"&gt;&lt;/center&gt;&lt;input type="hidden" id="currentPage" value="1" /&gt;&lt;/BODY&gt;
 &lt;/HTML&gt;</value>
   </data>
   <data name="PagesizeHtml" xml:space="preserve">
@@ -264,20 +277,23 @@ pageCount = {PageCount};
 
 function fitScreen()
 {
-                parent.pageviewer.document.images['mainimage'].style.height = '100%';
-                parent.pageviewer.document.images['mainimage'].style.width = 'auto';
+	parent.pageviewer.document.images['mainimage'].style.height = '100%';
+	parent.pageviewer.document.images['mainimage'].style.width = 'auto';
+	updateZoomTextBoxAuto();
 }
 
 function fitWidth()
 {
-                parent.pageviewer.document.images['mainimage'].style.height = 'auto';
-                parent.pageviewer.document.images['mainimage'].style.width = '100%';
+	parent.pageviewer.document.images['mainimage'].style.height = 'auto';
+	parent.pageviewer.document.images['mainimage'].style.width = '100%';
+	updateZoomTextBoxAuto();
 }
 
 function fitActual()
 {
-                parent.pageviewer.document.images['mainimage'].style.height = 'auto';
-                parent.pageviewer.document.images['mainimage'].style.width = 'auto';
+	parent.pageviewer.document.images['mainimage'].style.height = 'auto';
+	parent.pageviewer.document.images['mainimage'].style.width = 'auto';
+	updateZoomTextBoxAuto();
 }
 
 function decreaseZoom()
@@ -292,10 +308,26 @@ function increaseZoom()
                 adjustZoom(zoomSize);               
 }
 
+function updateZoomTextBoxAuto() {
+	var drawnImgWidth = parent.pageviewer.document.images['mainimage'].width		
+	var percent = parseInt((drawnImgWidth / getNaturalWidth()) * 100);
+	document.getElementById("zoomTextBox").value = percent;
+}
+
+function zoom(){
+	var percent = document.getElementById("zoomTextBox").value;
+	var pixels = getNaturalWidth() * (document.getElementById("zoomTextBox").value / 100);	
+	adjustZoom(pixels);
+	document.getElementById("zoomTextBox").value = percent;
+}
+
 function adjustZoom(zoom) {
                 parent.pageviewer.document.images['mainimage'].style.width = zoom + 'px';
                 parent.pageviewer.document.images['mainimage'].style.height = 'auto';
+		var percent = parseInt((zoom / getNaturalWidth()) * 100);
+		updateZoomTextBoxAuto();
 }
+
 function getZoomPixels(adjust) 
 {
                 renderWidth = parent.pageviewer.document.getElementById("mainimage").width;
@@ -307,11 +339,12 @@ function getZoomPixels(adjust)
                 scaleFactor = (renderWidth / naturalWidth);
                 return (renderWidth + adjustPixels);
 }
+
 function changeImage(pagenumber)
 {
 	if (pagenumber &gt; pageCount) {pagenumber = pageCount;}
 	if (pagenumber &lt; 1) {pagenumber = 1;}
-	filename = 'images/page' + pagenumber + '.png';
+	filename = 'images/page' + pagenumber + '.{Extension}';
 	if (pagenumber &lt;= pageCount &amp;&amp; pagenumber &gt;= 1) {
 		parent.pageviewer.document.getElementById('currentPage').value = pagenumber;
 		if (pagenumber == 1) {
@@ -323,9 +356,11 @@ function changeImage(pagenumber)
 	}
 	updatePageStatus(pagenumber);
 }
+
 function updatePageStatus(pagenumber) {
 	document.getElementById('pageNumberTextBox').value = pagenumber;
 }
+
 function nextPage()
 {
 	newPageNumber = parseInt(parent.pageviewer.document.getElementById('currentPage').value) + 1;
@@ -335,6 +370,7 @@ function nextPage()
 		changeImage(pageCount);
 	}
 }
+
 function previousPage()
 {
 	newPageNumber = parseInt(parent.pageviewer.document.getElementById('currentPage').value) - 1;
@@ -344,9 +380,11 @@ function previousPage()
 		changeImage(1);
 	}
 }
+
 function gotoPage() {
 	changeImage(document.getElementById('pageNumberTextBox').value)
 }
+
 function searchNext() {
 	searchtext = document.getElementById('searchTextBox').value;
 	var x=0;
@@ -359,6 +397,7 @@ function searchNext() {
 		}
 	} 
 }
+
 function searchFirst() {
 	searchtext = document.getElementById('searchTextBox').value;
 	document.getElementById('searchPage').value = 0;
@@ -372,6 +411,7 @@ function searchFirst() {
 		}
 	} 
 }
+
 function searchPrevious() {
 	pageContent.reverse();	
 	searchtext = document.getElementById('searchTextBox').value;
@@ -387,28 +427,56 @@ function searchPrevious() {
 	pageContent.reverse(); 
 }
 
+function drawRectangle(top,left,bottom,right) {
+	myimg = parent.pageviewer.document.getElementById("mainimage");
+	natWidth = getNaturalWidth();
+	imgScaleFactor = myimg.width / natWidth;
+	actualDPI = (imgScaleFactor * dpi);
+	positionScaleFactor = actualDPI / 72;
+        //Flip the y coordinates since postscript uses lower left corner as 0,0
+        psHeight = parseInt(myimg.height * positionScaleFactor);
+	top = (psHeight - top) * positionScaleFactor;
+	bottom = (psHeight - bottom) * positionScaleFactor;
+	left = left * positionScaleFactor;
+	right = right * positionScaleFactor;
+	var canv = parent.pageviewer.document.getElementById('imgCanvas');
+	if (canv &amp;&amp; canv.getContext) {
+		var context = canv.getContext('2d');
+		if (context) {
+			var alpha = 0.3; 
+			context.fillStyle = "rgba(140, 171, 255, " + alpha + ")";			
+			context.fillRect(left, top, right, bottom);
+		}
+	}	
+}
+
+function getNaturalWidth() {
+                var io = new Image();
+                io.src = parent.pageviewer.document.getElementById("mainimage").src;
+                return io.width;
+}
 &lt;/script&gt;
 &lt;/HEAD&gt;
-&lt;BODY bgcolor="#FFFFFF"&gt;
-&lt;table bgcolor="#FFFFFF"&gt;
+&lt;BODY bgcolor="#BBBBBB"&gt;
+&lt;table bgcolor="#BBBBBB"&gt;
 &lt;tr&gt;
 &lt;td valign=center&gt;Go to page:&lt;/td&gt;
-&lt;td valign=center&gt;&lt;input id="pageNumberTextBox" onkeydown="if (event.keyCode == 13) gotoPage()" type=text size=5 value="1"&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;input id="pageNumberTextBox" onkeydown="if (event.keyCode == 13) gotoPage()" type=text size=5 value="1"/&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/Previous.png" alt="Previous Page" onclick="previousPage()"/&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/Next.png" alt="Next Page" onclick="nextPage()"/&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/FitToScreen.png" alt="Fit To Screen" onclick="fitScreen()"/&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/FitToWidth.png" alt="Fit To Width" onclick="fitWidth()"/&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/ActualSize.png" alt="Actual Size" onclick="fitActual()"/&gt;&lt;/td&gt;
-&lt;td valign=center&gt;&lt;img src="images/ZoomIn.png" alt="Search Next" onclick="increaseZoom()"/&gt;&lt;/td&gt;
-&lt;td valign=center&gt;&lt;img src="images/ZoomOut.png" alt="Search Next" onclick="decreaseZoom()"/&gt;&lt;/td&gt;
-&lt;td valign=center&gt;&lt;input id="searchTextBox" type=text size=30&gt;&lt;input type="hidden" id="searchPage" value="0" /&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;input id="zoomTextBox" type=text size=4 onkeydown="if (event.keyCode == 13) zoom()"/&gt;&amp;#37;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;img src="images/ZoomIn.png" alt="Zoom In" onclick="increaseZoom()"/&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;img src="images/ZoomOut.png" alt="Zoom Out" onclick="decreaseZoom()"/&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;input id="searchTextBox" type=text size=30 onkeydown="if (event.keyCode == 13) searchFirst()"&gt;&lt;input type="hidden" id="searchPage" value="0" /&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/Search.png" alt="Search From Beginning" onclick="searchFirst()"/&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/SearchPrevious.png" alt="Search Previous" onclick="searchPrevious()"/&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/SearchNext.png" alt="Search Next" onclick="searchNext()"/&gt;&lt;/td&gt;
-&lt;td valign=center&gt;&amp;nbsp;&amp;nbsp;&lt;a href="images/{DocumentName}" TARGET = "_blank"&gt;{DocumentName}&lt;/a&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&amp;nbsp;&amp;nbsp;&lt;a href="images/{DocumentName}" TARGET = "_blank"&gt;Download Document&lt;/a&gt;&lt;/td&gt;
 &lt;tr/&gt;
 &lt;table/&gt;
-&lt;hr/&gt;
 &lt;/BODY&gt;
 &lt;/HTML&gt;</value>
   </data>

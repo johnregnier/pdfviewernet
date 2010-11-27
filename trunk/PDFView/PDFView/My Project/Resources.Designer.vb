@@ -82,14 +82,13 @@ Namespace My.Resources
         '''function changeImage(pagenumber)
         '''{
         '''	pageCount = {PageCount};
-        '''	filename = &apos;images/page&apos; + pagenumber + &apos;.png&apos;;
+        '''	filename = &apos;images/page&apos; + pagenumber + &apos;.{Extension}&apos;;
         '''	if (pagenumber &lt;= pageCount &amp;&amp; pagenumber &gt;= 1) {
         '''		parent.pageviewer.document.getElementById(&apos;currentPage&apos;).value = pagenumber;
         '''		parent.pagesize.document.getElementById(&apos;pageNumberTextBox&apos;).value = pagenumber;
         '''		if (pagenumber == 1) {
         '''			parent.pagesize.document.getElementById(&apos;searchPage&apos;).value = 0;
-        '''		} else {
-        '''	 [rest of string was truncated]&quot;;.
+        '''		} e [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property BookmarkHtml() As String
             Get
@@ -114,18 +113,37 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized string similar to &lt;HTML&gt;
         '''&lt;HEAD&gt;
-        '''&lt;TITLE&gt;PDF to Image Html&lt;/TITLE&gt;
+        '''&lt;TITLE&gt;{DocumentName}&lt;/TITLE&gt;
         '''&lt;/HEAD&gt;
-        '''&lt;FRAMESET ROWS=&quot;50,*&quot; FRAMEBORDER=0 BORDER=0 &gt;                
+        '''&lt;FRAMESET ROWS=&quot;32,*&quot; FRAMEBORDER=0 BORDER=0 &gt;                
         '''			&lt;FRAME NAME=&quot;pagesize&quot; SRC=&quot;content/pagesize.html&quot; MARGINHEIGHT=0 MARGINWIDTH=0 NORESIZE&gt;
         '''            &lt;FRAMESET COLS=&quot;20%,80%&quot; FRAMEBORDER=0 BORDER=0&gt;
         '''                        &lt;FRAME NAME=&quot;left&quot; SRC=&quot;content/bookmark.html&quot; MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
-        '''                        &lt;FRAMESET ROWS=&quot;*,30&quot; FRAMEBORDER=0 BORDER=0 &gt;
-        '''                        	&lt;FRAME NAM [rest of string was truncated]&quot;;.
+        '''                        &lt;FRAMESET ROWS=&quot;*&quot; FRAMEBORDER=0 BORDER=0 &gt;
+        '''                        	&lt;FRAME NAME=&quot;pag [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property FrameHtml() As String
             Get
                 Return ResourceManager.GetString("FrameHtml", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to &lt;HTML&gt;
+        '''&lt;HEAD&gt;
+        '''&lt;TITLE&gt;{DocumentName}&lt;/TITLE&gt;
+        '''&lt;/HEAD&gt;
+        '''&lt;FRAMESET ROWS=&quot;32,*&quot; FRAMEBORDER=0 BORDER=0 &gt;                
+        '''			&lt;FRAME NAME=&quot;pagesize&quot; SRC=&quot;content/pagesize.html&quot; MARGINHEIGHT=0 MARGINWIDTH=0 NORESIZE&gt;
+        '''            &lt;FRAMESET COLS=&quot;100%&quot; FRAMEBORDER=0 BORDER=0&gt;
+        '''                  	&lt;FRAME NAME=&quot;pageviewer&quot; SRC=&quot;content/page.html&quot; MARGINHEIGHT=0 MARGINWIDTH=0 SCROLLING=AUTO NORESIZE&gt;
+        '''            &lt;/FRAMESET&gt;
+        '''&lt;/FRAMESET&gt;
+        '''&lt;/HTML&gt;.
+        '''</summary>
+        Friend ReadOnly Property FrameNoBook() As String
+            Get
+                Return ResourceManager.GetString("FrameNoBook", resourceCulture)
             End Get
         End Property
         
@@ -168,14 +186,15 @@ Namespace My.Resources
         '''
         '''function fitScreen()
         '''{
-        '''                parent.pageviewer.document.images[&apos;mainimage&apos;].style.height = &apos;100%&apos;;
-        '''                parent.pageviewer.document.images[&apos;mainimage&apos;].style.width = &apos;auto&apos;;
+        '''	parent.pageviewer.document.images[&apos;mainimage&apos;].style.height = &apos;100%&apos;;
+        '''	parent.pageviewer.document.images[&apos;mainimage&apos;].style.width = &apos;auto&apos;;
+        '''	updateZoomTextBoxAuto();
         '''}
         '''
         '''function fitWidth()
         '''{
-        '''                parent.pageviewer.document.images[&apos;mainimage&apos;].style.height = &apos;auto&apos;;
-        '''                parent.pageviewer.doc [rest of string was truncated]&quot;;.
+        '''	parent.pageviewer.document.images[&apos;mainimage&apos;].style.height = &apos;auto&apos;;
+        '''	parent.pageviewer.document.images[&apos;mainimage&apos;].style.w [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property PagesizeHtml() As String
             Get
