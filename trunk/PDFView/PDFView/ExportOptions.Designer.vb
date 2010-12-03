@@ -39,14 +39,18 @@ Partial Class ExportOptions
     Me.btCancel = New System.Windows.Forms.Button
     Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog
     Me.GroupBox3 = New System.Windows.Forms.GroupBox
+    Me.pnlFormatHtml = New System.Windows.Forms.Panel
+    Me.rbJPGHtml = New System.Windows.Forms.RadioButton
     Me.Label4 = New System.Windows.Forms.Label
     Me.Label3 = New System.Windows.Forms.Label
     Me.nuDPI = New System.Windows.Forms.NumericUpDown
+    Me.rbPNGHtml = New System.Windows.Forms.RadioButton
     Me.GroupBox1.SuspendLayout()
     Me.GroupBox2.SuspendLayout()
     CType(Me.nuDown, System.ComponentModel.ISupportInitialize).BeginInit()
     CType(Me.nuStart, System.ComponentModel.ISupportInitialize).BeginInit()
     Me.GroupBox3.SuspendLayout()
+    Me.pnlFormatHtml.SuspendLayout()
     CType(Me.nuDPI, System.ComponentModel.ISupportInitialize).BeginInit()
     Me.SuspendLayout()
     '
@@ -219,6 +223,7 @@ Partial Class ExportOptions
     '
     'GroupBox3
     '
+    Me.GroupBox3.Controls.Add(Me.pnlFormatHtml)
     Me.GroupBox3.Controls.Add(Me.Label4)
     Me.GroupBox3.Controls.Add(Me.Label3)
     Me.GroupBox3.Controls.Add(Me.nuDPI)
@@ -229,10 +234,32 @@ Partial Class ExportOptions
     Me.GroupBox3.TabStop = False
     Me.GroupBox3.Text = "Image Options"
     '
+    'pnlFormatHtml
+    '
+    Me.pnlFormatHtml.Controls.Add(Me.rbPNGHtml)
+    Me.pnlFormatHtml.Controls.Add(Me.rbJPGHtml)
+    Me.pnlFormatHtml.Location = New System.Drawing.Point(152, 11)
+    Me.pnlFormatHtml.Name = "pnlFormatHtml"
+    Me.pnlFormatHtml.Size = New System.Drawing.Size(102, 36)
+    Me.pnlFormatHtml.TabIndex = 3
+    Me.pnlFormatHtml.Visible = False
+    '
+    'rbJPGHtml
+    '
+    Me.rbJPGHtml.AutoSize = True
+    Me.rbJPGHtml.Checked = True
+    Me.rbJPGHtml.Location = New System.Drawing.Point(3, 11)
+    Me.rbJPGHtml.Name = "rbJPGHtml"
+    Me.rbJPGHtml.Size = New System.Drawing.Size(52, 17)
+    Me.rbJPGHtml.TabIndex = 0
+    Me.rbJPGHtml.TabStop = True
+    Me.rbJPGHtml.Text = "JPEG"
+    Me.rbJPGHtml.UseVisualStyleBackColor = True
+    '
     'Label4
     '
     Me.Label4.AutoSize = True
-    Me.Label4.Location = New System.Drawing.Point(129, 24)
+    Me.Label4.Location = New System.Drawing.Point(124, 24)
     Me.Label4.Name = "Label4"
     Me.Label4.Size = New System.Drawing.Size(25, 13)
     Me.Label4.TabIndex = 2
@@ -257,6 +284,16 @@ Partial Class ExportOptions
     Me.nuDPI.TabIndex = 0
     Me.nuDPI.Value = New Decimal(New Integer() {72, 0, 0, 0})
     '
+    'rbPNGHtml
+    '
+    Me.rbPNGHtml.AutoSize = True
+    Me.rbPNGHtml.Location = New System.Drawing.Point(56, 11)
+    Me.rbPNGHtml.Name = "rbPNGHtml"
+    Me.rbPNGHtml.Size = New System.Drawing.Size(48, 17)
+    Me.rbPNGHtml.TabIndex = 1
+    Me.rbPNGHtml.Text = "PNG"
+    Me.rbPNGHtml.UseVisualStyleBackColor = True
+    '
     'ExportOptions
     '
     Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -277,6 +314,8 @@ Partial Class ExportOptions
     CType(Me.nuStart, System.ComponentModel.ISupportInitialize).EndInit()
     Me.GroupBox3.ResumeLayout(False)
     Me.GroupBox3.PerformLayout()
+    Me.pnlFormatHtml.ResumeLayout(False)
+    Me.pnlFormatHtml.PerformLayout()
     CType(Me.nuDPI, System.ComponentModel.ISupportInitialize).EndInit()
     Me.ResumeLayout(False)
 
@@ -301,4 +340,7 @@ Partial Class ExportOptions
   Friend WithEvents nuDPI As System.Windows.Forms.NumericUpDown
   Friend WithEvents Label4 As System.Windows.Forms.Label
   Friend WithEvents rbHtmlImage As System.Windows.Forms.RadioButton
+  Friend WithEvents pnlFormatHtml As System.Windows.Forms.Panel
+  Friend WithEvents rbJPGHtml As System.Windows.Forms.RadioButton
+  Friend WithEvents rbPNGHtml As System.Windows.Forms.RadioButton
 End Class

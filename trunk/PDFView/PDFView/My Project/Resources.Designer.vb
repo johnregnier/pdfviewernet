@@ -86,9 +86,8 @@ Namespace My.Resources
         '''	if (pagenumber &lt;= pageCount &amp;&amp; pagenumber &gt;= 1) {
         '''		parent.pageviewer.document.getElementById(&apos;currentPage&apos;).value = pagenumber;
         '''		parent.pagesize.document.getElementById(&apos;pageNumberTextBox&apos;).value = pagenumber;
-        '''		if (pagenumber == 1) {
-        '''			parent.pagesize.document.getElementById(&apos;searchPage&apos;).value = 0;
-        '''		} e [rest of string was truncated]&quot;;.
+        '''		parent.pagesize.document.getElementById(&apos;searchPage&apos;).value = pagenumber;	
+        '''		parent.pageviewer.do [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property BookmarkHtml() As String
             Get
@@ -161,11 +160,12 @@ Namespace My.Resources
         '''
         '''dpi = {DPI};
         '''pageCount = {PageCount};
+        '''xOffset = 0;
+        '''yOffset = 0;
         '''
         '''function getClickPosition(event){
         '''                pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById(&quot;mainimage&quot;).offsetLeft;
-        '''                pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementById(&quot;mainimage&quot;).offsetTop;
-        '''  [rest of string was truncated]&quot;;.
+        '''                pos_y = event.offsetY?(event.offsetY):event.pageY-document.getElementByI [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property PageHtml() As String
             Get
