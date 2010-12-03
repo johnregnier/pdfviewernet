@@ -853,7 +853,7 @@ Namespace ConvertPDF
         converter.LastPageToConvert = endPageNumber
       End If
       converter.FitPage = False
-      converter.JPEGQuality = 70
+      converter.JPEGQuality = 90
       If ToPrinter = True Then 'Turn off anti-aliasing
         converter.TextAlphaBit = -1
         converter.GraphicsAlphaBit = -1

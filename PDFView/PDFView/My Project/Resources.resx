@@ -133,11 +133,7 @@ function changeImage(pagenumber)
 	if (pagenumber &lt;= pageCount &amp;&amp; pagenumber &gt;= 1) {
 		parent.pageviewer.document.getElementById('currentPage').value = pagenumber;
 		parent.pagesize.document.getElementById('pageNumberTextBox').value = pagenumber;
-		if (pagenumber == 1) {
-			parent.pagesize.document.getElementById('searchPage').value = 0;
-		} else {
-			parent.pagesize.document.getElementById('searchPage').value = pagenumber;
-		}	
+		parent.pagesize.document.getElementById('searchPage').value = pagenumber;	
 		parent.pageviewer.document.images['mainimage'].src = filename;
 	}
 }
@@ -194,6 +190,8 @@ pageLink = new Array({PageLinkCount-1});
 
 dpi = {DPI};
 pageCount = {PageCount};
+xOffset = 0;
+yOffset = 0;
 
 function getClickPosition(event){
                 pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById("mainimage").offsetLeft;
@@ -203,11 +201,11 @@ function getClickPosition(event){
                 imgScaleFactor = myimg.width / natWidth;
                 actualDPI = (imgScaleFactor * dpi);
                 positionScaleFactor = 72 / actualDPI;
-                clickX = parseInt(pos_x * positionScaleFactor);
+                clickX = parseInt(pos_x * positionScaleFactor) + xOffset;
                 clickY = parseInt(pos_y * positionScaleFactor);
                 //Flip the y coordinate since postscript uses lower left corner as 0,0
                 psHeight = parseInt(myimg.height * positionScaleFactor);
-                clickY = psHeight - clickY;
+                clickY = (psHeight - clickY) + yOffset;
                 goToPageLink(clickX,clickY);
                 goToHtmlLink(clickX,clickY);
 }
@@ -249,11 +247,7 @@ function changeImage(pagenumber)
 	filename = 'images/page' + pagenumber + '.{Extension}';
 	if (pagenumber &lt;= pageCount &amp;&amp; pagenumber &gt;= 1) {
 		document.getElementById('currentPage').value = pagenumber;
-		if (pagenumber == 1) {
-			parent.pagesize.document.getElementById('searchPage').value = 0;
-		} else {
-			parent.pagesize.document.getElementById('searchPage').value = pagenumber;
-		}
+		parent.pagesize.document.getElementById('searchPage').value = pagenumber;
 		document.images['mainimage'].src = filename;
 	}
 	parent.pagesize.document.getElementById('pageNumberTextBox').value = pagenumber;
@@ -347,11 +341,7 @@ function changeImage(pagenumber)
 	filename = 'images/page' + pagenumber + '.{Extension}';
 	if (pagenumber &lt;= pageCount &amp;&amp; pagenumber &gt;= 1) {
 		parent.pageviewer.document.getElementById('currentPage').value = pagenumber;
-		if (pagenumber == 1) {
-			document.getElementById('searchPage').value = 0;
-		} else {
-			document.getElementById('searchPage').value = pagenumber;
-		}
+		document.getElementById('searchPage').value = pagenumber;
 		parent.pageviewer.document.images['mainimage'].src = filename;
 	}
 	updatePageStatus(pagenumber);
@@ -470,7 +460,7 @@ function getNaturalWidth() {
 &lt;td valign=center&gt;&lt;input id="zoomTextBox" type=text size=4 onkeydown="if (event.keyCode == 13) zoom()"/&gt;&amp;#37;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/ZoomIn.png" alt="Zoom In" onclick="increaseZoom()"/&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/ZoomOut.png" alt="Zoom Out" onclick="decreaseZoom()"/&gt;&lt;/td&gt;
-&lt;td valign=center&gt;&lt;input id="searchTextBox" type=text size=30 onkeydown="if (event.keyCode == 13) searchFirst()"&gt;&lt;input type="hidden" id="searchPage" value="0" /&gt;&lt;/td&gt;
+&lt;td valign=center&gt;&lt;input id="searchTextBox" type=text size=30 onkeydown="if (event.keyCode == 13) searchFirst()"/&gt;&lt;input type="hidden" id="searchPage" value="0" /&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/Search.png" alt="Search From Beginning" onclick="searchFirst()"/&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/SearchPrevious.png" alt="Search Previous" onclick="searchPrevious()"/&gt;&lt;/td&gt;
 &lt;td valign=center&gt;&lt;img src="images/SearchNext.png" alt="Search Next" onclick="searchNext()"/&gt;&lt;/td&gt;

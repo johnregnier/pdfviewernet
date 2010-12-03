@@ -1,5 +1,6 @@
 ﻿Imports System.Text.RegularExpressions
 Imports System.Drawing
+Imports System.Drawing.Imaging
 
 Public Class ExportOptions
 
@@ -59,7 +60,10 @@ Public Class ExportOptions
       ElseIf filename.EndsWith(".html") And rbHtml.Checked Then
         mpdfDoc.ExportHtml(filename, nuStart.Value, nuDown.Value, True, True, False)
       ElseIf filename.EndsWith(".html") And rbHtmlImage.Checked Then
-        ExportHTMLImages(nuDPI.Value, filename, "png")
+        Dim format As String = ""
+        If rbJPGHtml.Checked Then format = "jpg"
+        If rbPNGHtml.Checked Then format = "png"
+        ExportHTMLImages(nuDPI.Value, filename, format)
       End If
       Windows.Forms.Cursor.Current = Windows.Forms.Cursors.Default
     End If
@@ -81,36 +85,32 @@ Public Class ExportOptions
   Private Sub CheckedChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles rbHtml.CheckedChanged, rbJpeg.CheckedChanged, rbPostscript.CheckedChanged, rbText.CheckedChanged, rbPNG.CheckedChanged, rbTIFF.CheckedChanged, rbHtmlImage.CheckedChanged
     If rbHtml.Checked Then
       SaveFileDialog1.Filter = rbHtml.Tag
-      GroupBox3.Enabled = False
     ElseIf rbHtmlImage.Checked Then
       SaveFileDialog1.Filter = rbHtmlImage.Tag
-      GroupBox3.Enabled = True
     ElseIf rbJpeg.Checked Then
       SaveFileDialog1.Filter = rbJpeg.Tag
-      GroupBox3.Enabled = True
     ElseIf rbPostscript.Checked Then
       SaveFileDialog1.Filter = rbPostscript.Tag
-      GroupBox3.Enabled = False
     ElseIf rbText.Checked Then
       SaveFileDialog1.Filter = rbText.Tag
-      GroupBox3.Enabled = False
     ElseIf rbPNG.Checked Then
       SaveFileDialog1.Filter = rbPNG.Tag
-      GroupBox3.Enabled = True
     ElseIf rbTIFF.Checked Then
       SaveFileDialog1.Filter = rbTIFF.Tag
-      GroupBox3.Enabled = True
     End If
+    pnlFormatHtml.Visible = rbHtmlImage.Checked
+    GroupBox3.Enabled = (Not rbPostscript.Checked And Not rbHtml.Checked And Not rbText.Checked)
   End Sub
 
   Private Sub btCancel_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btCancel.Click
     Me.Hide()
   End Sub
 
-  Public Sub ExportHTMLImages(ByVal DPI As Integer, ByVal fileName As String, ByVal format As String)
+  Public Sub ExportHTMLImages(ByVal DPI As Integer, ByVal fileName As String, ByVal format As String, Optional ByVal useGS As Boolean = True)
     Dim folderPath As String = System.Text.RegularExpressions.Regex.Replace(fileName, "(^.+\\).+$", "$1")
     Dim contentFolder As String = folderPath & "content"
     Dim imagesFolder As String = contentFolder & "\images"
+    Dim ext As String = If(format = "jpg2", "jpg", format)
 
     Console.WriteLine("Extracting bookmarks ...")
     Dim bookMarkHtml As String = AFPDFLibUtil.BuildHTMLBookmarks(mpdfDoc)
@@ -118,12 +118,12 @@ Public Class ExportOptions
     Dim sideFrame As String = My.Resources.BookmarkHtml
     sideFrame = sideFrame.Replace("{Body}", bookMarkHtml)
     sideFrame = sideFrame.Replace("{PageCount}", mpdfDoc.PageCount.ToString)
-    sideFrame = sideFrame.Replace("{Extension}", format)
+    sideFrame = sideFrame.Replace("{Extension}", ext)
 
     Dim pageFrame As String = My.Resources.PageHtml
     pageFrame = pageFrame.Replace("{PageCount}", mpdfDoc.PageCount.ToString)
     pageFrame = pageFrame.Replace("{DPI}", DPI.ToString)
-    pageFrame = pageFrame.Replace("{Extension}", format)
+    pageFrame = pageFrame.Replace("{Extension}", ext)
 
     Console.WriteLine("Extracting html links ...")
     Dim myDict1 As DictionaryEntry = AFPDFLibUtil.GetHtmlLinks(mpdfDoc)
@@ -154,7 +154,7 @@ Public Class ExportOptions
     pageSize = pageSize.Replace("{PageCount}", mpdfDoc.PageCount.ToString)
     pageSize = pageSize.Replace("{PageContent}", myDict.Value)
     pageSize = pageSize.Replace("{DocumentName}", Regex.Replace(mPdfFileName, "^.+\\", ""))
-    pageSize = pageSize.Replace("{Extension}", format)
+    pageSize = pageSize.Replace("{Extension}", ext)
 
     Console.WriteLine("Creating website directories ...")
     Dim di As System.IO.DirectoryInfo
@@ -223,19 +223,56 @@ Public Class ExportOptions
 
     Dim pageCount As Integer = mpdfDoc.PageCount
 
-    Console.WriteLine("Rendering page graphics ...")
-    If Regex.IsMatch(format, "jpg", RegexOptions.IgnoreCase) Then
-      mpdfDoc.ExportJpg(imagesFolder & "\page%d.jpg", 1, pageCount, DPI, 90, -1)
+    If useGS Then
+      Console.WriteLine("Rendering page graphics ...")
+      If Regex.IsMatch(format, "^jpg$", RegexOptions.IgnoreCase) Then
+        ConvertPDF.PDFConvert.ConvertPdfToGraphic(mPdfFileName, imagesFolder & "\page%d.jpg", "jpeg", DPI, 1, pageCount, False, "")
+      ElseIf Regex.IsMatch(format, "^png$", RegexOptions.IgnoreCase) Then
+        ConvertPDF.PDFConvert.ConvertPdfToGraphic(mPdfFileName, imagesFolder & "\page%d.png", "png16m", DPI, 1, pageCount, False, "")
+      End If
       Console.WriteLine("Conversion completed")
-    ElseIf Regex.IsMatch(format, "png", RegexOptions.IgnoreCase) Then
-      For i As Integer = 1 To pageCount
-        Dim bm As Bitmap = AFPDFLibUtil.GetImageFromPDF(mpdfDoc, i, DPI)
-        bm.Save(imagesFolder & "\page" & i & ".png", Imaging.ImageFormat.Png)
-        bm.Dispose()
-      Next
-      Console.WriteLine("Conversion completed")
+    Else 'PDFLibNet
+      Console.WriteLine("Rendering page graphics ...")
+      If Regex.IsMatch(format, "^jpg$", RegexOptions.IgnoreCase) Then
+        For i As Integer = 1 To pageCount
+          Console.WriteLine("Rendering Page " & i & " of " & pageCount)
+          Dim bm As Bitmap = AFPDFLibUtil.GetImageFromPDF(mpdfDoc, i, DPI)
+          SaveJPG(bm, 90, imagesFolder & "\page" & i & ".jpg")
+          bm.Dispose()
+        Next
+        Console.WriteLine("Conversion completed")
+      ElseIf Regex.IsMatch(format, "^jpg2$", RegexOptions.IgnoreCase) Then
+        mpdfDoc.ExportJpg(imagesFolder & "\page%d.jpg", 1, pageCount, DPI, 90, -1)
+        Console.WriteLine("Conversion completed")
+      ElseIf Regex.IsMatch(format, "^png$", RegexOptions.IgnoreCase) Then
+        For i As Integer = 1 To pageCount
+          Console.WriteLine("Rendering Page " & i & " of " & pageCount)
+          Dim bm As Bitmap = AFPDFLibUtil.GetImageFromPDF(mpdfDoc, i, DPI)
+          bm.Save(imagesFolder & "\page" & i & ".png", Imaging.ImageFormat.Png)
+          bm.Dispose()
+        Next
+        Console.WriteLine("Conversion completed")
+      End If
     End If
+
+    
   End Sub
+
+  Private Sub SaveJPG(ByVal bm As Bitmap, ByVal quality As Integer, ByVal filename As String)
+    Dim encoderParameters As New Imaging.EncoderParameters(1)
+    encoderParameters.Param(0) = New Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, quality)
+    bm.Save(filename, GetEncoder(ImageFormat.Jpeg), encoderParameters)
+  End Sub
+
+  Private Function GetEncoder(ByVal format As ImageFormat) As ImageCodecInfo
+    Dim codecs As ImageCodecInfo() = ImageCodecInfo.GetImageDecoders()
+    For Each codec As ImageCodecInfo In codecs
+      If (codec.FormatID = format.Guid) Then
+        Return codec
+      End If
+    Next
+    Return Nothing
+  End Function
 
   'Private Sub ExportHTMLImages(ByVal fileName As String)
   '  Dim folderPath As String = System.Text.RegularExpressions.Regex.Replace(fileName, "(^.+\\).+$", "$1")
