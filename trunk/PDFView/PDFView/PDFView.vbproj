@@ -42,11 +42,7 @@
       <HintPath>lib\itextsharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="PDFLibNet, Version=0.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\PDFLibNet.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
+    <Reference Include="PDFLibNet, Version=1.0.6.8, Culture=neutral, PublicKeyToken=26d87f7d66fb2aee, processorArchitecture=x86" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />

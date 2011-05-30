@@ -58,7 +58,11 @@ Public Class ExportOptions
       ElseIf filename.EndsWith(".txt") Then
         mpdfDoc.ExportText(filename, nuStart.Value, nuDown.Value, True, True)
       ElseIf filename.EndsWith(".html") And rbHtml.Checked Then
-        mpdfDoc.ExportHtml(filename, nuStart.Value, nuDown.Value, True, True, False)
+        Dim myParams As New ExportHtmlParams
+        myParams.JpegQuality = 90
+        myParams.ImageExtension = "png"
+        myParams.HtmlLinks = True
+        mpdfDoc.ExportHtml(filename, nuStart.Value, nuDown.Value, myParams)
       ElseIf filename.EndsWith(".html") And rbHtmlImage.Checked Then
         Dim format As String = ""
         If rbJPGHtml.Checked Then format = "jpg"
