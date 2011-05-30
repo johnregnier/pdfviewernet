@@ -192,6 +192,7 @@ dpi = {DPI};
 pageCount = {PageCount};
 xOffset = 0;
 yOffset = 0;
+isMouseOver = 0;
 
 function getClickPosition(event){
                 pos_x = event.offsetX?(event.offsetX):event.pageX-document.getElementById("mainimage").offsetLeft;
@@ -206,14 +207,57 @@ function getClickPosition(event){
                 //Flip the y coordinate since postscript uses lower left corner as 0,0
                 psHeight = parseInt(myimg.height * positionScaleFactor);
                 clickY = (psHeight - clickY) + yOffset;
-                goToPageLink(clickX,clickY);
-                goToHtmlLink(clickX,clickY);
+				if (isMouseOver == 1) {
+					showPointer(clickX,clickY);
+				} else {
+					goToPageLink(clickX,clickY);
+					goToHtmlLink(clickX,clickY);
+				}
 }
 
 function getNaturalWidth() {
                 var io = new Image();
                 io.src = document.getElementById("mainimage").src;
                 return io.width;
+}
+
+function goToLinks(event) {
+	isMouseOver = 0;
+	getClickPosition(event);
+}
+
+function goToPointer(event) {
+	isMouseOver = 1;
+	getClickPosition(event);
+	isMouseOver = 0;
+}
+
+function showPointer(xPos,yPos) {
+	var x=0;
+	var linkFound = 0;
+	for (x=0; x&lt;pageLink.length; x++)
+	{		
+	if (pageLink[x][0] == parseInt(document.getElementById("currentPage").value)) {
+			if (xPos &gt;= pageLink[x][2] &amp;&amp; xPos &lt;= pageLink[x][4] &amp;&amp; yPos &gt;= pageLink[x][3] &amp;&amp; yPos &lt;= pageLink[x][5]) {
+				linkFound = 1;
+			}
+		}
+	}
+	var x=0;
+	for (x=0; x&lt;htmlLink.length; x++)
+	{		
+	if (htmlLink[x][0] == parseInt(document.getElementById("currentPage").value)) {
+			if (xPos &gt;= htmlLink[x][2] &amp;&amp; xPos &lt;= htmlLink[x][4] &amp;&amp; yPos &gt;= htmlLink[x][3] &amp;&amp; yPos &lt;= htmlLink[x][5]) {
+				linkFound = 1;
+			}
+		}
+	}	
+	if (linkFound == 1) {
+		document.body.style.cursor='pointer';
+		linkFound = 0;
+	} else {
+		document.body.style.cursor='default';
+	}
 }
 
 function goToPageLink(xPos,yPos) {
@@ -255,13 +299,14 @@ function changeImage(pagenumber)
  
 &lt;/script&gt;
 &lt;/HEAD&gt;
-&lt;BODY bgcolor="#999999"&gt;&lt;center&gt;&lt;img id="mainimage" src="images/page1.{Extension}" width="100%" onclick="getClickPosition(event)"&gt;&lt;/center&gt;&lt;input type="hidden" id="currentPage" value="1" /&gt;&lt;/BODY&gt;
+&lt;BODY bgcolor="#999999"&gt;&lt;center&gt;&lt;img id="mainimage" src="images/page1.{Extension}" width="100%" onclick="goToLinks(event)" onmousemove="goToPointer(event)"&gt;&lt;/center&gt;&lt;input type="hidden" id="currentPage" value="1" /&gt;&lt;/BODY&gt;
 &lt;/HTML&gt;</value>
   </data>
   <data name="PagesizeHtml" xml:space="preserve">
     <value>&lt;HTML&gt;
 &lt;HEAD&gt;
 &lt;TITLE&gt;PageSize&lt;/TITLE&gt;
+&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/&gt;
 &lt;SCRIPT LANGUAGE="JavaScript"&gt;
 
 pageContent = new Array({PageCount-1});
@@ -377,10 +422,11 @@ function gotoPage() {
 
 function searchNext() {
 	searchtext = document.getElementById('searchTextBox').value;
+	var nextRegex = new RegExp(searchtext,'mi');
 	var x=0;
 	for (x=0; x&lt;pageCount; x++)
 	{
-		if (pageContent[x][1].toUpperCase().indexOf(searchtext.toUpperCase()) &gt;= 0 &amp;&amp; pageContent[x][0] &gt; document.getElementById('searchPage').value) {
+		if (pageContent[x][1].search(nextRegex) &gt; -1 &amp;&amp; pageContent[x][0] &gt; document.getElementById('searchPage').value) {
 			updatePageStatus(pageContent[x][0]);
 			gotoPage()
 			break;
@@ -390,11 +436,12 @@ function searchNext() {
 
 function searchFirst() {
 	searchtext = document.getElementById('searchTextBox').value;
+	var firstRegex = new RegExp(searchtext,'mi');
 	document.getElementById('searchPage').value = 0;
 	var x=0;
 	for (x=0; x&lt;pageCount; x++)
 	{
-		if (pageContent[x][1].toUpperCase().indexOf(searchtext.toUpperCase()) &gt;= 0 &amp;&amp; pageContent[x][0] &gt; document.getElementById('searchPage').value) {
+		if (pageContent[x][1].search(firstRegex) &gt; -1 &amp;&amp; pageContent[x][0] &gt; document.getElementById('searchPage').value) {
 			updatePageStatus(pageContent[x][0]);
 			gotoPage()
 			break;
@@ -405,10 +452,11 @@ function searchFirst() {
 function searchPrevious() {
 	pageContent.reverse();	
 	searchtext = document.getElementById('searchTextBox').value;
+	var previousRegex = new RegExp(searchtext,'mi');
 	var x=0;
 	for (x=0; x&lt;pageCount; x++)
 	{
-		if (pageContent[x][1].toUpperCase().indexOf(searchtext.toUpperCase()) &gt;= 0 &amp;&amp; pageContent[x][0] &lt; document.getElementById('searchPage').value) {
+		if (pageContent[x][1].search(previousRegex) &gt; -1 &amp;&amp; pageContent[x][0] &lt; document.getElementById('searchPage').value) {
 			updatePageStatus(pageContent[x][0]);
 			gotoPage()
 			break;

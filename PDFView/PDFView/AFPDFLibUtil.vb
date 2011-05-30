@@ -92,7 +92,11 @@ Public Class AFPDFLibUtil
         ElseIf fileName.EndsWith(".txt") Then
           pdfDoc.ExportText(fileName, startPage, endPage, True, True)
         ElseIf fileName.EndsWith(".html") Then
-          pdfDoc.ExportHtml(fileName, startPage, endPage, True, True, False)
+          Dim myParams As New ExportHtmlParams
+          myParams.JpegQuality = 90
+          myParams.ImageExtension = "png"
+          myParams.HtmlLinks = True
+          pdfDoc.ExportHtml(fileName, startPage, endPage, myParams)
         End If
       Catch ex As Exception
         MessageBox.Show(ex.ToString())
