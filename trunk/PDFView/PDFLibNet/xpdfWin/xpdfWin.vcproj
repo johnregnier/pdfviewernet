@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;xpdf&quot;;&quot;splash&quot;;&quot;goo&quot;;&quot;fofi&quot;;&quot;..\freetype-2.3.1\include&quot;;&quot;..\zlib&quot;;&quot;..\jpeg&quot;"
+				AdditionalIncludeDirectories="&quot;xpdf&quot;;&quot;splash&quot;;&quot;goo&quot;;&quot;fofi&quot;;&quot;..\freetype-2.4.4\include&quot;;&quot;..\zlib&quot;;&quot;..\jpeg&quot;"
 				PreprocessorDefinitions="WIN32"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
@@ -63,7 +63,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				LinkLibraryDependencies="true"
-				AdditionalDependencies="..\bin\freetype231_D.lib ..\zlib\zlib.lib ..\swftools\swftools-0.9.0\lib\as3\as3.lib ..\swftools\swftools-0.9.0\lib\action\action.lib"
+				AdditionalDependencies="..\bin\freetype244_D.lib ..\zlib\zlib.lib ..\swftools\swftools-0.9.0\lib\as3\as3.lib ..\swftools\swftools-0.9.0\lib\action\action.lib"
 				OutputFile="..\bin\$(ProjectName)_D.lib"
 			/>
 			<Tool
@@ -111,7 +111,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="&quot;xpdf&quot;;&quot;splash&quot;;&quot;goo&quot;;&quot;fofi&quot;;&quot;..\freetype-2.3.1\include&quot;;&quot;..\zlib&quot;;&quot;..\jpeg&quot;"
+				AdditionalIncludeDirectories="&quot;xpdf&quot;;&quot;splash&quot;;&quot;goo&quot;;&quot;fofi&quot;;&quot;..\freetype-2.4.4\include&quot;;&quot;..\zlib&quot;;&quot;..\jpeg&quot;"
 				PreprocessorDefinitions="_WIN32;WIN32"
 				RuntimeLibrary="2"
 				WarningLevel="3"
@@ -132,7 +132,7 @@
 				Name="VCLibrarianTool"
 				LinkLibraryDependencies="true"
 				AdditionalOptions="/c"
-				AdditionalDependencies="..\bin\freetype231.lib ..\zlib\zlib.lib ..\swftools\swftools-0.9.0\lib\as3\as3.lib ..\swftools\swftools-0.9.0\lib\action\action.lib"
+				AdditionalDependencies="..\bin\freetype244.lib ..\zlib\zlib.lib ..\swftools\swftools-0.9.0\lib\as3\as3.lib ..\swftools\swftools-0.9.0\lib\action\action.lib"
 				OutputFile="..\bin\$(ProjectName).lib"
 				AdditionalLibraryDirectories=""
 			/>

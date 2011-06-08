@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;xpdf&quot;;&quot;splash&quot;;&quot;goo&quot;;&quot;fofi&quot;;&quot;..\freetype-2.3.1\include&quot;"
+				AdditionalIncludeDirectories="xpdf;splash;goo;fofi;&quot;..\freetype-2.4.4\include&quot;"
 				PreprocessorDefinitions="WIN32; TEXTOUT_WORD_LIST; HAVE_JPEGLIB"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
@@ -62,7 +62,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				LinkLibraryDependencies="true"
-				AdditionalDependencies="..\bin\freetype231_D.lib ..\bin\zlib_D.lib ..\bin\libjpeg_D.lib"
+				AdditionalDependencies="..\bin\freetype244_D.lib ..\bin\zlib_D.lib ..\bin\libjpeg_D.lib"
 				OutputFile="..\bin\$(ProjectName)_D.lib"
 				AdditionalLibraryDirectories=""
 			/>
@@ -179,7 +179,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="&quot;xpdf&quot;;&quot;splash&quot;;&quot;goo&quot;;&quot;fofi&quot;;&quot;..\freetype-2.3.1\include&quot;"
+				AdditionalIncludeDirectories="&quot;xpdf&quot;;&quot;splash&quot;;&quot;goo&quot;;&quot;fofi&quot;;&quot;..\freetype-2.4.4\include&quot;"
 				PreprocessorDefinitions="_WIN32;WIN32;HAVE_JPEGLIB"
 				RuntimeLibrary="2"
 				WarningLevel="3"
@@ -199,7 +199,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				LinkLibraryDependencies="true"
-				AdditionalDependencies="..\bin\freetype231.lib ..\bin\zlib.lib ..\libjpeg.lib"
+				AdditionalDependencies="..\bin\freetype244.lib ..\bin\zlib.lib ..\libjpeg.lib"
 				OutputFile="..\bin\$(ProjectName).lib"
 			/>
 			<Tool
