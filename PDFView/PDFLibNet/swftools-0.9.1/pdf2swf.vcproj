@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\freetype-2.3.1\include&quot;;..\jpeg;..\zlib;..\xpdfWin;..\xpdfWin\xpdf;..\xpdfWin\goo;..\xpdfWin\fofi;..\xpdfWin\splash"
+				AdditionalIncludeDirectories="&quot;..\freetype-2.4.4\include&quot;;..\jpeg;..\zlib;..\xpdfWin;..\xpdfWin\xpdf;..\xpdfWin\goo;..\xpdfWin\fofi;..\xpdfWin\splash"
 				PreprocessorDefinitions="WIN32;TEXTOUT_WORD_LIST;_DEBUG;HAVE_IO_H;_MSVC;YY_NO_UNISTD_H"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
@@ -64,7 +64,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="../bin/freetype231_D.lib ../bin/xpdf_D.lib ../bin/zlib_D.lib ../bin/libjpeg_D.lib lib/as3/libas3.a"
+				AdditionalDependencies="../bin/freetype244_D.lib ../bin/xpdf_D.lib ../bin/zlib_D.lib ../bin/libjpeg_D.lib lib/as3/libas3.a"
 				OutputFile="..\bin\$(ProjectName)_D.lib"
 			/>
 			<Tool
@@ -175,7 +175,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\freetype-2.3.1\include&quot;;..\jpeg;..\zlib;..\xpdfWin;..\xpdfWin\xpdf;..\xpdfWin\goo;..\xpdfWin\fofi;..\xpdfWin\splash"
+				AdditionalIncludeDirectories="&quot;..\freetype-2.4.4\include&quot;;..\jpeg;..\zlib;..\xpdfWin;..\xpdfWin\xpdf;..\xpdfWin\goo;..\xpdfWin\fofi;..\xpdfWin\splash"
 				PreprocessorDefinitions="WIN32; TEXTOUT_WORD_LIST;_DEBUG;_CONSOLE; HAVE_IO_H; _MSVC; YY_NO_UNISTD_H"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
@@ -197,7 +197,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../bin/freetype231.lib ../bin/xpdf.lib ../bin/zlib.lib ../bin/libjpeg.lib lib/as3/libas3.a"
+				AdditionalDependencies="../bin/freetype244.lib ../bin/xpdf.lib ../bin/zlib.lib ../bin/libjpeg.lib lib/as3/libas3.a"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
