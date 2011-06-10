@@ -165,7 +165,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\freetype-2.3.1\include;..\jpeg;..\zlib;..\xpdfWin;..\xpdfWin\xpdf;..\xpdfWin\goo;..\xpdfWin\fofi;..\xpdfWin\splash;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\freetype-2.4.4\include;..\jpeg;..\zlib;..\xpdfWin;..\xpdfWin\xpdf;..\xpdfWin\goo;..\xpdfWin\fofi;..\xpdfWin\splash;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32; TEXTOUT_WORD_LIST;_NDEBUG;HAVE_IO_H; _MSVC; YY_NO_UNISTD_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>false</FunctionLevelLinking>
@@ -175,7 +175,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>../bin/freetype231.lib;../bin/xpdf.lib;../bin/zlib.lib;../bin/libjpeg.lib;lib/as3/libas3.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../bin/freetype244.lib;../bin/xpdf.lib;../bin/zlib.lib;../bin/libjpeg.lib;lib/as3/libas3.a;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\bin\$(ProjectName).lib</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
       <SubSystem>Windows</SubSystem>
@@ -187,7 +187,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>..\freetype-2.3.1\include;..\jpeg;..\zlib;..\xpdfWin;..\xpdfWin\xpdf;..\xpdfWin\goo;..\xpdfWin\fofi;..\xpdfWin\splash;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\freetype-2.4.4\include;..\jpeg;..\zlib;..\xpdfWin;..\xpdfWin\xpdf;..\xpdfWin\goo;..\xpdfWin\fofi;..\xpdfWin\splash;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;TEXTOUT_WORD_LIST;_NDEBUG;HAVE_IO_H;_MSVC;YY_NO_UNISTD_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>false</FunctionLevelLinking>
@@ -197,7 +197,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>../bin/freetype231.lib;../bin/xpdf.lib;../bin/zlib.lib;../bin/libjpeg.lib;lib/as3/libas3.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../bin/freetype244.lib;../bin/xpdf.lib;../bin/zlib.lib;../bin/libjpeg.lib;lib/as3/libas3.a;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\bin\$(ProjectName).lib</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
@@ -944,9 +944,13 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\freetype-2.3.1\builds\win32\visualc\freetype-2008.vcxproj">
+    <ProjectReference Include="..\freetype-2.4.4\builds\win32\vc2010\freetype.vcxproj">
       <Project>{78b079bd-9fc7-4b9e-b4a6-96da0f00248b}</Project>
+      <Private>true</Private>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
     <ProjectReference Include="..\jpeg\libjpg-2008.vcxproj">
       <Project>{b1f575d7-1fe6-469f-8bed-e393e906908b}</Project>

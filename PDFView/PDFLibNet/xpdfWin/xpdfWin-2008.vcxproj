@@ -131,7 +131,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>xpdf;splash;goo;fofi;..\freetype-2.3.1\include; ..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>xpdf;splash;goo;fofi;..\freetype-2.4.4\include;..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WIN32;WIN32;TEXTOUT_WORD_LIST;HAVE_JPEGLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
@@ -142,7 +142,7 @@
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
     <Lib>
-      <AdditionalDependencies>..\bin\freetype231.lib;..\bin\zlib.lib;..\bin\libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\bin\freetype244.lib;..\bin\zlib.lib;..\bin\libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\bin\$(ProjectName).lib</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
@@ -152,7 +152,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>xpdf;splash;goo;fofi;..\freetype-2.3.1\include; ..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>xpdf;splash;goo;fofi;..\freetype-2.4.4\include;..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WIN32;WIN32;TEXTOUT_WORD_LIST;HAVE_JPEGLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
@@ -163,7 +163,7 @@
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
     <Lib>
-      <AdditionalDependencies>..\bin\freetype231.lib;..\bin\zlib.lib;..\bin\libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\bin\freetype244.lib;..\bin\zlib.lib;..\bin\libjpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\bin\$(ProjectName).lib</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
