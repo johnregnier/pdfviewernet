@@ -1,0 +1,513 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="fitz">
+      <UniqueIdentifier>{0e0862d6-2d6c-4e43-898f-6887d50adf63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fitzdraw">
+      <UniqueIdentifier>{3ac30ba3-f9cb-4556-84a1-facae35e5339}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jbig2dec">
+      <UniqueIdentifier>{32be163a-a6ef-4f8a-8c2d-13c911990897}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="openjpeg">
+      <UniqueIdentifier>{765fabf7-d0d3-424d-ac25-c53753a26d55}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pdf\pdf_annot.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_cmap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_cmap_load.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_cmap_parse.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_cmap_table.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_colorspace.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_crypt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_encoding.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_font.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_fontfile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_function.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_image.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_interpret.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_lex.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_metrics.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_nametree.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_outline.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_page.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_parse.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_pattern.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_repair.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_shade.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_store.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_stream.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_type3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_unicode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_xobject.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pdf\pdf_xref.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\base_error.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\base_geometry.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\base_getopt.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\base_hash.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\base_memory.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\base_object.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\base_string.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\base_time.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\crypt_aes.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\crypt_arc4.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\crypt_md5.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\crypt_sha2.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\dev_bbox.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\dev_gdiplus.cpp">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\dev_list.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\dev_null.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\dev_text.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\dev_trace.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\filt_basic.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\filt_dctd.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\filt_faxd.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\filt_flate.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\filt_jbig2d.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\filt_jpxd.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\filt_lzwd.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\filt_predict.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\obj_print.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\res_bitmap.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\res_colorspace.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\res_font.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\res_halftone.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\res_path.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\res_pixmap.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\res_shade.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\res_text.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\stm_buffer.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\stm_open.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitz\stm_read.c">
+      <Filter>fitz</Filter>
+    </ClCompile>
+    <ClCompile Include="fitzdraw\arch_arm.c">
+      <Filter>fitzdraw</Filter>
+    </ClCompile>
+    <ClCompile Include="fitzdraw\arch_port.c">
+      <Filter>fitzdraw</Filter>
+    </ClCompile>
+    <ClCompile Include="fitzdraw\draw_affine.c">
+      <Filter>fitzdraw</Filter>
+    </ClCompile>
+    <ClCompile Include="fitzdraw\draw_blend.c">
+      <Filter>fitzdraw</Filter>
+    </ClCompile>
+    <ClCompile Include="fitzdraw\draw_device.c">
+      <Filter>fitzdraw</Filter>
+    </ClCompile>
+    <ClCompile Include="fitzdraw\draw_edge.c">
+      <Filter>fitzdraw</Filter>
+    </ClCompile>
+    <ClCompile Include="fitzdraw\draw_glyph.c">
+      <Filter>fitzdraw</Filter>
+    </ClCompile>
+    <ClCompile Include="fitzdraw\draw_mesh.c">
+      <Filter>fitzdraw</Filter>
+    </ClCompile>
+    <ClCompile Include="fitzdraw\draw_paint.c">
+      <Filter>fitzdraw</Filter>
+    </ClCompile>
+    <ClCompile Include="fitzdraw\draw_path.c">
+      <Filter>fitzdraw</Filter>
+    </ClCompile>
+    <ClCompile Include="fitzdraw\draw_scale.c">
+      <Filter>fitzdraw</Filter>
+    </ClCompile>
+    <ClCompile Include="fitzdraw\draw_unpack.c">
+      <Filter>fitzdraw</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\getopt.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\getopt1.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_arith.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_arith_iaid.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_arith_int.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_generic.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_halftone.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_huffman.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_image.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_image_pbm.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_metadata.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_mmr.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_page.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_refinement.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_segment.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_symbol_dict.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2_text.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\jbig2dec.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="jbig2dec\sha1.c">
+      <Filter>jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\bio.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\cio.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\dwt.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\event.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\image.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\j2k.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\j2k_lib.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\jp2.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\jpt.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\mct.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\mqc.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\openjpeg.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\pi.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\raw.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\t1.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\t2.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\tcd.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libopenjpeg\tgt.c">
+      <Filter>openjpeg</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="mupdf\data_encodings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mupdf\data_glyphlist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mupdf\mupdf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fitz\fitz.h">
+      <Filter>fitz</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\config_types.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\config_win32.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\getopt.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\jbig2.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\jbig2_arith.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\jbig2_arith_iaid.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\jbig2_arith_int.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\jbig2_generic.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\jbig2_huffman.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\jbig2_hufftab.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\jbig2_image.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\jbig2_metadata.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\jbig2_mmr.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\jbig2_priv.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\jbig2_symbol_dict.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\jbig2_text.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\os_types.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="jbig2dec\sha1.h">
+      <Filter>jbig2dec</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\bio.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\cio.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\dwt.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\event.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\fix.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\image.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\int.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\j2k.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\j2k_lib.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\jp2.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\jpt.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\mct.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\mqc.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\openjpeg.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\opj_includes.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\pi.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\raw.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\t1.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\t1_luts.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\t2.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\tcd.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libopenjpeg\tgt.h">
+      <Filter>openjpeg</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
