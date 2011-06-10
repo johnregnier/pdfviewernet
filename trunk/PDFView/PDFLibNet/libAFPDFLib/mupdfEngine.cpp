@@ -10,13 +10,13 @@ fz_pixmap *fz_newpixmap_nullonoom(fz_colorspace *colorspace, int x, int y, int w
     // make sure not to request too large a pixmap, as MuPDF just aborts on OOM;
     // instead we get a 1*h sized pixmap and try to resize it manually and just
     // fail to render if we run out of memory.
-    fz_pixmap *image = fz_newpixmap(colorspace, x, y, 1, h);
+    fz_pixmap *image = fz_new_pixmap(colorspace, 1, h);
 
     image->w = w;
     free(image->samples);
     image->samples = (unsigned char *)malloc(w * h * image->n);
     if (!image->samples) {
-        fz_droppixmap(image);
+        fz_drop_pixmap(image);
         image = NULL;
     }
 
@@ -25,13 +25,13 @@ fz_pixmap *fz_newpixmap_nullonoom(fz_colorspace *colorspace, int x, int y, int w
 
 fz_error pdf_runpagefortarget(pdf_xref *xref, pdf_page *page, fz_device *dev, fz_matrix ctm)
 {
-    fz_obj *targetName = fz_newname("View");
-    fz_dictputs(xref->trailer, "_MuPDF_OCG_Usage", targetName);
+    fz_obj *targetName = fz_new_name("View");
+    fz_dict_puts(xref->trailer, "_MuPDF_OCG_Usage", targetName);
 
-    fz_error error = pdf_runpage(xref, page, dev, ctm);
+    fz_error error = pdf_run_page(xref, page, dev, ctm);
 
-    fz_dictdels(xref->trailer, "_MuPDF_OCG_Usage");
-    fz_dropobj(targetName);
+    fz_dict_dels(xref->trailer, "_MuPDF_OCG_Usage");
+    fz_drop_obj(targetName);
 
     return error;
 }
@@ -182,7 +182,7 @@ mupdfEngine::~mupdfEngine()
 #endif
 
     if (_xref) 
-		pdf_freexref(_xref);
+		pdf_free_xref(_xref);
 
     /*if (_rast)
         fz_droprenderer(_rast);*/
@@ -195,10 +195,10 @@ int mupdfEngine::LoadFile(char *fileName,char *own_pwd,char *usr_pwd){
 	//start xref
 	if(_xref==NULL){
 		//_xref=new pdf_xref();
-		int fd = _topen(fileName, O_BINARY | O_RDONLY);
-		fz_stream *file = fz_openfile(fd);
+		//int fd = _topen(fileName, O_BINARY | O_RDONLY);
+		fz_stream *file = fz_open_file(fileName);
 		// TODO: not sure how to handle passwords
-		err = pdf_openxrefwithstream(&_xref, file, NULL);
+		err = pdf_open_xref_with_stream(&_xref, file, NULL);
 		fz_close(file);
 
 		if (err || !_xref){
@@ -207,17 +207,17 @@ int mupdfEngine::LoadFile(char *fileName,char *own_pwd,char *usr_pwd){
 		}
 	}
 
-	if (pdf_needspassword(_xref)) {
+	if (pdf_needs_password(_xref)) {
         
-		if (pdf_authenticatepassword(_xref, ""))
+		if (pdf_authenticate_password(_xref, ""))
 			return 0;
-        if(pdf_authenticatepassword(_xref, own_pwd) || pdf_authenticatepassword(_xref, usr_pwd))
+        if(pdf_authenticate_password(_xref, own_pwd) || pdf_authenticate_password(_xref, usr_pwd))
 				return 0;
         error(0,"File needs password, invalid password");
         return 4;
     }
 
-	err = pdf_loadpagetree(_xref);
+	err = pdf_load_page_tree(_xref);
     if (err)
 	{
 		error(0,"XRef Read error, corrupt data. Can not repair");
@@ -244,24 +244,24 @@ fz_pixmap* mupdfEngine::display(AuxOutputDev *out,int pageNo, int rotate, double
     ctm = viewctm(page, zoom, rotate);
 	if (!pageRect)
         pageRect = &page->mediabox;
-    bbox = fz_roundrect(fz_transformrect(ctm, *pageRect));
+    bbox = fz_round_rect(fz_transform_rect(ctm, *pageRect));
 
-	image = fz_newpixmap_nullonoom(fz_devicergb,        bbox.x0, bbox.y0, bbox.x1 - bbox.x0, bbox.y1 - bbox.y0);
+	image = fz_newpixmap_nullonoom(fz_device_rgb,        bbox.x0, bbox.y0, bbox.x1 - bbox.x0, bbox.y1 - bbox.y0);
     if (!image)
         return NULL;
 
-    fz_clearpixmap(image, 0xFF); // initialize white background
+    fz_clear_pixmap(image); // initialize white background
     if (!_drawcache)
-        _drawcache = fz_newglyphcache();
-    fz_device *dev = fz_newdrawdevice(_drawcache, image);
+        _drawcache = fz_new_glyph_cache();
+    fz_device *dev = fz_new_draw_device(_drawcache, image);
     //EnterCriticalSection(&_xrefAccess);
-    fz_error error = pdf_runpagefortarget(_xref, page, dev, ctm);
+    fz_error error = pdf_run_page(_xref, page, dev, ctm);
     //LeaveCriticalSection(&_xrefAccess);
 
-	fz_freeglyphcache(_drawcache);
-    fz_freedevice(dev);
-	pdf_freepage(page);
-	pdf_agestore(_xref->store, 3);
+	fz_free_glyph_cache(_drawcache);
+    fz_free_device(dev);
+	pdf_free_page(page);
+	pdf_age_store(_xref->store, 3);
 
     ConvertPixmapForWindows(image);
     return image;
@@ -280,7 +280,7 @@ pdf_page *mupdfEngine::GetPage(int pageNo, pdf_xref* obj_xref)
 #ifdef CACHE_MUPDF_PAGES
 	if (!_pages){
 		int _pageCount;
-		pdf_getpagecount(obj_xref,&_pageCount);
+		pdf_get_page_count(obj_xref,&_pageCount);
         _pages = (pdf_page**)malloc(sizeof(pdf_page*) * _pageCount);
 		for (int i = 0; i < _pageCount; i++)
 			_pages[i] = NULL;
@@ -289,11 +289,11 @@ pdf_page *mupdfEngine::GetPage(int pageNo, pdf_xref* obj_xref)
     if (page) 
         return page;
 #endif   
-    obj = pdf_getpageobject(obj_xref, pageNo);
-	if(obj){
-        if(pdf_loadpage(&page, obj_xref,obj))
+    //obj = pdf_get_page_object(obj_xref, pageNo);
+	//if(obj){
+        if(pdf_load_page(&page, obj_xref,pageNo-1))
 			return NULL;
-	}
+	//}
 #ifdef CACHE_MUPDF_PAGES
 	_pages[pageNo-1]=page;
 #endif
@@ -318,7 +318,7 @@ HBITMAP mupdfEngine::renderBitmap(
     fz_matrix ctm = viewctm(page, zoomReal, rotation);
     if (!pageRect)
         pageRect = &page->mediabox;
-    fz_bbox bbox = fz_roundrect(fz_transformrect(ctm, *pageRect));
+    fz_bbox bbox = fz_round_rect(fz_transform_rect(ctm, *pageRect));
 
     int w = bbox.x1 - bbox.x0, h = bbox.y1 - bbox.y0;
     ctm = fz_concat(ctm, fz_translate(-bbox.x0, -bbox.y0));
@@ -336,14 +336,14 @@ HBITMAP mupdfEngine::renderBitmap(
     DeleteObject(bgBrush);
 
     fz_bbox clipBox = { rc.left, rc.top, rc.right, rc.bottom };
-    fz_device *dev = fz_newgdiplusdevice(hDCMem, clipBox);
+    fz_device *dev = fz_new_gdiplus_device(hDCMem, clipBox);
     //EnterCriticalSection(&_xrefAccess);
     fz_error error = pdf_runpagefortarget(_xref, page, dev, ctm);
     //LeaveCriticalSection(&_xrefAccess);
 	
-	fz_freedevice(dev);
-	pdf_freepage(page);
-	pdf_agestore(_xref->store, 3);
+	fz_free_device(dev);
+	pdf_free_page(page);
+	pdf_age_store(_xref->store, 3);
 
     if (fz_okay != error) {
         DeleteObject(hbmp);
