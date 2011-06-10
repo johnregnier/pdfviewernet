@@ -18,7 +18,7 @@ class mupdfEngine
 		pdf_xref *      _xref;		//Current xRef
 		pdf_page **     _pages;		//Pages cache
 		pdf_page *		_page;		//Pages cache
-		fz_glyphcache * _drawcache;
+		fz_glyph_cache * _drawcache;
 		//fz_renderer *   _rast;		//Rasterizer
 	//Load from file, expect an utf8 encoded string
 public:

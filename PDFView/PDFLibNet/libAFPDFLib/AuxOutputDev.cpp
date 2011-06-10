@@ -19,7 +19,7 @@ AuxOutputDev::~AuxOutputDev()
 {
 #ifdef _MUPDF
 	if(_pixmap!=NULL){
-		::fz_droppixmap(_pixmap);
+		::fz_drop_pixmap(_pixmap);
 		_pixmap=NULL;
 	}
 #endif
