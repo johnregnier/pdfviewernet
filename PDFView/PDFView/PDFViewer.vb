@@ -17,7 +17,7 @@ Public Class PDFViewer
   Private mBookmarks As ArrayList
   Private mAllowBookmarks As Boolean = True
   Private mUseXPDF As Boolean = True
-  Private mUseMuPDF As Boolean = False
+  Private mUseMuPDF As Boolean = True
   Private mPDFDoc As PDFLibNet.PDFWrapper
   Private GSConverter As ConvertPDF.PDFConvert
   Private FromBeginning As Boolean = True
@@ -185,6 +185,9 @@ GhostScriptFallBack:
     End Get
     Set(ByVal value As Boolean)
       mUseXPDF = value
+      If value = False Then
+        mUseMuPDF = False
+      End If
     End Set
   End Property
 
@@ -507,16 +510,16 @@ GhostScriptFallBack:
 
   Private Sub InitBookmarks()
     TreeView1.Nodes.Clear()
+    RemoveHandler TreeView1.NodeMouseClick, AddressOf AFPDFLib_NodeMouseClick
+    RemoveHandler TreeView1.NodeMouseClick, AddressOf ItextSharp_NodeMouseClick
     Dim HasBookmarks As Boolean = False
     Try
       If mUseXPDF Then
         HasBookmarks = AFPDFLibUtil.FillTree(TreeView1, mPDFDoc)
         AddHandler TreeView1.NodeMouseClick, AddressOf AFPDFLib_NodeMouseClick
-        RemoveHandler TreeView1.NodeMouseClick, AddressOf ItextSharp_NodeMouseClick
       Else
         HasBookmarks = iTextSharpUtil.BuildBookmarkTreeFromPDF(mOriginalFileName, TreeView1.Nodes, mPassword)
         AddHandler TreeView1.NodeMouseClick, AddressOf ItextSharp_NodeMouseClick
-        RemoveHandler TreeView1.NodeMouseClick, AddressOf AFPDFLib_NodeMouseClick
       End If
     Catch ex As Exception
       'Some bookmark structures do not parse from XML yet.
@@ -736,6 +739,17 @@ GhostScriptFallBack:
     tsPageNum.Text = mCurrentPageNumber
   End Sub
 
+  Private Delegate Sub mShowDefaultCursor()
+  Private Delegate Sub mShowWaitCursor()
+
+  Private Sub ShowDefaultCursor()
+    Me.Cursor = Cursors.Default
+  End Sub
+
+  Private Sub ShowWaitCursor()
+    Me.Cursor = Cursors.WaitCursor
+  End Sub
+
   'Private Sub DisplayCurrentPage()
   '  CheckPageBounds()
   '  UpdatePageLabel()
@@ -760,7 +774,12 @@ GhostScriptFallBack:
   'End Sub
 
   Private Function GetPageImageFromPDF(ByVal pageNum As Integer, ByRef oPict As PictureBox) As System.Drawing.Image
-
+    If Me.InvokeRequired Then
+      Dim myDel As New mShowWaitCursor(AddressOf ShowWaitCursor)
+      Me.Invoke(myDel)
+    Else
+      ShowWaitCursor()
+    End If
     If mUseXPDF Then
       GetPageImageFromPDF = GetImageFromFile(mPDFFileName, pageNum - 1, AFPDFLibUtil.GetOptimalDPI(mPDFDoc, oPict))
     Else
@@ -777,6 +796,12 @@ GhostScriptFallBack:
         optimalDPI = iTextSharpUtil.GetOptimalDPI(mPDFFileName, pageNum, oPict, mPassword)
       End If
       GetPageImageFromPDF = GetImageFromFile(mPDFFileName, pageNum - 1, optimalDPI)
+    End If
+    If Me.InvokeRequired Then
+      Dim myDel As New mShowDefaultCursor(AddressOf ShowDefaultCursor)
+      Me.Invoke(myDel)
+    Else
+      ShowDefaultCursor()
     End If
   End Function
 
