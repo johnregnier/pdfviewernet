@@ -84,6 +84,8 @@ Public Class PDFViewer
       mUserPassword = ""
       mOwnerPassword = ""
       mPassword = ""
+      mCurrentPageNumber = 0
+      mLastPageNumber = -1
       Dim userPassword As String = Nothing
       If ImageUtil.IsTiff(value) Then
         'Tiff Specific behavior
@@ -156,6 +158,7 @@ GhostScriptFallBack:
       mPDFFileName = value
       InitViewModes()
       InitPageRange()
+      UpdatePageLabel()
       InitRotation()
       InitializePageView(ViewMode.FIT_WIDTH)
       If mAllowBookmarks And ImageUtil.IsPDF(mOriginalFileName) Then
@@ -163,7 +166,6 @@ GhostScriptFallBack:
       Else
         HideBookmarks()
       End If
-      DisplayCurrentPage()
       tsFitWidth_Click(Nothing, Nothing)
       Me.Enabled = True
       Cursor.Current = Cursors.Default
