@@ -465,6 +465,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, int pageNum, Dict *resDict,
     baseMatrix[i] = state->getCTM()[i];
   }
   formDepth = 0;
+  parser = NULL;
   abortCheckCbk = abortCheckCbkA;
   abortCheckCbkData = abortCheckCbkDataA;
 
@@ -504,6 +505,7 @@ Gfx::Gfx(XRef *xrefA, OutputDev *outA, Dict *resDict,
     baseMatrix[i] = state->getCTM()[i];
   }
   formDepth = 0;
+  parser = NULL;
   abortCheckCbk = abortCheckCbkA;
   abortCheckCbkData = abortCheckCbkDataA;
 
@@ -804,263 +806,260 @@ void Gfx::opSetLineWidth(Object args[], int numArgs) {
 }
 
 void Gfx::opSetExtGState(Object args[], int numArgs) {
-	Object obj1, obj2, obj3, obj4, obj5;
-	GfxBlendMode mode;
-	GBool haveFillOP;
-	Function *funcs[4];
-	GfxColor backdropColor;
-	GBool haveBackdropColor;
-	GfxColorSpace *blendingColorSpace;
-	GBool alpha, isolated, knockout;
-	int i;
+  Object obj1, obj2, obj3, obj4, obj5;
+  GfxBlendMode mode;
+  GBool haveFillOP;
+  Function *funcs[4];
+  GfxColor backdropColor;
+  GBool haveBackdropColor;
+  GfxColorSpace *blendingColorSpace;
+  GBool alpha, isolated, knockout;
+  int i;
 
-	if (!res->lookupGState(args[0].getName(), &obj1)) {
-		return;
-	}
-	if (!obj1.isDict()) {
-		error(getPos(), "ExtGState '%s' is wrong type", args[0].getName());
-		obj1.free();
-		return;
-	}
-	if (printCommands) {
-		printf("  gfx state dict: ");
-		obj1.print();
-		printf("\n");
-	}
+  if (!res->lookupGState(args[0].getName(), &obj1)) {
+    return;
+  }
+  if (!obj1.isDict()) {
+    error(getPos(), "ExtGState '%s' is wrong type", args[0].getName());
+    obj1.free();
+    return;
+  }
+  if (printCommands) {
+    printf("  gfx state dict: ");
+    obj1.print();
+    printf("\n");
+  }
 
-	// transparency support: blend mode, fill/stroke opacity
-	if (!obj1.dictLookup("BM", &obj2)->isNull()) {
-		if (state->parseBlendMode(&obj2, &mode)) {
-			state->setBlendMode(mode);
-			out->updateBlendMode(state);
-		} else {
-			error(getPos(), "Invalid blend mode in ExtGState");
-		}
-	}
-	obj2.free();
-	if (obj1.dictLookup("ca", &obj2)->isNum()) {
-		state->setFillOpacity(obj2.getNum());
-		out->updateFillOpacity(state);
-	}
-	obj2.free();
-	if (obj1.dictLookup("CA", &obj2)->isNum()) {
-		state->setStrokeOpacity(obj2.getNum());
-		out->updateStrokeOpacity(state);
-	}
-	obj2.free();
+  // transparency support: blend mode, fill/stroke opacity
+  if (!obj1.dictLookup("BM", &obj2)->isNull()) {
+    if (state->parseBlendMode(&obj2, &mode)) {
+      state->setBlendMode(mode);
+      out->updateBlendMode(state);
+    } else {
+      error(getPos(), "Invalid blend mode in ExtGState");
+    }
+  }
+  obj2.free();
+  if (obj1.dictLookup("ca", &obj2)->isNum()) {
+    state->setFillOpacity(obj2.getNum());
+    out->updateFillOpacity(state);
+  }
+  obj2.free();
+  if (obj1.dictLookup("CA", &obj2)->isNum()) {
+    state->setStrokeOpacity(obj2.getNum());
+    out->updateStrokeOpacity(state);
+  }
+  obj2.free();
 
-	// fill/stroke overprint
-	if ((haveFillOP = (obj1.dictLookup("op", &obj2)->isBool()))) {
-		state->setFillOverprint(obj2.getBool());
-		out->updateFillOverprint(state);
-	}
-	obj2.free();
-	if (obj1.dictLookup("OP", &obj2)->isBool()) {
-		state->setStrokeOverprint(obj2.getBool());
-		out->updateStrokeOverprint(state);
-		if (!haveFillOP) {
-			state->setFillOverprint(obj2.getBool());
-			out->updateFillOverprint(state);
-		}
-	}
-	obj2.free();
+  // fill/stroke overprint
+  if ((haveFillOP = (obj1.dictLookup("op", &obj2)->isBool()))) {
+    state->setFillOverprint(obj2.getBool());
+    out->updateFillOverprint(state);
+  }
+  obj2.free();
+  if (obj1.dictLookup("OP", &obj2)->isBool()) {
+    state->setStrokeOverprint(obj2.getBool());
+    out->updateStrokeOverprint(state);
+    if (!haveFillOP) {
+      state->setFillOverprint(obj2.getBool());
+      out->updateFillOverprint(state);
+    }
+  }
+  obj2.free();
 
-	// stroke adjust
-	if (obj1.dictLookup("SA", &obj2)->isBool()) {
-		state->setStrokeAdjust(obj2.getBool());
-		out->updateStrokeAdjust(state);
-	}
-	obj2.free();
+  // stroke adjust
+  if (obj1.dictLookup("SA", &obj2)->isBool()) {
+    state->setStrokeAdjust(obj2.getBool());
+    out->updateStrokeAdjust(state);
+  }
+  obj2.free();
 
-	// transfer function
-	if (obj1.dictLookup("TR2", &obj2)->isNull()) {
-		obj2.free();
-		obj1.dictLookup("TR", &obj2);
-	}
-	if (obj2.isName("Default") ||
-		obj2.isName("Identity")) {
-			funcs[0] = funcs[1] = funcs[2] = funcs[3] = NULL;
-			state->setTransfer(funcs);
-			out->updateTransfer(state);
-	} else if (obj2.isArray() && obj2.arrayGetLength() == 4) {
-		for (i = 0; i < 4; ++i) {
-			obj2.arrayGet(i, &obj3);
-			funcs[i] = Function::parse(&obj3);
-			obj3.free();
-			if (!funcs[i]) {
-				break;
-			}
-		}
-		if (i == 4) {
-			state->setTransfer(funcs);
-			out->updateTransfer(state);
-		}
-	} else if (obj2.isName() || obj2.isDict() || obj2.isStream()) {
-		if ((funcs[0] = Function::parse(&obj2))) {
-			funcs[1] = funcs[2] = funcs[3] = NULL;
-			state->setTransfer(funcs);
-			out->updateTransfer(state);
-		}
-	} else if (!obj2.isNull()) {
-		error(getPos(), "Invalid transfer function in ExtGState");
-	}
-	obj2.free();
+  // transfer function
+  if (obj1.dictLookup("TR2", &obj2)->isNull()) {
+    obj2.free();
+    obj1.dictLookup("TR", &obj2);
+  }
+  if (obj2.isName("Default") ||
+      obj2.isName("Identity")) {
+    funcs[0] = funcs[1] = funcs[2] = funcs[3] = NULL;
+    state->setTransfer(funcs);
+    out->updateTransfer(state);
+  } else if (obj2.isArray() && obj2.arrayGetLength() == 4) {
+    for (i = 0; i < 4; ++i) {
+      obj2.arrayGet(i, &obj3);
+      funcs[i] = Function::parse(&obj3);
+      obj3.free();
+      if (!funcs[i]) {
+	break;
+      }
+    }
+    if (i == 4) {
+      state->setTransfer(funcs);
+      out->updateTransfer(state);
+    }
+  } else if (obj2.isName() || obj2.isDict() || obj2.isStream()) {
+    if ((funcs[0] = Function::parse(&obj2))) {
+      funcs[1] = funcs[2] = funcs[3] = NULL;
+      state->setTransfer(funcs);
+      out->updateTransfer(state);
+    }
+  } else if (!obj2.isNull()) {
+    error(getPos(), "Invalid transfer function in ExtGState");
+  }
+  obj2.free();
 
-	// soft mask
-	if (!obj1.dictLookup("SMask", &obj2)->isNull()) {
-		if (obj2.isName("None")) {
-			out->clearSoftMask(state);
-		} else if (obj2.isDict()) {
-			if (obj2.dictLookup("S", &obj3)->isName("Alpha")) {
-				alpha = gTrue;
-			} else { // "Luminosity"
-				alpha = gFalse;
-			}
-			obj3.free();
-			funcs[0] = NULL;
-			if (!obj2.dictLookup("TR", &obj3)->isNull()) {
-				funcs[0] = Function::parse(&obj3);
-				if (funcs[0]->getInputSize() != 1 ||
-					funcs[0]->getOutputSize() != 1) {
-						error(getPos(),
-							"Invalid transfer function in soft mask in ExtGState");
-						delete funcs[0];
-						funcs[0] = NULL;
-				}
-			}
-			obj3.free();
-			if ((haveBackdropColor = obj2.dictLookup("BC", &obj3)->isArray())) {
-				for (i = 0; i < gfxColorMaxComps; ++i) {
-					backdropColor.c[i] = 0;
-				}
-				for (i = 0; i < obj3.arrayGetLength() && i < gfxColorMaxComps; ++i) {
-					obj3.arrayGet(i, &obj4);
-					if (obj4.isNum()) {
-						backdropColor.c[i] = dblToCol(obj4.getNum());
-					}
-					obj4.free();
-				}
-			}
-			obj3.free();
-			if (obj2.dictLookup("G", &obj3)->isStream()) 
-			{
-				if (obj3.streamGetDict()->lookup("Group", &obj4)->isDict()) 
-				{
-					blendingColorSpace = NULL;
-					isolated = knockout = gFalse;
-					if (!obj4.dictLookup("CS", &obj5)->isNull()) {
-						blendingColorSpace = GfxColorSpace::parse(&obj5);
-					}
-					obj5.free();
-					if (obj4.dictLookup("I", &obj5)->isBool()) {
-						isolated = obj5.getBool();
-					}
-					obj5.free();
-					if (obj4.dictLookup("K", &obj5)->isBool()) {
-						knockout = obj5.getBool();
-					}
-					obj5.free();
-					if (!haveBackdropColor) {
-						if (blendingColorSpace) {
-							blendingColorSpace->getDefaultColor(&backdropColor);
-						} else {
-							//~ need to get the parent or default color space (?)
-							for (i = 0; i < gfxColorMaxComps; ++i) {
-								backdropColor.c[i] = 0;
-							}
-						}
-					}
-					
-					//doSoftMask(&obj3, alpha, blendingColorSpace, isolated, knockout, funcs[0], &backdropColor);
-
-					if (funcs[0]) {
-						delete funcs[0];
-					}
-				} else {
-					error(getPos(), "Invalid soft mask in ExtGState - missing group");
-				}
-				obj4.free();
-			} else {
-				error(getPos(), "Invalid soft mask in ExtGState - missing group");
-			}
-			obj3.free();
-		} else if (!obj2.isNull()) {
-			error(getPos(), "Invalid soft mask in ExtGState");
-		}
+  // soft mask
+  if (!obj1.dictLookup("SMask", &obj2)->isNull()) {
+    if (obj2.isName("None")) {
+      out->clearSoftMask(state);
+    } else if (obj2.isDict()) {
+      if (obj2.dictLookup("S", &obj3)->isName("Alpha")) {
+	alpha = gTrue;
+      } else { // "Luminosity"
+	alpha = gFalse;
+      }
+      obj3.free();
+      funcs[0] = NULL;
+      if (!obj2.dictLookup("TR", &obj3)->isNull()) {
+	funcs[0] = Function::parse(&obj3);
+	if (funcs[0]->getInputSize() != 1 ||
+	    funcs[0]->getOutputSize() != 1) {
+	  error(getPos(),
+		"Invalid transfer function in soft mask in ExtGState");
+	  delete funcs[0];
+	  funcs[0] = NULL;
 	}
-	obj2.free();
+      }
+      obj3.free();
+      if ((haveBackdropColor = obj2.dictLookup("BC", &obj3)->isArray())) {
+	for (i = 0; i < gfxColorMaxComps; ++i) {
+	  backdropColor.c[i] = 0;
+	}
+	for (i = 0; i < obj3.arrayGetLength() && i < gfxColorMaxComps; ++i) {
+	  obj3.arrayGet(i, &obj4);
+	  if (obj4.isNum()) {
+	    backdropColor.c[i] = dblToCol(obj4.getNum());
+	  }
+	  obj4.free();
+	}
+      }
+      obj3.free();
+      if (obj2.dictLookup("G", &obj3)->isStream()) {
+	if (obj3.streamGetDict()->lookup("Group", &obj4)->isDict()) {
+	  blendingColorSpace = NULL;
+	  isolated = knockout = gFalse;
+	  if (!obj4.dictLookup("CS", &obj5)->isNull()) {
+	    blendingColorSpace = GfxColorSpace::parse(&obj5);
+	  }
+	  obj5.free();
+	  if (obj4.dictLookup("I", &obj5)->isBool()) {
+	    isolated = obj5.getBool();
+	  }
+	  obj5.free();
+	  if (obj4.dictLookup("K", &obj5)->isBool()) {
+	    knockout = obj5.getBool();
+	  }
+	  obj5.free();
+	  if (!haveBackdropColor) {
+	    if (blendingColorSpace) {
+	      blendingColorSpace->getDefaultColor(&backdropColor);
+	    } else {
+	      //~ need to get the parent or default color space (?)
+	      for (i = 0; i < gfxColorMaxComps; ++i) {
+		backdropColor.c[i] = 0;
+	      }
+	    }
+	  }
+	  doSoftMask(&obj3, alpha, blendingColorSpace,
+		     isolated, knockout, funcs[0], &backdropColor);
+	  if (funcs[0]) {
+	    delete funcs[0];
+	  }
+	} else {
+	  error(getPos(), "Invalid soft mask in ExtGState - missing group");
+	}
+	obj4.free();
+      } else {
+	error(getPos(), "Invalid soft mask in ExtGState - missing group");
+      }
+      obj3.free();
+    } else if (!obj2.isNull()) {
+      error(getPos(), "Invalid soft mask in ExtGState");
+    }
+  }
+  obj2.free();
 
-	obj1.free();
+  obj1.free();
 }
 
-void Gfx::doSoftMask(Object *str, GBool alpha,	
-	GfxColorSpace *blendingColorSpace,		     
-	GBool isolated, GBool knockout,		     
-	Function *transferFunc, 
-	GfxColor *backdropColor) 
-{
-	Dict *dict, *resDict;
-	double m[6], bbox[4];
-	Object obj1, obj2;
-	int i;
+void Gfx::doSoftMask(Object *str, GBool alpha,
+		     GfxColorSpace *blendingColorSpace,
+		     GBool isolated, GBool knockout,
+		     Function *transferFunc, GfxColor *backdropColor) {
+  Dict *dict, *resDict;
+  double m[6], bbox[4];
+  Object obj1, obj2;
+  int i;
 
-	// check for excessive recursion
-	if (formDepth > 20) {
-		return;
-	}
+  // check for excessive recursion
+  if (formDepth > 20) {
+    return;
+  }
 
-	// get stream dict
-	dict = str->streamGetDict();
+  // get stream dict
+  dict = str->streamGetDict();
 
-	// check form type
-	dict->lookup("FormType", &obj1);
-	if (!(obj1.isNull() || (obj1.isInt() && obj1.getInt() == 1))) {
-		error(getPos(), "Unknown form type");
-	}
-	obj1.free();
+  // check form type
+  dict->lookup("FormType", &obj1);
+  if (!(obj1.isNull() || (obj1.isInt() && obj1.getInt() == 1))) {
+    error(getPos(), "Unknown form type");
+  }
+  obj1.free();
 
-	// get bounding box
-	dict->lookup("BBox", &obj1);
-	if (!obj1.isArray()) {
-		obj1.free();
-		error(getPos(), "Bad form bounding box");
-		return;
-	}
-	for (i = 0; i < 4; ++i) {
-		obj1.arrayGet(i, &obj2);
-		bbox[i] = obj2.getNum();
-		obj2.free();
-	}
-	obj1.free();
+  // get bounding box
+  dict->lookup("BBox", &obj1);
+  if (!obj1.isArray()) {
+    obj1.free();
+    error(getPos(), "Bad form bounding box");
+    return;
+  }
+  for (i = 0; i < 4; ++i) {
+    obj1.arrayGet(i, &obj2);
+    bbox[i] = obj2.getNum();
+    obj2.free();
+  }
+  obj1.free();
 
-	// get matrix
-	dict->lookup("Matrix", &obj1);
-	if (obj1.isArray()) {
-		for (i = 0; i < 6; ++i) {
-			obj1.arrayGet(i, &obj2);
-			m[i] = obj2.getNum();
-			obj2.free();
-		}
-	} else {
-		m[0] = 1; m[1] = 0;
-		m[2] = 0; m[3] = 1;
-		m[4] = 0; m[5] = 0;
-	}
-	obj1.free();
+  // get matrix
+  dict->lookup("Matrix", &obj1);
+  if (obj1.isArray()) {
+    for (i = 0; i < 6; ++i) {
+      obj1.arrayGet(i, &obj2);
+      m[i] = obj2.getNum();
+      obj2.free();
+    }
+  } else {
+    m[0] = 1; m[1] = 0;
+    m[2] = 0; m[3] = 1;
+    m[4] = 0; m[5] = 0;
+  }
+  obj1.free();
 
-	// get resources
-	dict->lookup("Resources", &obj1);
-	resDict = obj1.isDict() ? obj1.getDict() : (Dict *)NULL;
+  // get resources
+  dict->lookup("Resources", &obj1);
+  resDict = obj1.isDict() ? obj1.getDict() : (Dict *)NULL;
 
-	// draw it
-	++formDepth;
-	doForm1(str, resDict, m, bbox, gTrue, gTrue, blendingColorSpace, isolated, knockout, alpha, transferFunc, backdropColor);
-	--formDepth;
+  // draw it
+  ++formDepth;
+  doForm1(str, resDict, m, bbox, gTrue, gTrue,
+	  blendingColorSpace, isolated, knockout,
+	  alpha, transferFunc, backdropColor);
+  --formDepth;
 
-	if (blendingColorSpace) {
-		delete blendingColorSpace;
-	}
-	obj1.free();
+  if (blendingColorSpace) {
+    delete blendingColorSpace;
+  }
+  obj1.free();
 }
 
 void Gfx::opSetRenderingIntent(Object args[], int numArgs) {
@@ -3334,8 +3333,6 @@ void Gfx::opXObject(Object args[], int numArgs) {
   if (obj2.isName("Image")) {
     if (out->needNonText()) {
       res->lookupXObjectNF(name, &refObj);
-	  refObj.abortCheckCbk= args[numArgs].abortCheckCbk;
-	  refObj.abortCheckCbkData = args[numArgs].abortCheckCbkData;
       doImage(&refObj, obj1.getStream(), gFalse);
       refObj.free();
     }
@@ -3801,8 +3798,10 @@ void Gfx::doForm1(Object *str, Dict *resDict, double *matrix, double *bbox,
   oldParser = parser;
 
   // set form transformation matrix
-  state->concatCTM(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
-  out->updateCTM(state, matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+  state->concatCTM(matrix[0], matrix[1], matrix[2],
+		   matrix[3], matrix[4], matrix[5]);
+  out->updateCTM(state, matrix[0], matrix[1], matrix[2],
+		 matrix[3], matrix[4], matrix[5]);
 
   // set form bounding box
   state->moveTo(bbox[0], bbox[1]);
