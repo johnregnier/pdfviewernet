@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "gmem.h"
 #include "SplashErrorCodes.h"
 #include "SplashMath.h"
@@ -1912,7 +1913,10 @@ SplashError Splash::fillImageMask(SplashImageMaskSource src, void *srcData,
   xq = w % scaledWidth;
 
   // allocate pixel buffer
-  pixBuf = (SplashColorPtr)gmalloc((yp + 1) * w);
+  if (yp < 0 || yp > INT_MAX - 1) {
+    return splashErrBadArg;
+  }
+  pixBuf = (SplashColorPtr)gmallocn(yp + 1, w);
 
   // initialize the pixel pipe
   pipeInit(&pipe, 0, 0, state->fillPattern, NULL, state->fillAlpha,
@@ -2208,9 +2212,12 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
   xq = w % scaledWidth;
 
   // allocate pixel buffers
-  colorBuf = (SplashColorPtr)gmalloc((yp + 1) * w * nComps);
+  if (yp < 0 || yp > INT_MAX - 1 || w > INT_MAX / nComps) {
+    return splashErrBadArg;
+  }
+  colorBuf = (SplashColorPtr)gmallocn(yp + 1, w * nComps);
   if (srcAlpha) {
-    alphaBuf = (Guchar *)gmalloc((yp + 1) * w);
+    alphaBuf = (Guchar *)gmallocn(yp + 1, w);
   } else {
     alphaBuf = NULL;
   }
@@ -2256,7 +2263,7 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
 	}
       }
       lastYStep = yStep;
-	  
+
       // loop-invariant constants
       k1 = splashRound(xShear * ySign * y);
 
@@ -2514,25 +2521,27 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
     lastYStep = 1;
 
     for (y = 0; y < scaledHeight; ++y) {
+
 		if(abortCheckCbkA)
 		  if(abortCheckCbkA(abortCheckCbkDataA))
 			  goto _exit;
+
       // y scale Bresenham
       yStep = yp;
       yt += yq;
       if (yt >= scaledHeight) {
-			yt -= scaledHeight;
-			++yStep;
+	yt -= scaledHeight;
+	++yStep;
       }
 
       // read row(s) from image
       n = (yp > 0) ? yStep : lastYStep;
       if (n > 0) {
-			p = colorBuf;
-			for (i = 0; i < n; ++i) {
-				(*src)(srcData, p, NULL);
-				p += w * nComps;
-			}
+	p = colorBuf;
+	for (i = 0; i < n; ++i) {
+	  (*src)(srcData, p, NULL);
+	  p += w * nComps;
+	}
       }
       lastYStep = yStep;
 
@@ -2540,22 +2549,24 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
       k1 = splashRound(xShear * ySign * y);
 
       // clipping test
-      if (clipRes != splashClipAllInside &&	  !rot &&
-	  (int)(yShear * k1) ==  (int)(yShear * (xSign * (scaledWidth - 1) + k1))) {
-		if (xSign > 0) {
-			spanXMin = tx + k1;
-			spanXMax = spanXMin + (scaledWidth - 1);
-		} else {
-			spanXMax = tx + k1;
-			spanXMin = spanXMax - (scaledWidth - 1);
-		}
-		spanY = ty + ySign * y + (int)(yShear * k1);
-		clipRes2 = state->clip->testSpan(spanXMin, spanXMax, spanY);
-		if (clipRes2 == splashClipAllOutside) {
-			continue;
-		}
+      if (clipRes != splashClipAllInside &&
+	  !rot &&
+	  (int)(yShear * k1) ==
+	    (int)(yShear * (xSign * (scaledWidth - 1) + k1))) {
+	if (xSign > 0) {
+	  spanXMin = tx + k1;
+	  spanXMax = spanXMin + (scaledWidth - 1);
+	} else {
+	  spanXMax = tx + k1;
+	  spanXMin = spanXMax - (scaledWidth - 1);
+	}
+	spanY = ty + ySign * y + (int)(yShear * k1);
+	clipRes2 = state->clip->testSpan(spanXMin, spanXMax, spanY);
+	if (clipRes2 == splashClipAllOutside) {
+	  continue;
+	}
       } else {
-			clipRes2 = clipRes;
+	clipRes2 = clipRes;
       }
 
       // init x scale Bresenham
@@ -2571,7 +2582,7 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
       // change immediately after the first pixel, which is not what
       // we want
       if (yShear1 < 0) {
-			y1 += 0.999;
+	y1 += 0.999;
       }
 
       // loop-invariant constants
@@ -2583,6 +2594,10 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
       case splashModeMono8:
 	for (x = 0; x < scaledWidth; ++x) {
 
+	  if(abortCheckCbkA)
+		  if(abortCheckCbkA(abortCheckCbkDataA))
+			  goto _exit;
+		  
 	  // x scale Bresenham
 	  xStep = xp;
 	  xt += xq;
@@ -2638,10 +2653,7 @@ SplashError Splash::drawImage(SplashImageSource src, void *srcData,
       case splashModeRGB8:
       case splashModeBGR8:
 	for (x = 0; x < scaledWidth; ++x) {
-	  if(abortCheckCbkA)
-		  if(abortCheckCbkA(abortCheckCbkDataA))
-			  goto _exit;
-		  
+
 	  // x scale Bresenham
 	  xStep = xp;
 	  xt += xq;
