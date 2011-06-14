@@ -9,8 +9,8 @@
   End Sub
 
   Private Sub Button1_Click_1(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
-    PdfViewer1.SelectFile()
     SetupRenderer()
+    PdfViewer1.SelectFile()
   End Sub
 
   Private Sub rbXPDF_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles rbXPDF.CheckedChanged, rbMuPDF.CheckedChanged
@@ -27,8 +27,8 @@
     Else
       PdfViewer1.UseXPDF = False
       PdfViewer1.UseMuPDF = False
+      PdfViewer1.FileName = PdfViewer1.FileName
     End If
-    PdfViewer1.FileName = PdfViewer1.FileName
   End Sub
 
   Private Sub btOCR_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btOCR.Click
